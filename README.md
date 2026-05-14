@@ -1,4 +1,4 @@
-# NANDbox — Boolean Logic Simulator
+# [NANDbox](https://jleescy.github.io/NANDbox) — Boolean Logic Simulator
 
 > *Note:* This repository has been migrated from a previous project (SNEEZYlogic - now private) to encourage better issue tracking, cleaner commits, and cleaner code.
 
