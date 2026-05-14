@@ -225,7 +225,8 @@ function serializeCircuit() {
         wireArr.push({
             id: id,
             src: w.n1 ? w.n1.dom.id : null,
-            dst: w.n2 ? w.n2.dom.id : null
+            dst: w.n2 ? w.n2.dom.id : null,
+            bends: w.bends || null
         })
     }
     return { version: '0.2.0', components: compArr, wires: wireArr }
@@ -466,6 +467,12 @@ function loadCircuit(data, append) {
         let e = connectors[dstId]
         let wId = 'w' + wireId
         wires[wId] = new Wire(wId, s, e, e.parent)
+        if (wEntry.bends) {
+            wires[wId].bends = wEntry.bends.map(b => ({
+                x: b.x + offsetX,
+                y: b.y + offsetY
+            }))
+        }
         let sComp = components[s.parent.dom.id]
         if (sComp) sComp.addOut = wires[wId]
         components[e.parent.dom.id]['i' + e.loc] = wires[wId]
@@ -1068,6 +1075,7 @@ function applyGridForTheme() {
 
 // ===== ELEMENT DRAGGING (reposition placed components) =====
 let dragState = { active: false, compId: null, offsetX: 0, offsetY: 0, lastX: 0, lastY: 0 }
+let wireDragState = { active: false, wireId: null, segIndex: -1, isHorizontal: false, startX: 0, startY: 0, originalBends: null }
 
 function enableComponentDrag(dom, compId) {
     let body = dom.querySelector('.body') || dom
@@ -1086,7 +1094,158 @@ function enableComponentDrag(dom, compId) {
     })
 }
 
+document.addEventListener('pointerdown', (e) => {
+    if (navMode !== 1) return
+    if (e.target.classList && e.target.classList.contains('wire-hit')) {
+        e.stopPropagation()
+        let wireId = e.target.dataset.wireId
+        let wire = wires[wireId]
+        if (!wire) return
+
+        let rect = sim.getBoundingClientRect()
+        let mx = (e.clientX - rect.left) / scale
+        let my = (e.clientY - rect.top) / scale
+        
+        let pts = wire.getPoints(scale)
+        if (!wire.bends || wire.bends.length === 0) {
+            // Reconstruct bends from default route
+            wire.bends = pts.slice(1, pts.length - 1)
+        }
+        
+        // Find closest segment
+        let minDist = Infinity
+        let segIndex = -1
+        let isHoriz = false
+        
+        for (let i = 0; i < pts.length - 1; i++) {
+            let A = pts[i], B = pts[i+1]
+            let dist = Infinity
+            let horiz = Math.abs(A.y - B.y) < Math.abs(A.x - B.x)
+            if (horiz) {
+                if (mx >= Math.min(A.x, B.x) - 15 && mx <= Math.max(A.x, B.x) + 15) {
+                    dist = Math.abs(my - A.y)
+                }
+            } else {
+                if (my >= Math.min(A.y, B.y) - 15 && my <= Math.max(A.y, B.y) + 15) {
+                    dist = Math.abs(mx - A.x)
+                }
+            }
+            if (dist < minDist) {
+                minDist = dist
+                segIndex = i
+                isHoriz = horiz
+            }
+        }
+        
+        if (segIndex !== -1) {
+            wireDragState = {
+                active: true,
+                wireId: wireId,
+                segIndex: segIndex,
+                isHorizontal: isHoriz,
+                startX: mx,
+                startY: my,
+                originalBends: JSON.parse(JSON.stringify(wire.bends)),
+                isHold: true,
+                holdTimeout: setTimeout(() => {
+                    if (wireDragState.active && wireDragState.isHold && wireDragState.wireId === wireId) {
+                        wire.bends = null;
+                        if (wire.dom && wire.dom.parentElement) {
+                            wire.updatePath(scale);
+                        } else {
+                            wire.render(scale);
+                            sim.appendChild(wire.dom);
+                        }
+                        wireDragState.active = false;
+                        wireDragState.wireId = null;
+                    }
+                }, 500)
+            }
+        }
+    }
+})
+
 document.addEventListener('pointermove', (e) => {
+    // Wire dragging
+    if (wireDragState.active && navMode === 1) {
+        let wire = wires[wireDragState.wireId]
+        if (!wire) return
+        
+        let rect = sim.getBoundingClientRect()
+        let mx = (e.clientX - rect.left) / scale
+        let my = (e.clientY - rect.top) / scale
+        
+        if (snapToGrid) {
+            mx = Math.round(mx / 20) * 20
+            my = Math.round(my / 20) * 20
+        }
+        
+        let origBends = wireDragState.originalBends
+        let newBends = JSON.parse(JSON.stringify(origBends))
+        let i = wireDragState.segIndex
+
+        if (wireDragState.isHold) {
+            if (Math.abs(mx - wireDragState.startX) > 5 || Math.abs(my - wireDragState.startY) > 5) {
+                wireDragState.isHold = false;
+                clearTimeout(wireDragState.holdTimeout);
+            } else {
+                return; // Wait until moved enough
+            }
+        }
+        
+        let p1 = wire._getConnectorPos(wire.n1.dom, scale)
+        let p2 = wire._getConnectorPos(wire.n2.dom, scale)
+        let ptsCount = origBends.length + 2
+        let snapDist = 10
+        
+        if (wireDragState.isHorizontal) {
+            let newY = my
+            let distToP1 = Math.abs(newY - p1.y)
+            let distToP2 = Math.abs(newY - p2.y)
+            if (distToP1 < snapDist && distToP1 <= distToP2) {
+                newY = p1.y
+            } else if (distToP2 < snapDist) {
+                newY = p2.y
+            }
+
+            if (i === 0) {
+                newBends.unshift({x: p1.x, y: newY})
+                if (newBends.length > 1) newBends[1].y = newY
+                if (i + 1 === ptsCount - 1) newBends.push({x: p2.x, y: newY})
+            } else if (i + 1 === ptsCount - 1) {
+                newBends[i - 1].y = newY
+                newBends.push({x: p2.x, y: newY})
+            } else {
+                newBends[i - 1].y = newY
+                newBends[i].y = newY
+            }
+        } else {
+            let newX = mx
+            let distToP1 = Math.abs(newX - p1.x)
+            let distToP2 = Math.abs(newX - p2.x)
+            if (distToP1 < snapDist && distToP1 <= distToP2) {
+                newX = p1.x
+            } else if (distToP2 < snapDist) {
+                newX = p2.x
+            }
+
+            if (i === 0) {
+                newBends.unshift({x: newX, y: p1.y})
+                if (newBends.length > 1) newBends[1].x = newX
+                if (i + 1 === ptsCount - 1) newBends.push({x: newX, y: p2.y})
+            } else if (i + 1 === ptsCount - 1) {
+                newBends[i - 1].x = newX
+                newBends.push({x: newX, y: p2.y})
+            } else {
+                newBends[i - 1].x = newX
+                newBends[i].x = newX
+            }
+        }
+        
+        wire.bends = newBends
+        wire.updatePath(scale)
+    }
+
     // Element dragging (with group support)
     if (dragState.active && navMode === 1) {
         let dx = (e.clientX - dragState.lastX) / scale
@@ -1141,6 +1300,42 @@ document.addEventListener('pointermove', (e) => {
 })
 
 document.addEventListener('pointerup', (e) => {
+    // End wire dragging
+    if (wireDragState.active) {
+        if (wireDragState.isHold) {
+            clearTimeout(wireDragState.holdTimeout)
+        }
+        let wire = wires[wireDragState.wireId]
+        if (wire && wire.bends && wire.bends.length > 0) {
+            let p1 = wire._getConnectorPos(wire.n1.dom, scale)
+            let p2 = wire._getConnectorPos(wire.n2.dom, scale)
+            let fullPts = [p1, ...wire.bends, p2]
+            let cleanedPts = [fullPts[0]]
+            for (let j = 1; j < fullPts.length - 1; j++) {
+                let prev = cleanedPts[cleanedPts.length - 1]
+                let curr = fullPts[j]
+                let next = fullPts[j + 1]
+                let isCollinear = (Math.abs(prev.x - curr.x) < 1 && Math.abs(curr.x - next.x) < 1) || 
+                                  (Math.abs(prev.y - curr.y) < 1 && Math.abs(curr.y - next.y) < 1)
+                let isDuplicate = (Math.abs(prev.x - curr.x) < 1 && Math.abs(prev.y - curr.y) < 1)
+                if (!isCollinear && !isDuplicate) {
+                    cleanedPts.push(curr)
+                }
+            }
+            let lastPrev = cleanedPts[cleanedPts.length - 1]
+            let lastCurr = fullPts[fullPts.length - 1]
+            if (!(Math.abs(lastPrev.x - lastCurr.x) < 1 && Math.abs(lastPrev.y - lastCurr.y) < 1)) {
+                cleanedPts.push(lastCurr)
+            }
+            wire.bends = cleanedPts.length > 2 ? cleanedPts.slice(1, cleanedPts.length - 1) : null
+            if (wire.dom && wire.dom.parentElement) {
+                wire.updatePath(scale)
+            }
+        }
+        wireDragState.active = false
+        wireDragState.wireId = null
+    }
+
     // End element dragging
     if (dragState.active) {
         let comp = components[dragState.compId]
@@ -1189,7 +1384,80 @@ document.addEventListener('pointerup', (e) => {
     updateSettingsPanel()
 })
 
-document.addEventListener('dblclick', () => {
+document.addEventListener('dblclick', (e) => {
+    if (navMode === 1 && e.target.classList && e.target.classList.contains('wire-hit')) {
+        // Cancel any pending drag or hold state
+        if (wireDragState.active) {
+            if (wireDragState.isHold) clearTimeout(wireDragState.holdTimeout)
+            wireDragState.active = false
+            wireDragState.wireId = null
+        }
+
+        let wireId = e.target.dataset.wireId
+        let wire = wires[wireId]
+        if (wire) {
+            let rect = sim.getBoundingClientRect()
+            let mx = (e.clientX - rect.left) / scale
+            let my = (e.clientY - rect.top) / scale
+            
+            let pts = wire.getPoints(scale)
+            if (!wire.bends || wire.bends.length === 0) {
+                wire.bends = pts.slice(1, pts.length - 1)
+            }
+            
+            // Find closest segment
+            let minDist = Infinity
+            let segIndex = -1
+            let isHoriz = false
+            
+            for (let i = 0; i < pts.length - 1; i++) {
+                let A = pts[i], B = pts[i+1]
+                let dist = Infinity
+                let horiz = Math.abs(A.y - B.y) < Math.abs(A.x - B.x)
+                if (horiz) {
+                    if (mx >= Math.min(A.x, B.x) - 15 && mx <= Math.max(A.x, B.x) + 15) {
+                        dist = Math.abs(my - A.y)
+                    }
+                } else {
+                    if (my >= Math.min(A.y, B.y) - 15 && my <= Math.max(A.y, B.y) + 15) {
+                        dist = Math.abs(mx - A.x)
+                    }
+                }
+                if (dist < minDist) {
+                    minDist = dist
+                    segIndex = i
+                    isHoriz = horiz
+                }
+            }
+            
+            if (segIndex !== -1) {
+                let newBends = []
+                let p1 = wire._getConnectorPos(wire.n1.dom, scale)
+                let p2 = wire._getConnectorPos(wire.n2.dom, scale)
+                if (isHoriz) {
+                    let segmentY = pts[segIndex].y
+                    newBends = [
+                        {x: p1.x, y: segmentY},
+                        {x: p2.x, y: segmentY}
+                    ]
+                } else {
+                    let segmentX = pts[segIndex].x
+                    newBends = [
+                        {x: segmentX, y: p1.y},
+                        {x: segmentX, y: p2.y}
+                    ]
+                }
+                wire.bends = newBends
+                if (wire.dom && wire.dom.parentElement) {
+                    wire.updatePath(scale)
+                } else {
+                    wire.render(scale)
+                    sim.appendChild(wire.dom)
+                }
+            }
+        }
+        return
+    }
     updateSettingsPanel()
 })
 
@@ -1202,10 +1470,12 @@ function rerenderWiresForComponent(compId) {
         let srcId = wire.n1.parent.dom.id
         let dstId = wire.n2.parent.dom.id
         if (srcId == compId || dstId == compId) {
-            let oldDom = wire.dom
-            if (oldDom && oldDom.parentElement) oldDom.parentElement.removeChild(oldDom)
-            wire.render(scale)
-            sim.appendChild(wire.dom)
+            if (wire.dom && wire.dom.parentElement) {
+                wire.updatePath(scale)
+            } else {
+                wire.render(scale)
+                sim.appendChild(wire.dom)
+            }
         }
     }
 }
