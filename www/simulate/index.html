@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en" style="height:100%;margin:0">
+    <head>
+        <title>NANDbox — Simulate</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="Build and simulate boolean logic circuits with gates, flip-flops, clocks, LEDs, and 7-segment displays.">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+        <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+        <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+        <script src='https://unpkg.com/panzoom@9.4.0/dist/panzoom.min.js'></script>
+        <link href="../css/index.css" rel="stylesheet">
+        <link href="../css/shapes.css" rel="stylesheet">
+        <link rel="stylesheet" media="screen" href="https://fontlibrary.org//face/segment7" type="text/css"/>
+    </head>
+    <body style="height:100%;margin:0;background-color:var(--bg-primary)">
+        <div id="main" style="display:flex;height:100%;flex-flow:column">
+        <!-- Compact Toolbar -->
+        <nav id="navbar">
+            <div class="tb-brand">
+                <a href="../" class="tb-logo">NAND<span class="accent">box</span></a>
+            </div>
+            <div class="tb-tools">
+                <div class="tb-group">
+                    <button id="pan-button" class="tb-btn tb-mode" onclick="mode(0)" title="Pan (scroll to zoom)">
+                        <img src="../images/other/pan.svg" class="tb-icon" draggable="false">
+                        <span class="tb-label">Pan</span>
+                    </button>
+                    <button id="edit-button" class="tb-btn tb-mode active" onclick="mode(1)" title="Edit circuit">
+                        <img src="../images/other/cursor.svg" class="tb-icon" draggable="false">
+                        <span class="tb-label">Edit</span>
+                    </button>
+                </div>
+                <div class="tb-divider"></div>
+                <div class="tb-group">
+                    <button class="tb-btn" onclick="trash()" title="Delete all">
+                        <img src="../images/other/trash.svg" class="tb-icon" draggable="false">
+                        <span class="tb-label">Clear</span>
+                    </button>
+                    <button class="tb-btn" onclick="toggleSettings()" title="Settings">
+                        <img src="../images/other/settings.svg" class="tb-icon" draggable="false">
+                        <span class="tb-label">Settings</span>
+                    </button>
+                    <button class="tb-btn" onclick="help()" title="Help">
+                        <img src="../images/other/help.svg" class="tb-icon" draggable="false">
+                        <span class="tb-label">Help</span>
+                    </button>
+                </div>
+                <div class="tb-divider"></div>
+                <div class="tb-group">
+                    <button class="tb-btn" onclick="save()" title="Export circuit as JSON">
+                        <span class="tb-emoji">💾</span>
+                        <span class="tb-label">Export</span>
+                    </button>
+                    <button class="tb-btn" onclick="load()" title="Import circuit from JSON">
+                        <span class="tb-emoji">📂</span>
+                        <span class="tb-label">Import</span>
+                    </button>
+                    <button class="tb-btn" onclick="openLibrary()" title="Pre-made circuits">
+                        <span class="tb-emoji">📚</span>
+                        <span class="tb-label">Library</span>
+                    </button>
+                </div>
+            </div>
+            <div class="tb-right">
+                <span class="tb-version">v0.2.0</span>
+            </div>
+        </nav>
+
+        <div id="body" class="editor-body">
+            <div id='dropwindow' style="overflow:hidden;z-index:0;position:relative">
+                <div id="simulation-window" style="z-index:-1;position:relative;width:10000px;height:10000px">
+                    <!-- Clean canvas — no test components -->
+                </div>
+                <!-- Status bar -->
+                <div id="status-bar" style="display: flex; align-items: center; gap: 15px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span id="status-zoom" style="min-width: 80px;">Zoom: 100%</span>
+                        <input type="range" id="zoom-slider" min="0.2" max="3.0" step="0.05" value="1.0" style="width: 100px;">
+                    </div>
+                    <button class="tb-btn" onclick="recenterView()" style="border:1px solid rgba(255,255,255,0.15);padding:2px 8px;font-size:12px">Recenter</button>
+                </div>
+                <!-- Selection rectangle for multi-select -->
+                <div id="selection-box" style="display:none;position:fixed;border:2px dashed var(--accent);background:rgba(227,80,80,0.08);z-index:50;pointer-events:none"></div>
+            </div>
+            <div id="drawer-backdrop" class="drawer-backdrop" onclick="toggleDrawer()"></div>
+            <div id="side-panel" class="drawer">
+                <div class="components-menu" style="padding: 10px; display: flex; flex-direction: column; gap: 20px;">
+                    <div class="menu-group">
+                        <h4 class="menu-header" style="font-size: 16px; text-transform: uppercase; color: #222; border-bottom: 2px solid #222; padding-bottom: 4px; margin-bottom: 12px; font-family: 'JetBrains Mono', monospace; font-weight: bold;">Inputs</h4>
+                        <div class="menu-items">
+                            <div style="display:grid;grid-template-columns:1fr 1fr; gap:12px">
+                                <div id='button-item' style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px">
+                                    <div class="draggable" id="button" style="margin:auto" draggable="true">
+                                        <div class="body button low"></div>
+                                    </div>
+                                    <div style="font-size: 15px;color: #222">Button</div>
+                                </div>
+                                <div id="switch-item" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px">
+                                    <div class="draggable" id="switch" style="margin:auto" draggable="true">
+                                        <div class="body switch low">
+                                            <div class='top'></div><div class='bottom'></div>
+                                        </div>
+                                    </div>
+                                    <div style="font-size: 15px;color: #222">Switch</div>
+                                </div>
+                                <div id="vcc-item" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px">
+                                    <div class="draggable" id="vcc" style="margin:auto" draggable="true">
+                                        <div class="body const high">1</div>
+                                    </div>
+                                    <div style="font-size: 15px;color: #222">High</div>
+                                </div>
+                                <div id="gnd-item" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px">
+                                    <div class="draggable" id="gnd" style="margin:auto" draggable="true">
+                                        <div class="body const low">0</div>
+                                    </div>
+                                    <div style="font-size: 15px;color: #222">Low</div>
+                                </div>
+                                <div id="clock-item" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px">
+                                    <div class="draggable" id="clock" style="margin:auto" draggable="true">
+                                        <div class="body clock-body low">
+                                            <span class="clock-pulse">▼</span>
+                                            <span class="clock-label">CLK</span>
+                                        </div>
+                                    </div>
+                                    <div style="font-size: 15px;color: #222">Clock</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="menu-group">
+                        <h4 class="menu-header" style="font-size: 16px; text-transform: uppercase; color: #222; border-bottom: 2px solid #222; padding-bottom: 4px; margin-bottom: 12px; font-family: 'JetBrains Mono', monospace; font-weight: bold;">Outputs</h4>
+                        <div class="menu-items">
+                            <div style="display:grid;grid-template-columns: 1fr 1fr; gap:12px">
+                                <div id='led-item' style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px">
+                                    <div class="draggable" id="led" style="margin:auto" draggable="true">
+                                        <div class="body led low"></div>
+                                    </div>
+                                    <div style="font-size: 15px;color: #222">LED</div>
+                                </div>
+                                <div id='seg7-item' style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px">
+                                    <div class="seg7 draggable" style="margin:auto;position:relative;grid-template-columns:65px;width:65px" draggable="true">
+                                        <div class="display">0</div>
+                                    </div>
+                                    <div style="font-size: 15px;color: #222">7-Segment</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="menu-group">
+                        <h4 class="menu-header" style="font-size: 16px; text-transform: uppercase; color: #222; border-bottom: 2px solid #222; padding-bottom: 4px; margin-bottom: 12px; font-family: 'JetBrains Mono', monospace; font-weight: bold;">Gates</h4>
+                        <div class="menu-items">
+                            <div style="display:grid;grid-template-columns: 1fr 1fr; gap:12px">
+                                <div id='not-gate' style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px">
+                                    <div id="not" style="margin:auto"><img class='draggable' src="../images/gates/NOT.svg" style="height:50px" draggable="true"/></div>
+                                    <div style="font-size: 15px;color: #222">NOT</div>
+                                </div>
+                                <div id="and-gate" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px">
+                                    <div id="and" style="margin:auto"><img class='draggable' src="../images/gates/AND.svg" style="height:50px" draggable="true"/></div>
+                                    <div style="font-size: 15px;color: #222">AND</div>
+                                </div>
+                                <div id="or-gate" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px">
+                                    <div id="or" style="margin:auto"><img class='draggable' src="../images/gates/OR.svg" style="height:50px" draggable="true"/></div>
+                                    <div style="font-size: 15px;color: #222">OR</div>
+                                </div>
+                                <div id='nand-gate' style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px">
+                                    <div id="nand" style="margin:auto"><img class="draggable" src="../images/gates/NAND.svg" style="height:50px" draggable="true"/></div>
+                                    <div style="font-size: 15px;color: #222">NAND</div>
+                                </div>
+                                <div id="nor-gate" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px">
+                                    <div id="nor" style="margin:auto"><img class="draggable" src="../images/gates/NOR.svg" style="height:50px" draggable="true"/></div>
+                                    <div style="font-size: 15px;color: #222">NOR</div>
+                                </div>
+                                <div id="xor-gate" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px">
+                                    <div id="xor" style="margin:auto"><img class="draggable" src="../images/gates/XOR.svg" style="height:50px" draggable='true'/></div>
+                                    <div style="font-size: 15px;color: #222">XOR</div>
+                                </div>
+                                <div id="xnor-gate" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px" draggable='false'>
+                                    <div id="xnor" style="margin:auto"><img class="draggable" src="../images/gates/XNOR.svg" style="height:50px" draggable="true"/></div>
+                                    <div style="font-size: 15px;color: #222">XNOR</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="menu-group">
+                        <h4 class="menu-header" style="font-size: 16px; text-transform: uppercase; color: #222; border-bottom: 2px solid #222; padding-bottom: 4px; margin-bottom: 12px; font-family: 'JetBrains Mono', monospace; font-weight: bold;">Flip Flops</h4>
+                        <div class="menu-items">
+                            <div style="display:grid;grid-template-columns: 1fr 1fr; gap:12px">
+                                
+                                <div id="dff-item" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px" draggable='false'>
+                                    <div id="dff" style="margin:auto"><img class='draggable' src="../images/flipflops/DFF.svg" style="width:100px" draggable="true"/></div>
+                                    <div style="font-size: 15px;color: #222">D Flip Flop</div>
+                                </div>
+                                <div id="srff-item" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px" draggable='false'>
+                                    <div id="srff" style="margin:auto"><img class='draggable' src="../images/flipflops/SRFF.svg" style="width:100px" draggable="true"/></div>
+                                    <div style="font-size: 15px;color: #222">SR Flip Flop</div>
+                                </div>
+                                <div id="tff-item" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px" draggable='false'>
+                                    <div id="tff" style="margin:auto"><img class='draggable' src="../images/flipflops/TFF.svg" style="width:100px" draggable="true"/></div>
+                                    <div style="font-size: 15px;color: #222">T Flip Flop</div>
+                                </div>
+                                <div id="jkff-item" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px" draggable='false'>
+                                    <div id="jkff" style="margin:auto"><img class='draggable' src="../images/flipflops/JKFF.svg" style="width:100px" draggable="true"/></div>
+                                    <div style="font-size: 15px;color: #222">JK Flip Flop</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="menu-group">
+                        <h4 class="menu-header" style="font-size: 16px; text-transform: uppercase; color: #222; border-bottom: 2px solid #222; padding-bottom: 4px; margin-bottom: 12px; font-family: 'JetBrains Mono', monospace; font-weight: bold;">Other</h4>
+                        <div class="menu-items">
+                            <div style="display:grid;grid-template-columns: 1fr 1fr; gap:12px">
+                                <div id="label-item" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px" draggable='false'>
+                                    <div class="label draggable" style="margin:auto;position:relative;font-size:10pt" draggable="true">NANDlabel</div>
+                                    <div style="font-size: 15px;color: #222">Label</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile FAB to toggle component drawer -->
+        <button id="mobile-fab" class="mobile-fab" onclick="toggleDrawer()" title="Components">+</button>
+
+
+
+        <!-- Settings Modal -->
+        <div id="settings-overlay" class="modal-overlay" style="display:none" onclick="if(event.target===this)toggleSettings()">
+            <div class="modal-box" style="width:420px">
+                <h3 class="modal-title">⚙ Settings</h3>
+
+                <div class="modal-field">
+                    <label class="modal-label">Simulation Speed (ticks/sec)</label>
+                    <div style="display:flex;align-items:center;gap:10px">
+                        <input id="set-tickrate-range" type="range" min="1" max="120" value="60" style="flex:1"
+                            oninput="document.getElementById('set-tickrate-num').value=this.value;engine.tickRate=+this.value">
+                        <input id="set-tickrate-num" type="number" min="1" max="120" value="60" class="modal-input"
+                            oninput="let v=Math.max(1,Math.min(120,+this.value||1));document.getElementById('set-tickrate-range').value=v;engine.tickRate=v">
+                    </div>
+                </div>
+
+                <div class="modal-field">
+                    <label class="modal-label">Canvas Theme</label>
+                    <select id="set-theme" class="modal-input" onchange="applyTheme(this.value)">
+                        <option value="light" selected>Light</option>
+                        <option value="dark">Dark</option>
+                        <option value="blueprint">Blueprint</option>
+                    </select>
+                </div>
+
+
+                <div class="modal-field">
+                    <label class="modal-check">
+                        <input id="set-snap" type="checkbox" onchange="toggleSnap(this.checked)">
+                        Snap to Grid
+                    </label>
+                </div>
+
+                <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:14px;margin-top:8px">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <label class="modal-label" style="margin:0">Signal Colors</label>
+                        <button class="tb-btn" style="font-size:10px;border:1px solid rgba(255,255,255,0.15);padding:2px 6px;" onclick="restoreDefaultColors()">Restore Defaults</button>
+                    </div>
+                    <div id="signal-color-pickers" style="display:flex;flex-direction:column;gap:12px;margin-top:12px">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:14px;margin-top:12px">
+                    <p style="font-size:11px;color:#636b7e;margin:0">
+                        <strong>Tips:</strong> Right-click or double-tap a component to open its individual settings.
+                        Drag components to reposition. Drag on empty canvas to multi-select.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Component Settings Floating Panel -->
+        <div id="comp-settings-panel" class="floating-panel" style="display:none">
+            <h3 class="modal-title" id="comp-settings-title" style="margin-top: 0;">Component Settings</h3>
+            <div id="comp-settings-body"></div>
+            <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
+                <button class="tb-btn" style="border:1px solid rgba(255,255,255,0.15);padding:6px 16px" onclick="closeCompSettings()">Close</button>
+            </div>
+        </div>
+
+        <!-- Library Modal -->
+        <div id="library-overlay" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeLibrary()">
+            <div class="modal-box" style="width:520px">
+                <h3 class="modal-title">📚 Circuit Library</h3>
+                <p style="font-size:12px;color:#636b7e;margin:0 0 16px">Click a circuit to load it onto the canvas.</p>
+                <div id="library-cards" style="display:grid;grid-template-columns:1fr 1fr;gap:12px"></div>
+                <script>
+                    document.addEventListener('DOMContentLoaded', () => {
+                        let container = document.getElementById('library-cards')
+                        if (!container) return
+                        fetch('../library/index.json').then(r => r.json()).then(index => {
+                            for (let lib of index) {
+                                let card = document.createElement('div')
+                                card.className = 'library-card'
+                                card.onclick = () => loadLibraryCircuit(lib.file)
+                                card.innerHTML = '<div class="library-card-title">' + lib.name + '</div>' +
+                                    '<div class="library-card-desc">' + (lib.description || '') + '</div>' +
+                                    '<div class="library-card-meta">' + lib.componentsCount + ' components · ' + lib.wiresCount + ' wires</div>'
+                                container.appendChild(card)
+                            }
+                        }).catch(e => console.error('Failed to load library index:', e))
+                    })
+                </script>
+            </div>
+        </div>
+        <script src="../js/engine.js"></script>
+        <script src="../js/connector.js"></script>
+        <script src="../js/input.js"></script>
+        <script src="../js/clock.js"></script>
+        <script src="../js/light.js"></script>
+        <script src="../js/wire.js"></script>
+        <script src="../js/gate.js"></script>
+        <script src="../js/label.js"></script>
+        <script src="../js/7Seg.js"></script>
+        <script src="../js/flipflop.js"></script>
+        <script src="../js/index.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+    </body>
+</html>

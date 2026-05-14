@@ -1,0 +1,9 @@
+[
+    {
+        "name": "3-Bit Adder",
+        "file": "3_bit_adder_7seg.json",
+        "description": "3-Bit Adder with 7-Segment Display",
+        "componentsCount": 23,
+        "wiresCount": 24
+    }
+]

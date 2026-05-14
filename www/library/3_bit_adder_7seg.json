@@ -1,0 +1,416 @@
+{
+  "version": "0.2.0",
+  "components": [
+    {
+      "id": "0",
+      "type": "switch",
+      "category": "input",
+      "x": 21.671875,
+      "y": 87.82421875,
+      "rotation": 90,
+      "connectorIds": {
+        "nOut": "c0"
+      }
+    },
+    {
+      "id": "1",
+      "type": "switch",
+      "category": "input",
+      "x": 81.671875,
+      "y": 87.82421875,
+      "rotation": 90,
+      "connectorIds": {
+        "nOut": "c1"
+      }
+    },
+    {
+      "id": "2",
+      "type": "switch",
+      "category": "input",
+      "x": 141.671875,
+      "y": 87.82421875,
+      "rotation": 90,
+      "connectorIds": {
+        "nOut": "c2"
+      }
+    },
+    {
+      "id": "3",
+      "type": "switch",
+      "category": "input",
+      "x": 241.671875,
+      "y": 87.82421875,
+      "rotation": 90,
+      "connectorIds": {
+        "nOut": "c3"
+      }
+    },
+    {
+      "id": "4",
+      "type": "switch",
+      "category": "input",
+      "x": 301.671875,
+      "y": 87.82421875,
+      "rotation": 90,
+      "connectorIds": {
+        "nOut": "c4"
+      }
+    },
+    {
+      "id": "5",
+      "type": "switch",
+      "category": "input",
+      "x": 361.671875,
+      "y": 87.82421875,
+      "rotation": 90,
+      "connectorIds": {
+        "nOut": "c5"
+      }
+    },
+    {
+      "id": "8",
+      "type": "xor",
+      "category": "gate",
+      "x": 625.515625,
+      "y": 101,
+      "rotation": 0,
+      "inputDelay": 0,
+      "outputDelay": 0,
+      "connectorIds": {
+        "n1": "c12",
+        "n2": "c13",
+        "nOut": "c14"
+      }
+    },
+    {
+      "id": "9",
+      "type": "xor",
+      "category": "gate",
+      "x": 625.515625,
+      "y": 161,
+      "rotation": 0,
+      "inputDelay": 0,
+      "outputDelay": 0,
+      "connectorIds": {
+        "n1": "c15",
+        "n2": "c16",
+        "nOut": "c17"
+      }
+    },
+    {
+      "id": "10",
+      "type": "xor",
+      "category": "gate",
+      "x": 425.515625,
+      "y": 141,
+      "rotation": 0,
+      "inputDelay": 0,
+      "outputDelay": 0,
+      "connectorIds": {
+        "n1": "c18",
+        "n2": "c19",
+        "nOut": "c20"
+      }
+    },
+    {
+      "id": "11",
+      "type": "xor",
+      "category": "gate",
+      "x": 625.515625,
+      "y": 261,
+      "rotation": 0,
+      "inputDelay": 0,
+      "outputDelay": 0,
+      "connectorIds": {
+        "n1": "c21",
+        "n2": "c22",
+        "nOut": "c23"
+      }
+    },
+    {
+      "id": "12",
+      "type": "xor",
+      "category": "gate",
+      "x": 425.515625,
+      "y": 261,
+      "rotation": 0,
+      "inputDelay": 0,
+      "outputDelay": 0,
+      "connectorIds": {
+        "n1": "c24",
+        "n2": "c25",
+        "nOut": "c26"
+      }
+    },
+    {
+      "id": "13",
+      "type": "and",
+      "category": "gate",
+      "x": 425.515625,
+      "y": 201,
+      "rotation": 0,
+      "inputDelay": 0,
+      "outputDelay": 0,
+      "connectorIds": {
+        "n1": "c27",
+        "n2": "c28",
+        "nOut": "c29"
+      }
+    },
+    {
+      "id": "14",
+      "type": "and",
+      "category": "gate",
+      "x": 425.515625,
+      "y": 321,
+      "rotation": 0,
+      "inputDelay": 0,
+      "outputDelay": 0,
+      "connectorIds": {
+        "n1": "c30",
+        "n2": "c31",
+        "nOut": "c32"
+      }
+    },
+    {
+      "id": "15",
+      "type": "and",
+      "category": "gate",
+      "x": 425.515625,
+      "y": 401,
+      "rotation": 0,
+      "inputDelay": 0,
+      "outputDelay": 0,
+      "connectorIds": {
+        "n1": "c33",
+        "n2": "c34",
+        "nOut": "c35"
+      }
+    },
+    {
+      "id": "16",
+      "type": "and",
+      "category": "gate",
+      "x": 425.515625,
+      "y": 461,
+      "rotation": 0,
+      "inputDelay": 0,
+      "outputDelay": 0,
+      "connectorIds": {
+        "n1": "c36",
+        "n2": "c37",
+        "nOut": "c38"
+      }
+    },
+    {
+      "id": "17",
+      "type": "or",
+      "category": "gate",
+      "x": 625.515625,
+      "y": 421,
+      "rotation": 0,
+      "inputDelay": 0,
+      "outputDelay": 0,
+      "connectorIds": {
+        "n1": "c39",
+        "n2": "c40",
+        "nOut": "c41"
+      }
+    },
+    {
+      "id": "18",
+      "type": "seg7",
+      "x": 865.515625,
+      "y": 181,
+      "rotation": 0,
+      "connectorIds": {
+        "n1": "c42",
+        "n2": "c43",
+        "n3": "c44",
+        "n4": "c45"
+      }
+    },
+    {
+      "id": "19",
+      "type": "label",
+      "category": "label",
+      "x": 21.671875,
+      "y": 27.82421875,
+      "rotation": 0,
+      "text": "A2",
+      "connectorIds": {}
+    },
+    {
+      "id": "20",
+      "type": "label",
+      "category": "label",
+      "x": 81.671875,
+      "y": 27.82421875,
+      "rotation": 0,
+      "text": "A1",
+      "connectorIds": {}
+    },
+    {
+      "id": "21",
+      "type": "label",
+      "category": "label",
+      "x": 141.671875,
+      "y": 27.82421875,
+      "rotation": 0,
+      "text": "A0",
+      "connectorIds": {}
+    },
+    {
+      "id": "22",
+      "type": "label",
+      "category": "label",
+      "x": 241.671875,
+      "y": 27.82421875,
+      "rotation": 0,
+      "text": "B2",
+      "connectorIds": {}
+    },
+    {
+      "id": "23",
+      "type": "label",
+      "category": "label",
+      "x": 301.671875,
+      "y": 27.82421875,
+      "rotation": 0,
+      "text": "B1",
+      "connectorIds": {}
+    },
+    {
+      "id": "24",
+      "type": "label",
+      "category": "label",
+      "x": 361.671875,
+      "y": 27.82421875,
+      "rotation": 0,
+      "text": "B0",
+      "connectorIds": {}
+    }
+  ],
+  "wires": [
+    {
+      "id": "w0",
+      "src": "c5",
+      "dst": "c12"
+    },
+    {
+      "id": "w1",
+      "src": "c2",
+      "dst": "c13"
+    },
+    {
+      "id": "w2",
+      "src": "c14",
+      "dst": "c42"
+    },
+    {
+      "id": "w3",
+      "src": "c17",
+      "dst": "c43"
+    },
+    {
+      "id": "w4",
+      "src": "c20",
+      "dst": "c15"
+    },
+    {
+      "id": "w5",
+      "src": "c29",
+      "dst": "c16"
+    },
+    {
+      "id": "w6",
+      "src": "c1",
+      "dst": "c18"
+    },
+    {
+      "id": "w7",
+      "src": "c4",
+      "dst": "c19"
+    },
+    {
+      "id": "w8",
+      "src": "c2",
+      "dst": "c27"
+    },
+    {
+      "id": "w9",
+      "src": "c5",
+      "dst": "c28"
+    },
+    {
+      "id": "w10",
+      "src": "c23",
+      "dst": "c44"
+    },
+    {
+      "id": "w11",
+      "src": "c26",
+      "dst": "c21"
+    },
+    {
+      "id": "w12",
+      "src": "c32",
+      "dst": "c22"
+    },
+    {
+      "id": "w13",
+      "src": "c35",
+      "dst": "c39"
+    },
+    {
+      "id": "w14",
+      "src": "c38",
+      "dst": "c40"
+    },
+    {
+      "id": "w15",
+      "src": "c41",
+      "dst": "c45"
+    },
+    {
+      "id": "w16",
+      "src": "c0",
+      "dst": "c24"
+    },
+    {
+      "id": "w17",
+      "src": "c3",
+      "dst": "c25"
+    },
+    {
+      "id": "w18",
+      "src": "c1",
+      "dst": "c30"
+    },
+    {
+      "id": "w19",
+      "src": "c4",
+      "dst": "c31"
+    },
+    {
+      "id": "w20",
+      "src": "c26",
+      "dst": "c33"
+    },
+    {
+      "id": "w21",
+      "src": "c32",
+      "dst": "c34"
+    },
+    {
+      "id": "w22",
+      "src": "c0",
+      "dst": "c36"
+    },
+    {
+      "id": "w23",
+      "src": "c3",
+      "dst": "c37"
+    }
+  ]
+}

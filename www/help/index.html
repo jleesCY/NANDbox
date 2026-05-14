@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>NANDbox — Help</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="Help documentation for the NANDbox boolean logic simulator.">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        <link href="../css/index.css" rel="stylesheet">
+        <style>
+            body {
+                background: var(--bg-primary);
+                color: var(--text-primary);
+                font-family: 'Inter', sans-serif;
+                min-height: 100vh;
+                padding: 0;
+            }
+            .help-container {
+                max-width: 720px;
+                margin: 0 auto;
+                padding: 40px 24px 80px;
+            }
+            .help-header {
+                text-align: center;
+                margin-bottom: 48px;
+            }
+            .help-header h1 {
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 32px;
+                font-weight: 800;
+                margin: 0;
+            }
+            .help-header h1 span {
+                background: var(--accent-gradient);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+            .help-section {
+                margin-bottom: 32px;
+            }
+            .help-section h2 {
+                font-size: 14px;
+                font-weight: 600;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                color: var(--accent);
+                margin-bottom: 16px;
+                padding-bottom: 8px;
+                border-bottom: 1px solid var(--border-light);
+            }
+            .help-section ul {
+                list-style: none;
+                padding: 0;
+            }
+            .help-section li {
+                padding: 10px 16px;
+                margin-bottom: 6px;
+                background: var(--bg-secondary);
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                font-size: 14px;
+                color: var(--text-secondary);
+                line-height: 1.5;
+                display: flex;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            .help-section li strong {
+                color: var(--text-primary);
+                min-width: 100px;
+                flex-shrink: 0;
+            }
+            .help-icon {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 35px;
+                height: 35px;
+                border-radius: 5px;
+                border: 2px solid var(--border-light);
+                flex-shrink: 0;
+                background-size: 22px;
+                background-repeat: no-repeat;
+                background-position: center;
+                filter: brightness(0) invert(0.6);
+            }
+            .help-item-row {
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                padding: 10px 16px;
+                margin-bottom: 6px;
+                background: var(--bg-secondary);
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                font-size: 14px;
+                color: var(--text-secondary);
+            }
+            .back-link {
+                display: inline-block;
+                margin-top: 32px;
+                color: var(--accent);
+                text-decoration: none;
+                font-weight: 500;
+                font-size: 14px;
+                transition: var(--transition);
+            }
+            .back-link:hover {
+                color: #ff6b6b;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="help-container">
+            <div class="help-header">
+                <h1>NAND<span>box</span></h1>
+            </div>
+
+            <div class="help-section">
+                <h2>Getting Started</h2>
+                <ul>
+                    <li><strong>Add Parts</strong> In EDIT mode, drag components from the side panel onto the canvas</li>
+                    <li><strong>Connect</strong> Click a connector (circle), then click another — a wire is created</li>
+                    <li><strong>Interact</strong> Click buttons/switches to toggle, click clock to pause/resume</li>
+                    <li><strong>Move</strong> Drag a component's body to reposition it on the canvas</li>
+                </ul>
+            </div>
+
+            <div class="help-section">
+                <h2>Side Panel</h2>
+                <ul>
+                    <li><strong>Collapsing</strong> Click any category header to collapse/expand that section</li>
+                    <li><strong>Adding</strong> While in EDIT mode, drag components from the side panel to the workspace</li>
+                    <li><strong>Activating</strong> While in EDIT mode, click input components to activate them</li>
+                </ul>
+            </div>
+
+            <div class="help-section">
+                <h2>Toolbar</h2>
+                <div class="help-item-row">
+                    <div class="help-icon" style='background-image:url("../images/other/pan.svg")'></div>
+                    <span><strong>Pan</strong> — Enables workspace panning and scrolling. Circuit interaction disabled</span>
+                </div>
+                <div class="help-item-row">
+                    <div class="help-icon" style='background-image:url("../images/other/cursor.svg")'></div>
+                    <span><strong>Edit</strong> — Enables circuit editing, wiring, dragging, and interaction</span>
+                </div>
+                <div class="help-item-row">
+                    <div class="help-icon" style='background-image:url("../images/other/trash.svg")'></div>
+                    <span><strong>Delete All</strong> — Deletes the entire circuit after confirmation</span>
+                </div>
+                <div class="help-item-row">
+                    <div class="help-icon" style='background-image:url("../images/other/help.svg")'></div>
+                    <span><strong>Help</strong> — Opens this help page</span>
+                </div>
+                <div class="help-item-row">
+                    <div class="help-icon" style='background-image:url("../images/other/settings.svg")'></div>
+                    <span><strong>Settings</strong> — Simulation speed, canvas theme, grid toggle</span>
+                </div>
+                <ul>
+                    <li><strong>💾 Export</strong> Downloads the current circuit as a <code>.nandbox.json</code> file</li>
+                    <li><strong>📂 Import</strong> Loads a previously exported circuit from a JSON file</li>
+                    <li><strong>📚 Library</strong> Opens the pre-made circuit library (SR Latch, Half Adder, etc.)</li>
+                </ul>
+            </div>
+
+            <div class="help-section">
+                <h2>Mouse Controls</h2>
+                <ul>
+                    <li><strong>Panning</strong> While in PAN mode, click and drag to pan the circuit</li>
+                    <li><strong>Zooming</strong> While in PAN mode, scroll to zoom in and out</li>
+                    <li><strong>Inputs</strong> While in EDIT mode, click input components to activate them</li>
+                    <li><strong>Wiring</strong> In EDIT mode, click two connectors to wire them. Invalid connections are rejected</li>
+                    <li><strong>Selecting</strong> Double-click a component to select it for deletion</li>
+                    <li><strong>Multi-Select</strong> In EDIT mode, drag on empty canvas to draw a selection box</li>
+                    <li><strong>Group Drag</strong> When dragging a selected component, all selected components move together</li>
+                    <li><strong>Repositioning</strong> Drag any component's body to move it. Wires follow automatically</li>
+                    <li><strong>Gate Delays</strong> Right-click any gate to set individual input/output delay (in ticks)</li>
+                </ul>
+            </div>
+
+            <div class="help-section">
+                <h2>Keyboard Shortcuts</h2>
+                <ul>
+                    <li><strong>Delete / ⌫</strong> Delete selected component(s) and their wires</li>
+                    <li><strong>Ctrl+Click</strong> Hold Ctrl to keep existing selections when clicking</li>
+                </ul>
+            </div>
+
+            <div class="help-section">
+                <h2>Components</h2>
+                <ul>
+                    <li><strong>Button</strong> Momentary input — HIGH only while held</li>
+                    <li><strong>Switch</strong> Toggle input — click to flip between HIGH and LOW</li>
+                    <li><strong>VCC / GND</strong> Constant HIGH (1) and LOW (0) sources</li>
+                    <li><strong>Clock</strong> Auto-toggling input. Click to pause/resume. Drives flip-flop clock inputs</li>
+                    <li><strong>LED</strong> Visual output — lights up red when HIGH, gray when LOW</li>
+                    <li><strong>7-Segment</strong> 4-bit BCD display — shows digits 0–F</li>
+                    <li><strong>Label</strong> Text annotation — double-click to edit text</li>
+                </ul>
+            </div>
+
+            <div class="help-section">
+                <h2>Gates</h2>
+                <ul>
+                    <li><strong>NOT</strong> Inverts input: 0→1, 1→0</li>
+                    <li><strong>AND</strong> Output HIGH only when both inputs HIGH</li>
+                    <li><strong>OR</strong> Output HIGH when either input HIGH</li>
+                    <li><strong>NAND</strong> Inverted AND — LOW only when both inputs HIGH</li>
+                    <li><strong>NOR</strong> Inverted OR — HIGH only when both inputs LOW</li>
+                    <li><strong>XOR</strong> Output HIGH when inputs differ</li>
+                    <li><strong>XNOR</strong> Output HIGH when inputs match</li>
+                </ul>
+            </div>
+
+            <div class="help-section">
+                <h2>Flip-Flops</h2>
+                <ul>
+                    <li><strong>T Flip-Flop</strong> On rising clock edge: T=1 toggles Q, T=0 holds Q</li>
+                    <li><strong>JK Flip-Flop</strong> On rising clock edge: J=1,K=0 sets; J=0,K=1 resets; J=K=1 toggles; J=K=0 holds</li>
+                </ul>
+            </div>
+
+            <div class="help-section">
+                <h2>Settings</h2>
+                <ul>
+                    <li><strong>Sim Speed</strong> Adjustable from 1 to 120 ticks/second (default: 60)</li>
+                    <li><strong>Theme</strong> Light (default), Dark, or Blueprint canvas background</li>
+                    <li><strong>Grid</strong> Toggle the canvas grid on/off — grid scales with zoom</li>
+                </ul>
+            </div>
+
+            <div class="help-section">
+                <h2>Status Bar</h2>
+                <ul>
+                    <li><strong>Zoom</strong> Current zoom level displayed as percentage (bottom-left)</li>
+                    <li><strong>Coordinates</strong> Real-time cursor position on the canvas (X, Y)</li>
+                </ul>
+            </div>
+
+            <div class="help-section">
+                <h2>Signal Colors</h2>
+                <ul>
+                    <li><strong style="color:#ff4b4b">● Red</strong> HIGH signal (logic 1)</li>
+                    <li><strong style="color:#636e7a">● Gray</strong> LOW signal (logic 0)</li>
+                    <li><strong style="color:#2ecc71">● Green</strong> Floating / unconnected</li>
+                </ul>
+            </div>
+
+            <a href="../simulate" class="back-link">← Back to Simulator</a>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+    </body>
+</html>

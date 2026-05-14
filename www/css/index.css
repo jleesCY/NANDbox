@@ -1,0 +1,481 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+/* ===== CSS Variables ===== */
+:root {
+    --bg-primary: #0f1117;
+    --bg-secondary: #1a1d27;
+    --bg-tertiary: #252836;
+    --bg-elevated: #2d3142;
+    --bg-surface: rgba(37, 40, 54, 0.85);
+
+    --text-primary: #e8eaed;
+    --text-secondary: #9aa0b0;
+    --text-muted: #636b7e;
+
+    --accent: #e35050;
+    --accent-glow: rgba(227, 80, 80, 0.4);
+    --accent-soft: rgba(227, 80, 80, 0.15);
+    --accent-gradient: var(--accent);
+
+    --signal-high: #ff4b4b;
+    --signal-low: #636e7a;
+    --signal-float: #2ecc71;
+
+    --border: rgba(255, 255, 255, 0.06);
+    --border-light: rgba(255, 255, 255, 0.1);
+
+    --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== Global Resets ===== */
+* { box-sizing: border-box; }
+
+body {
+    background: var(--bg-primary);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    user-select: none;
+    color: var(--text-primary);
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-secondary); }
+::-webkit-scrollbar-thumb { background: var(--bg-elevated); }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ==========================================================
+   TOOLBAR
+   ========================================================== */
+#navbar {
+    background: #000;
+    border-bottom: 2px solid var(--accent);
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    height: 48px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1000;
+    gap: 12px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+}
+
+.tb-brand {
+    flex-shrink: 0;
+}
+.tb-logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 800;
+    font-size: 18px;
+    color: #fff;
+    text-decoration: none;
+}
+.tb-logo span {
+    color: var(--accent);
+    font-size: 16px;
+}
+.tb-logo:hover { color: #fff; }
+
+.tb-tools {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+}
+
+.tb-group {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.tb-divider {
+    width: 1px;
+    height: 24px;
+    background: rgba(255,255,255,0.15);
+    margin: 0 6px;
+    flex-shrink: 0;
+}
+
+.tb-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 8px;
+    height: 34px;
+    background: transparent;
+    border: 1px solid transparent;
+    color: rgba(255,255,255,0.6);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.tb-btn:hover {
+    color: #fff;
+    border-color: rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.05);
+}
+.tb-btn:active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+}
+
+/* Active mode button */
+.tb-btn.tb-mode.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+}
+
+.tb-icon {
+    width: 18px;
+    height: 18px;
+    filter: brightness(0) invert(1);
+    opacity: 0.8;
+}
+.tb-btn:hover .tb-icon,
+.tb-btn.active .tb-icon {
+    opacity: 1;
+}
+
+.tb-emoji {
+    font-size: 16px;
+    line-height: 1;
+}
+
+.tb-right {
+    flex-shrink: 0;
+    margin-left: auto;
+}
+.tb-version {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* ==========================================================
+   EDITOR BODY LAYOUT
+   ========================================================== */
+.editor-body {
+    height: 100%;
+    display: grid;
+    grid-template-columns: 1fr 250px;
+    flex: 1 1 auto;
+    overflow: hidden;
+    position: relative;
+}
+
+/* ==========================================================
+   CANVAS
+   ========================================================== */
+#dropwindow {
+    background: #ddd;
+    position: relative;
+}
+
+/* Grid pattern removed */
+#simulation-window {
+}
+
+/* ==========================================================
+   STATUS BAR
+   ========================================================== */
+#status-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    gap: 16px;
+    padding: 5px 12px;
+    background: #000;
+    border: 1px solid var(--accent);
+    border-left: none;
+    border-bottom: none;
+    z-index: 100;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: rgba(255,255,255,0.75);
+    user-select: none;
+}
+
+/* ==========================================================
+   SIDE PANEL / DRAWER
+   ========================================================== */
+#side-panel {
+    background: #e8e9ee;
+    border-left: 2px solid #999;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+    z-index: 1000;
+}
+
+.drawer-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
+}
+
+/* Component cards in panel */
+.menu-header {
+    font-size: 14px;
+    text-transform: uppercase;
+    color: #555;
+    border-bottom: 2px solid #555;
+    padding-bottom: 4px;
+    margin-bottom: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: bold;
+}
+
+.menu-items .draggable {
+    transition: var(--transition);
+    cursor: grab;
+    padding: 4px;
+}
+.menu-items .draggable:hover {
+    transform: scale(1.08);
+}
+.menu-items .draggable:active {
+    cursor: grabbing;
+    transform: scale(0.95);
+}
+
+/* ==========================================================
+   FLOATING PANEL
+   ========================================================== */
+.floating-panel {
+    position: fixed;
+    bottom: 40px;
+    right: 20px;
+    width: auto;
+    min-width: 320px;
+    max-width: 90vw;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-sizing: border-box;
+    background: #000;
+    border: 2px solid var(--accent);
+    padding: 20px;
+    z-index: 1000;
+    font-family: 'JetBrains Mono', monospace;
+    color: #fff;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+/* ==========================================================
+   MOBILE & RESPONSIVE
+   ========================================================== */
+.mobile-fab {
+    display: none; /* Hidden on desktop */
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    background: var(--accent);
+    color: #fff;
+    border: 2px solid #fff;
+    font-size: 30px;
+    font-weight: 300;
+    font-family: 'JetBrains Mono', monospace;
+    cursor: pointer;
+    z-index: 1000;
+    transition: all 0.2s ease;
+    line-height: 1;
+}
+.mobile-fab:active {
+    transform: scale(0.9);
+}
+.mobile-fab.open {
+    transform: rotate(45deg);
+    background: #fff;
+    color: var(--accent);
+}
+
+/* ==========================================================
+   MODALS
+   ========================================================== */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.modal-box {
+    background: #000;
+    border: 2px solid var(--accent);
+    padding: 28px 32px;
+    max-height: 80vh;
+    overflow-y: auto;
+    color: #e8eaed;
+    max-width: calc(100vw - 32px);
+}
+.modal-title {
+    margin: 0 0 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+}
+.modal-field {
+    margin-bottom: 16px;
+}
+.modal-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #9aa0b0;
+    display: block;
+    margin-bottom: 6px;
+}
+.modal-input {
+    background: #1a1d27;
+    color: #e8eaed;
+    border: 1px solid rgba(255,255,255,0.15);
+    padding: 6px 10px;
+    font-size: 15px;
+    font-family: 'JetBrains Mono', monospace;
+    width: auto;
+}
+.modal-input:focus {
+    outline: 1px solid var(--accent);
+    border-color: var(--accent);
+}
+.modal-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #9aa0b0;
+    cursor: pointer;
+}
+.modal-check input {
+    accent-color: var(--accent);
+}
+
+/* ==========================================================
+   LIBRARY CARDS
+   ========================================================== */
+.library-card {
+    background: #111;
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.library-card:hover {
+    border-color: var(--accent);
+    background: #1a1d27;
+}
+.library-card-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #e8eaed;
+}
+.library-card-desc {
+    font-size: 13px;
+    color: #636b7e;
+    line-height: 1.4;
+}
+.library-card-meta {
+    font-size: 12px;
+    color: #4a5068;
+    margin-top: 8px;
+}
+
+/* ==========================================================
+   WIRE
+   ========================================================== */
+.wire {
+    pointer-events: none;
+}
+
+/* ==========================================================
+   RESPONSIVE — MOBILE (<768px)
+   ========================================================== */
+@media (max-width: 768px) {
+    /* Toolbar: hide labels, shrink */
+    .tb-label { display: none; }
+    .tb-btn { padding: 4px 6px; }
+    .tb-version { display: none; }
+    .tb-logo { font-size: 16px; }
+    .tb-logo span { font-size: 14px; }
+    #navbar { gap: 6px; padding: 0 8px; height: 44px; }
+
+    /* Layout: full-width canvas */
+    .editor-body {
+        grid-template-columns: 1fr;
+    }
+
+    /* Side panel becomes a drawer */
+    #side-panel {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 280px;
+        z-index: 1001;
+        transform: translateX(100%);
+        transition: transform 0.25s ease;
+        border-left: 2px solid var(--accent);
+        box-shadow: -4px 0 20px rgba(0,0,0,0.3);
+    }
+    #side-panel.open {
+        transform: translateX(0);
+    }
+
+    .drawer-backdrop.open {
+        display: block;
+    }
+
+    /* Show FAB on mobile */
+    .mobile-fab {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Status bar: smaller */
+    #status-bar {
+        font-size: 11px;
+        padding: 3px 8px;
+        gap: 10px;
+    }
+
+    /* Modal: full width on small screens */
+    .modal-box {
+        width: calc(100vw - 24px) !important;
+        max-height: 85vh;
+        padding: 20px;
+    }
+
+    /* Library: single column on mobile */
+    #library-cards {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* Medium screens — hide some labels */
+@media (max-width: 1024px) and (min-width: 769px) {
+    .tb-label { font-size: 11px; }
+    .editor-body {
+        grid-template-columns: 1fr 220px;
+    }
+}
