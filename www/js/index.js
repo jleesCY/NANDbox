@@ -151,8 +151,145 @@ let updateMode = () => {
     }
 }
 
-let undo = () => { }
-let redo = () => { }
+// ===== UNDO / REDO =====
+let historyStack = []
+let historyIndex = -1
+let historyMax = 50
+let historyIgnore = false  // flag to prevent snapshot when restoring
+
+function pushHistory() {
+    if (historyIgnore) return
+    let snapshot = JSON.stringify(serializeCircuit())
+    // Trim future states if we're not at the end
+    historyStack = historyStack.slice(0, historyIndex + 1)
+    historyStack.push(snapshot)
+    if (historyStack.length > historyMax) historyStack.shift()
+    historyIndex = historyStack.length - 1
+}
+
+function restoreHistory(snapshot) {
+    historyIgnore = true
+    // Clear current circuit
+    for (let id of Object.keys(components)) engine.unregisterComponent(id)
+    for (let id of Object.keys(wires)) engine.unregisterWire(id)
+    for (let id of Object.keys(connectors)) engine.unregisterConnector(id)
+    components = {}; connectors = {}; wires = {}
+    elementId = 0; connectorId = 0; wireId = 0
+    sim.innerHTML = ''
+    let data = JSON.parse(snapshot)
+    loadCircuit(data, false)
+    historyIgnore = false
+}
+
+let undo = () => {
+    if (historyIndex <= 0) return
+    historyIndex--
+    restoreHistory(historyStack[historyIndex])
+}
+
+let redo = () => {
+    if (historyIndex >= historyStack.length - 1) return
+    historyIndex++
+    restoreHistory(historyStack[historyIndex])
+}
+
+// ===== COPY / PASTE / CUT =====
+let clipboard = null
+let pasteCount = 0  // increments to offset successive pastes
+
+function copySelection() {
+    let selectedIds = Object.keys(components).filter(id => components[id].selected)
+    if (selectedIds.length === 0) return
+    let selectedSet = new Set(selectedIds.map(id => String(id)))
+
+    let compArr = []
+    for (let id of selectedIds) {
+        let comp = components[id]
+        let cat = categories[comp.getType || comp.type]
+        let entry = {
+            id: id,
+            type: comp.getType || comp.type,
+            category: cat,
+            x: comp.x,
+            y: comp.y,
+            rotation: comp.rotation || 0
+        }
+        if (entry.type === '7seg') entry.type = 'seg7'
+        if (comp instanceof Gate) {
+            entry.inputDelay = comp.inputDelay || 0
+            entry.outputDelay = comp.outputDelay || 0
+        }
+        if (comp instanceof Clock) {
+            entry.period = comp.period
+            entry.running = comp.running
+        }
+        if (comp instanceof Light && comp.lightColor) entry.lightColor = comp.lightColor
+        if (comp instanceof Seg7 && comp.displayColor) entry.displayColor = comp.displayColor
+        if (comp instanceof Label) entry.text = comp.dom.innerText
+        entry.connectorIds = {}
+        if (comp.n1 && comp.n1.dom) entry.connectorIds.n1 = comp.n1.dom.id
+        if (comp.n2 && comp.n2 !== comp.n1 && comp.n2.dom) entry.connectorIds.n2 = comp.n2.dom.id
+        if (comp.nOut && comp.nOut.dom) entry.connectorIds.nOut = comp.nOut.dom.id
+        if (comp.nQ && comp.nQ.dom) entry.connectorIds.nQ = comp.nQ.dom.id
+        if (comp.nQNot && comp.nQNot.dom) entry.connectorIds.nQNot = comp.nQNot.dom.id
+        if (comp.nC && comp.nC.dom) entry.connectorIds.nC = comp.nC.dom.id
+        if (entry.type === 'seg7') {
+            entry.connectorIds.n1 = comp.n1 ? comp.n1.dom.id : null
+            entry.connectorIds.n2 = comp.n2 ? comp.n2.dom.id : null
+            entry.connectorIds.n3 = comp.n3 ? comp.n3.dom.id : null
+            entry.connectorIds.n4 = comp.n4 ? comp.n4.dom.id : null
+        }
+        compArr.push(entry)
+    }
+
+    // Only include wires where BOTH endpoints are in the selection
+    let wireArr = []
+    for (let wid of Object.keys(wires)) {
+        let w = wires[wid]
+        if (!w || !w.n1 || !w.n2) continue
+        let srcCompId = String(w.n1.parent.dom.id)
+        let dstCompId = String(w.n2.parent.dom.id)
+        if (selectedSet.has(srcCompId) && selectedSet.has(dstCompId)) {
+            wireArr.push({
+                id: wid,
+                src: w.n1.dom.id,
+                dst: w.n2.dom.id,
+                bends: w.bends ? JSON.parse(JSON.stringify(w.bends)) : null
+            })
+        }
+    }
+
+    clipboard = { version: '0.2.0', components: compArr, wires: wireArr }
+    pasteCount = 0
+}
+
+function cutSelection() {
+    let selectedIds = Object.keys(components).filter(id => components[id].selected)
+    if (selectedIds.length === 0) return
+    copySelection()
+    for (let id of selectedIds) deleteComponent(id)
+    pushHistory()
+    updateSettingsPanel()
+}
+
+function pasteSelection() {
+    if (!clipboard) return
+    // Deselect current selection
+    for (let id of Object.keys(components)) components[id].deselect()
+    pasteCount++
+    let offset = 30 * pasteCount
+    // Deep copy and apply offset from original positions
+    let data = JSON.parse(JSON.stringify(clipboard))
+    for (let c of data.components) { c.x += offset; c.y += offset }
+    for (let w of data.wires) {
+        if (w.bends) {
+            for (let b of w.bends) { b.x += offset; b.y += offset }
+        }
+    }
+    loadCircuit(data, true)
+    pushHistory()
+}
+
 let mode = (m) => { if (navMode != m) { navMode = m; updateMode() } }
 
 // ===== EXPORT (save) =====
@@ -491,6 +628,7 @@ function loadCircuit(data, append) {
         }
     }
     updateMode()
+    pushHistory()
 }
 
 // ===== LIBRARY =====
@@ -524,6 +662,7 @@ let trash = () => {
         components = {}; connectors = {}; wires = {}
         elementId = 0; connectorId = 0; wireId = 0
         refresh()
+        pushHistory()
     }
 }
 
@@ -618,6 +757,7 @@ $(function () {
                 if (components[id].selected) toDelete.push(id)
             }
             for (let id of toDelete) deleteComponent(id)
+            if (toDelete.length > 0) pushHistory()
             updateSettingsPanel()
         }
     })
@@ -625,13 +765,45 @@ $(function () {
     window.onkeyup = function (e) { pressedKeys[e.keyCode] = false }
     window.onkeydown = function (e) {
         pressedKeys[e.keyCode] = true
+        // Ignore shortcuts if typing in input
+        if (e.target.tagName.toLowerCase() === 'input' || e.target.tagName.toLowerCase() === 'textarea') return
         // Ctrl+S → export
         if ((e.ctrlKey || e.metaKey) && e.key === 's') {
             e.preventDefault()
             save()
         }
+        // Ctrl+Z → undo, Ctrl+Shift+Z / Ctrl+Y → redo
+        if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+            e.preventDefault()
+            undo()
+        }
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'Z' || e.key === 'y')) {
+            e.preventDefault()
+            redo()
+        }
+        // Ctrl+C → copy, Ctrl+V → paste
+        if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
+            e.preventDefault()
+            copySelection()
+        }
+        if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
+            e.preventDefault()
+            pasteSelection()
+        }
+        // Ctrl+X → cut
+        if ((e.ctrlKey || e.metaKey) && e.key === 'x') {
+            e.preventDefault()
+            cutSelection()
+        }
+        // Ctrl+A → select all
+        if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+            e.preventDefault()
+            for (let id of Object.keys(components)) components[id].select()
+        }
     }
     updateMode()
+    // Push initial empty state for undo
+    pushHistory()
 })
 
 let refresh = () => {
@@ -730,6 +902,7 @@ document.addEventListener('click', (event) => {
                 wireId += 1
                 wireOrigin = null; drawWire = false
                 s.deselect(); e.deselect()
+                pushHistory()
             } else {
                 s.deselect(); e.select(); wireOrigin = event.target
             }
@@ -981,6 +1154,7 @@ dropzone.addEventListener('drop', (event) => {
             elementId++
         }
     }
+    pushHistory()
 })
 
 instance.on('transform', () => {
@@ -1376,6 +1550,7 @@ document.addEventListener('pointerup', (e) => {
         }
         wireDragState.active = false
         wireDragState.wireId = null
+        pushHistory()
     }
 
     // End element dragging
@@ -1399,6 +1574,7 @@ document.addEventListener('pointerup', (e) => {
         justDragged = true
         dragState.active = false
         dragState.compId = null
+        pushHistory()
     }
 
     // End multi-select
@@ -1768,6 +1944,7 @@ function rotateComponent(compId, angle, reset) {
     if (rotDisplay) rotDisplay.textContent = comp.rotation + '°'
     // Re-render wires connected to this component
     rerenderWiresForComponent(compId)
+    pushHistory()
 }
 
 // ===== RIGHT-CLICK / DOUBLE-TAP → COMPONENT SETTINGS =====

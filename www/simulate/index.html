@@ -34,6 +34,32 @@
                 </div>
                 <div class="tb-divider"></div>
                 <div class="tb-group">
+                    <button class="tb-btn" onclick="undo()" title="Undo (Ctrl+Z)">
+                        <span class="tb-emoji">↩</span>
+                        <span class="tb-label">Undo</span>
+                    </button>
+                    <button class="tb-btn" onclick="redo()" title="Redo (Ctrl+Shift+Z)">
+                        <span class="tb-emoji">↪</span>
+                        <span class="tb-label">Redo</span>
+                    </button>
+                </div>
+                <div class="tb-divider"></div>
+                <div class="tb-group">
+                    <button class="tb-btn" onclick="copySelection()" title="Copy (Ctrl+C)">
+                        <span class="tb-emoji">📋</span>
+                        <span class="tb-label">Copy</span>
+                    </button>
+                    <button class="tb-btn" onclick="cutSelection()" title="Cut (Ctrl+X)">
+                        <span class="tb-emoji">✂️</span>
+                        <span class="tb-label">Cut</span>
+                    </button>
+                    <button class="tb-btn" onclick="pasteSelection()" title="Paste (Ctrl+V)">
+                        <span class="tb-emoji">📌</span>
+                        <span class="tb-label">Paste</span>
+                    </button>
+                </div>
+                <div class="tb-divider"></div>
+                <div class="tb-group">
                     <button class="tb-btn" onclick="trash()" title="Delete all">
                         <img src="../images/other/trash.svg" class="tb-icon" draggable="false">
                         <span class="tb-label">Clear</span>
