@@ -79,10 +79,13 @@ class Wire {
         let p2 = this._getConnectorPos(this.n2.dom, scale)
 
         if (this.bends && this.bends.length > 0) {
+            // Work on copies to avoid mutating stored bends
+            let adjusted = this.bends.map(b => ({x: b.x, y: b.y}))
+
             // Auto-align the first bend to p1 to maintain orthogonal line
-            let b0 = this.bends[0]
-            if (this.bends.length > 1) {
-                let b1 = this.bends[1]
+            let b0 = adjusted[0]
+            if (adjusted.length > 1) {
+                let b1 = adjusted[1]
                 if (Math.abs(b0.x - b1.x) < 3) {
                     b0.y = p1.y // b0-b1 is vertical, align b0 horizontally to p1
                 } else {
@@ -91,21 +94,21 @@ class Wire {
             }
 
             // Auto-align the last bend to p2 to maintain orthogonal line
-            let bLast = this.bends[this.bends.length - 1]
-            if (this.bends.length > 1) {
-                let bPrev = this.bends[this.bends.length - 2]
+            let bLast = adjusted[adjusted.length - 1]
+            if (adjusted.length > 1) {
+                let bPrev = adjusted[adjusted.length - 2]
                 if (Math.abs(bLast.x - bPrev.x) < 3) {
                     bLast.y = p2.y
                 } else {
                     bLast.x = p2.x
                 }
-            } else if (this.bends.length === 1) {
+            } else if (adjusted.length === 1) {
                  // For a single bend, ensure it maintains a right angle
                  if (Math.abs(b0.x - p1.x) < 3) b0.y = p2.y
                  else b0.x = p2.x
             }
 
-            return [p1, ...this.bends, p2]
+            return [p1, ...adjusted, p2]
         }
 
         let dx = p2.x - p1.x

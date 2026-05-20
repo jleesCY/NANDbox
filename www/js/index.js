@@ -65,6 +65,7 @@ let mousedown = false
 let drawWire = false
 let wireOrigin = null
 let justBoxSelected = false  // prevents click from deselecting after box-select
+let justDragged = false      // prevents click from deselecting after drag
 
 let sim = document.querySelector("#simulation-window")
 let instance = panzoom(sim, { smoothScroll: false, zoomSpeed: zoom, minZoom: 0.2, maxZoom: 3.0 })
@@ -255,6 +256,7 @@ let load = () => {
 }
 
 function loadCircuit(data, append) {
+    let newCompIds = []  // Track new component IDs for auto-selection on import
     if (!append) {
         // Clear current circuit
         for (let id of Object.keys(components)) engine.unregisterComponent(id)
@@ -455,6 +457,7 @@ function loadCircuit(data, append) {
         }
         enableComponentDrag(component, newElemId)
         sim.appendChild(component)
+        newCompIds.push(newElemId)
         elementId++
     }
 
@@ -480,6 +483,12 @@ function loadCircuit(data, append) {
         sim.appendChild(wires[wId].dom)
         engine.registerWire(wId, wires[wId])
         wireId++
+    }
+    // Select all newly imported components for easy repositioning
+    if (append) {
+        for (let id of newCompIds) {
+            if (components[id]) components[id].select()
+        }
     }
     updateMode()
 }
@@ -651,35 +660,48 @@ document.querySelector("#side-panel").addEventListener('pointerdown', () => { in
 document.addEventListener('click', (event) => {
     if (navMode == 0) instance.resume()
 
-    // Skip deselection if we just finished a box-select
+    // Skip deselection if we just finished a box-select or a drag
     if (justBoxSelected) { justBoxSelected = false; return }
+    if (justDragged) { justDragged = false; return }
 
     if (!pressedKeys[17] && event.y > document.querySelector("#navbar").getBoundingClientRect().height) {
+        // Check if click is on any selected component — if so, keep selection
+        let clickedOnSelected = false
         for (let id of Object.keys(components)) {
             let comp = components[id]
             let compDom = comp.getDom || comp.dom
-            if (event.target != compDom) {
-                comp.deselect()
-                let cat = categories[comp.getType || comp.type]
-                if (!event.target.classList.value.includes('connector')) {
-                    if (cat === 'gate') {
-                        if (comp.n1) comp.n1.deselect()
-                        if (comp.n2) comp.n2.deselect()
-                        if (comp.nOut) comp.nOut.deselect()
-                    } else if (cat === 'input' || cat === 'light') {
-                        let n = comp.getN || comp.nOut || comp.n1
-                        if (n) n.deselect()
-                    } else if (cat === 'flipflop') {
-                        if (comp.n1) comp.n1.deselect()
-                        if (comp.n2 && comp.n2 !== comp.n1) comp.n2.deselect()
-                        if (comp.nC) comp.nC.deselect()
-                        if (comp.nQ) comp.nQ.deselect()
-                        if (comp.nQNot) comp.nQNot.deselect()
-                    } else if (comp.type === '7seg') {
-                        if (comp.n1) comp.n1.deselect()
-                        if (comp.n2) comp.n2.deselect()
-                        if (comp.n3) comp.n3.deselect()
-                        if (comp.n4) comp.n4.deselect()
+            if (comp.selected && compDom.contains(event.target)) {
+                clickedOnSelected = true
+                break
+            }
+        }
+        if (!clickedOnSelected) {
+            for (let id of Object.keys(components)) {
+                let comp = components[id]
+                let compDom = comp.getDom || comp.dom
+                if (event.target != compDom) {
+                    comp.deselect()
+                    let cat = categories[comp.getType || comp.type]
+                    if (!event.target.classList.value.includes('connector')) {
+                        if (cat === 'gate') {
+                            if (comp.n1) comp.n1.deselect()
+                            if (comp.n2) comp.n2.deselect()
+                            if (comp.nOut) comp.nOut.deselect()
+                        } else if (cat === 'input' || cat === 'light') {
+                            let n = comp.getN || comp.nOut || comp.n1
+                            if (n) n.deselect()
+                        } else if (cat === 'flipflop') {
+                            if (comp.n1) comp.n1.deselect()
+                            if (comp.n2 && comp.n2 !== comp.n1) comp.n2.deselect()
+                            if (comp.nC) comp.nC.deselect()
+                            if (comp.nQ) comp.nQ.deselect()
+                            if (comp.nQNot) comp.nQNot.deselect()
+                        } else if (comp.type === '7seg') {
+                            if (comp.n1) comp.n1.deselect()
+                            if (comp.n2) comp.n2.deselect()
+                            if (comp.n3) comp.n3.deselect()
+                            if (comp.n4) comp.n4.deselect()
+                        }
                     }
                 }
             }
@@ -1280,6 +1302,26 @@ document.addEventListener('pointermove', (e) => {
             }
             dom.style.left = drawX + 'px'
             dom.style.top = drawY + 'px'
+        }
+
+        // Translate bends for wires where BOTH endpoints are being moved,
+        // so the wire shape stays visually identical during group drags.
+        let toMoveSet = new Set(toMove.map(id => String(id)))
+        for (let wid of Object.keys(wires)) {
+            let wire = wires[wid]
+            if (!wire || !wire.bends || wire.bends.length === 0) continue
+            if (!wire.n1 || !wire.n2) continue
+            let srcId = String(wire.n1.parent.dom.id)
+            let dstId = String(wire.n2.parent.dom.id)
+            if (toMoveSet.has(srcId) && toMoveSet.has(dstId)) {
+                for (let bend of wire.bends) {
+                    bend.x += dx
+                    bend.y += dy
+                }
+            }
+        }
+
+        for (let id of toMove) {
             rerenderWiresForComponent(id)
         }
     }
@@ -1354,6 +1396,7 @@ document.addEventListener('pointerup', (e) => {
                 }
             }
         }
+        justDragged = true
         dragState.active = false
         dragState.compId = null
     }
