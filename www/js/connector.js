@@ -47,10 +47,10 @@ class Connector {
     }
     enlarge = () => {
         this.dom.style.transition = "0.075s"
-        this.dom.style.transform = "scale(1.3)"
+        this.dom.style.boxShadow = "0 0 0 2px #000"
     }
     unenlarge = () => {
-        this.dom.style.transform = "scale(1)"
+        this.dom.style.boxShadow = "none"
     }
     deselect = () => {
         this.dom.classList.remove('selected')

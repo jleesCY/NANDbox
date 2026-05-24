@@ -179,31 +179,31 @@
                         <div class="menu-items">
                             <div style="display:grid;grid-template-columns: 1fr 1fr; gap:12px">
                                 <div id='not-gate' style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px">
-                                    <div id="not" style="margin:auto"><div class="sidebar-gate not-shape draggable" draggable="true"><span class="gate-label">NOT</span><div class="gate-bubble"></div></div></div>
+                                    <div id="not" style="margin:auto"><div class="sidebar-gate not-shape draggable" draggable="true"><div class="gate-bubble"></div></div></div>
                                     <div style="font-size: 15px;color: #222">NOT</div>
                                 </div>
                                 <div id="and-gate" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px">
-                                    <div id="and" style="margin:auto"><div class="sidebar-gate and-shape draggable" draggable="true"><span class="gate-label">AND</span></div></div>
+                                    <div id="and" style="margin:auto"><div class="sidebar-gate and-shape draggable" draggable="true"></div></div>
                                     <div style="font-size: 15px;color: #222">AND</div>
                                 </div>
                                 <div id="or-gate" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px">
-                                    <div id="or" style="margin:auto"><div class="sidebar-gate or-shape draggable" draggable="true"><span class="gate-label">OR</span></div></div>
+                                    <div id="or" style="margin:auto"><div class="sidebar-gate or-shape draggable" draggable="true"></div></div>
                                     <div style="font-size: 15px;color: #222">OR</div>
                                 </div>
                                 <div id='nand-gate' style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px">
-                                    <div id="nand" style="margin:auto"><div class="sidebar-gate and-shape draggable" draggable="true"><span class="gate-label">NAND</span><div class="gate-bubble"></div></div></div>
+                                    <div id="nand" style="margin:auto"><div class="sidebar-gate and-shape draggable" draggable="true"><div class="gate-bubble"></div></div></div>
                                     <div style="font-size: 15px;color: #222">NAND</div>
                                 </div>
                                 <div id="nor-gate" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px">
-                                    <div id="nor" style="margin:auto"><div class="sidebar-gate or-shape draggable" draggable="true"><span class="gate-label">NOR</span><div class="gate-bubble"></div></div></div>
+                                    <div id="nor" style="margin:auto"><div class="sidebar-gate or-shape draggable" draggable="true"><div class="gate-bubble"></div></div></div>
                                     <div style="font-size: 15px;color: #222">NOR</div>
                                 </div>
                                 <div id="xor-gate" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px">
-                                    <div id="xor" style="margin:auto"><div class="sidebar-gate xor-shape draggable" draggable="true"><span class="gate-label">XOR</span></div></div>
+                                    <div id="xor" style="margin:auto"><div class="sidebar-gate xor-shape draggable" draggable="true"></div></div>
                                     <div style="font-size: 15px;color: #222">XOR</div>
                                 </div>
                                 <div id="xnor-gate" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px" draggable='false'>
-                                    <div id="xnor" style="margin:auto"><div class="sidebar-gate xor-shape draggable" draggable="true"><span class="gate-label">XNOR</span><div class="gate-bubble"></div></div></div>
+                                    <div id="xnor" style="margin:auto"><div class="sidebar-gate xor-shape draggable" draggable="true"><div class="gate-bubble"></div></div></div>
                                     <div style="font-size: 15px;color: #222">XNOR</div>
                                 </div>
                             </div>
@@ -280,8 +280,8 @@
 
                 <div class="modal-field">
                     <label class="modal-check">
-                        <input id="set-snap" type="checkbox" onchange="toggleSnap(this.checked)">
-                        Snap to Grid
+                        <input id="set-show-grid" type="checkbox" checked onchange="toggleGrid(this.checked)">
+                        Show Grid
                     </label>
                 </div>
 

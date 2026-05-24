@@ -23,6 +23,15 @@
 }
 
 /* ===== Component Body ===== */
+.body, .display {
+    position: relative;
+    z-index: 10;
+}
+.in-1, .in-2, .in-3, .in-4, .out-1, .out-2 {
+    position: relative;
+    z-index: 5;
+}
+
 #simulation-window .body:hover {
     cursor: grab;
 }
@@ -109,6 +118,14 @@
 .light .connector {
     margin: auto;
 }
+.light .connector-bridge {
+    left: 50%;
+    transform: translateX(-50%);
+    top: -10px;
+    width: 3px;
+    height: 10px;
+    right: auto;
+}
 
 /* ===== Signal States ===== */
 .high {
@@ -125,7 +142,7 @@
     height: 40px;
     border: 3px solid #000;
     display: grid;
-    gap: 4px;
+    gap: 3px;
     font-size: 14pt;
     font-weight: 700;
     font-family: 'JetBrains Mono', monospace;
@@ -240,29 +257,36 @@
 /* Inversion bubble for NAND, NOR, XNOR, NOT */
 .gate-body .gate-bubble {
     position: absolute;
-    right: -9px;
+    right: 8px;
     top: 50%;
     transform: translateY(-50%);
     width: 12px;
     height: 12px;
     border-radius: 50%;
     background: #fff;
-    border: 2.5px solid #222;
+    border: 3px solid #000;
     box-sizing: border-box;
     z-index: 2;
 }
-/* AND shape - D-shape via border-radius */
+/* AND shape - D-shape via SVG */
 .gate-body.and-shape {
-    background: #fff;
-    border: 3px solid #222;
-    border-radius: 0 50% 50% 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+}
+.gate-body.and-shape::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 80'%3E%3Cpath d='M0,20 L15,20 M0,60 L15,60 M100,40 L120,40' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='butt' /%3E%3Cpath d='M15,10 L60,10 A40,30 0 0,1 100,40 A40,30 0 0,1 60,70 L15,70 Z' fill='white' stroke='%23000' stroke-width='3' stroke-linejoin='round' /%3E%3C/svg%3E") no-repeat center / 100% 100%;
+    z-index: 0;
 }
 /* OR shape - shield via SVG */
 .gate-body.or-shape::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 80'%3E%3Cpath d='M10,2 Q30,40 10,78 L60,78 Q110,76 118,40 Q110,4 60,2 Z' fill='white' stroke='%23222' stroke-width='3' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 80'%3E%3Cpath d='M0,20 L30,20 M0,60 L30,60 M100,40 L120,40' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='butt' /%3E%3Cpath d='M15,10 Q60,10 100,40 Q60,70 15,70 Q35,40 15,10 Z' fill='white' stroke='%23000' stroke-width='3' stroke-linejoin='round' /%3E%3C/svg%3E") no-repeat center / 100% 100%;
     z-index: 0;
 }
 /* NOT shape - triangle via SVG */
@@ -270,7 +294,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 80'%3E%3Cpath d='M5,4 L98,40 L5,76 Z' fill='white' stroke='%23222' stroke-width='3' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 80'%3E%3Cpath d='M0,40 L25,40 M100,40 L120,40' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='butt' /%3E%3Cpath d='M25,15 L100,40 L25,65 Z' fill='white' stroke='%23000' stroke-width='3' stroke-linejoin='round' /%3E%3C/svg%3E") no-repeat center / 100% 100%;
     z-index: 0;
 }
 /* XOR shape - shield + extra input curve via SVG */
@@ -278,73 +302,29 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 80'%3E%3Cpath d='M15,2 Q35,40 15,78 L60,78 Q110,76 118,40 Q110,4 60,2 Z' fill='white' stroke='%23222' stroke-width='3' stroke-linejoin='round'/%3E%3Cpath d='M8,3 Q28,40 8,77' fill='none' stroke='%23222' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 80'%3E%3Cpath d='M0,20 L30,20 M0,60 L30,60 M100,40 L120,40' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='butt' /%3E%3Cpath d='M15,10 Q60,10 100,40 Q60,70 15,70 Q35,40 15,10 Z' fill='white' stroke='%23000' stroke-width='3' stroke-linejoin='round' /%3E%3Cpath d='M5,10 Q25,40 5,70' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' /%3E%3C/svg%3E") no-repeat center / 100% 100%;
     z-index: 0;
 }
 
-/* ===== Connector Line Stubs ===== */
-/* Input connector lines (extend left from gate/ff body) */
-.in-1 + .gate-body::before {
-    content: '';
+/* ===== Connector Bridge ===== */
+.connector-bridge {
     position: absolute;
-    left: -5px;
     top: 50%;
     transform: translateY(-50%);
-    width: 5px;
-    height: 2px;
-    background: #222;
-}
-.in-2 + .gate-body::before {
-    content: '';
-    position: absolute;
-    left: -5px;
-    top: 19px;
-    width: 5px;
-    height: 2px;
-    background: #222;
-    box-shadow: 0 40px 0 #222;
-}
-.in-2 + .ff-body::before {
-    content: '';
-    position: absolute;
-    left: -5px;
-    top: 9px;
-    width: 5px;
-    height: 2px;
-    background: #222;
-    box-shadow: 0 60px 0 #222;
-}
-.in-3 + .ff-body::before {
-    content: '';
-    position: absolute;
-    left: -5px;
-    top: 9px;
-    width: 5px;
-    height: 2px;
-    background: #222;
-    box-shadow: 0 30px 0 #222, 0 60px 0 #222;
+    width: 10px;
+    height: 3px;
+    background: #000;
+    z-index: -1;
+    left: -10px; /* Default output: wire goes left towards component */
 }
 
-/* Output connector lines (extend right from gate/ff body) */
-.gate-body::after {
-    content: '';
-    position: absolute;
-    right: -5px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 5px;
-    height: 2px;
-    background: #222;
-}
-.ff-body::after {
-    content: '';
-    position: absolute;
-    right: -5px;
-    top: 9px;
-    width: 5px;
-    height: 2px;
-    background: #222;
-    box-shadow: 0 60px 0 #222;
+/* Input connectors: wire goes right towards component */
+.in-1 .connector-bridge,
+.in-2 .connector-bridge,
+.in-3 .connector-bridge,
+.in-4 .connector-bridge {
+    left: auto;
+    right: -10px;
 }
 
 /* ===== Flip-Flop Connector Groups ===== */
@@ -370,11 +350,12 @@
     width: 120px;
     height: 80px;
     background: #fff;
-    border: 3px solid #222;
+    border: 3px solid #000;
     border-radius: 3px;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr 1fr;
+    grid-template-rows: 20px 20px 20px;
+    align-content: center;
     cursor: grab;
     position: relative;
     box-sizing: border-box;
@@ -384,7 +365,7 @@
 }
 .ff-body .ff-pin {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
+    font-size: 20px;
     font-weight: 700;
     color: #222;
     display: flex;
@@ -393,11 +374,11 @@
     pointer-events: none;
 }
 .ff-body .ff-pin.left {
-    padding-left: 6px;
+    padding-left: 8px;
     justify-content: flex-start;
 }
 .ff-body .ff-pin.right {
-    padding-right: 6px;
+    padding-right: 8px;
     justify-content: flex-end;
 }
 .ff-body .ff-pin.overline {
@@ -407,10 +388,10 @@
 .ff-body .ff-clk-triangle {
     width: 0;
     height: 0;
-    border-left: 6px solid #222;
-    border-top: 4px solid transparent;
-    border-bottom: 4px solid transparent;
-    margin-left: 3px;
+    border-left: 10px solid #222;
+    border-top: 7px solid transparent;
+    border-bottom: 7px solid transparent;
+    margin-left: 4px;
     display: inline-block;
     pointer-events: none;
 }
@@ -419,9 +400,9 @@
 .seg7 .in-4 {
     position: relative;
     display: grid;
-    grid-template-rows: 10px 10px 10px 10px;
+    grid-template-rows: 20px 20px 20px 20px;
     width: 20px;
-    gap: 10px;
+    gap: 0px;
     align-items: center;
     justify-content: center;
 }
@@ -434,7 +415,7 @@
     height: 10px;
     border-radius: 50%;
     border: 2px solid #000;
-    z-index: 100;
+    z-index: 1;
     position: relative;
     transition: background-color var(--transition), box-shadow var(--transition), transform 0.075s ease;
     box-sizing: border-box;
@@ -497,7 +478,7 @@
     font-size: 52pt;
     align-items: center;
     line-height: 76px;
-    text-indent: -3.5px;
+    text-indent: -1px;
     align-content: right;
     font-family: Seven-Seg;
     margin: auto;
@@ -506,7 +487,7 @@
 /* ===== Sidebar Previews ===== */
 .sidebar-gate {
     width: 60px;
-    height: 30px;
+    height: 40px;
     background: transparent;
     border: none;
     display: flex;
@@ -515,54 +496,46 @@
     position: relative;
     cursor: grab;
 }
-.sidebar-gate .gate-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 9px;
-    font-weight: 700;
-    color: #222;
-    letter-spacing: 0.5px;
-    user-select: none;
-    position: relative;
-    z-index: 1;
-}
 .sidebar-gate .gate-bubble {
     position: absolute;
-    right: -6px;
+    right: 4px;
     top: 50%;
     transform: translateY(-50%);
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
     background: #fff;
-    border: 2px solid #222;
+    border: 1.5px solid #222;
     z-index: 2;
+    box-sizing: border-box;
 }
 /* AND sidebar */
-.sidebar-gate.and-shape {
-    background: #fff;
-    border: 2px solid #222;
-    border-radius: 0 50% 50% 0;
+.sidebar-gate.and-shape::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 80'%3E%3Cpath d='M0,20 L15,20 M0,60 L15,60 M100,40 L120,40' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='butt' /%3E%3Cpath d='M15,10 L60,10 A40,30 0 0,1 100,40 A40,30 0 0,1 60,70 L15,70 Z' fill='white' stroke='%23000' stroke-width='3' stroke-linejoin='round' /%3E%3C/svg%3E") no-repeat center / 100% 100%;
 }
 /* OR sidebar */
 .sidebar-gate.or-shape::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 30'%3E%3Cpath d='M6,2 Q15,15 6,28 L35,28 Q54,26 58,15 Q54,4 35,2 Z' fill='white' stroke='%23222' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 80'%3E%3Cpath d='M0,20 L30,20 M0,60 L30,60 M100,40 L120,40' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='butt' /%3E%3Cpath d='M15,10 Q60,10 100,40 Q60,70 15,70 Q35,40 15,10 Z' fill='white' stroke='%23000' stroke-width='3' stroke-linejoin='round' /%3E%3C/svg%3E") no-repeat center / 100% 100%;
 }
 /* NOT sidebar */
 .sidebar-gate.not-shape::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 30'%3E%3Cpath d='M3,2 L46,15 L3,28 Z' fill='white' stroke='%23222' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 80'%3E%3Cpath d='M0,40 L25,40 M100,40 L120,40' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='butt' /%3E%3Cpath d='M25,15 L100,40 L25,65 Z' fill='white' stroke='%23000' stroke-width='3' stroke-linejoin='round' /%3E%3C/svg%3E") no-repeat center / 100% 100%;
 }
 /* XOR sidebar */
 .sidebar-gate.xor-shape::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 30'%3E%3Cpath d='M10,2 Q19,15 10,28 L35,28 Q54,26 58,15 Q54,4 35,2 Z' fill='white' stroke='%23222' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M5,2 Q14,15 5,28' fill='none' stroke='%23222' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 80'%3E%3Cpath d='M0,20 L30,20 M0,60 L30,60 M100,40 L120,40' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='butt' /%3E%3Cpath d='M15,10 Q60,10 100,40 Q60,70 15,70 Q35,40 15,10 Z' fill='white' stroke='%23000' stroke-width='3' stroke-linejoin='round' /%3E%3Cpath d='M5,10 Q25,40 5,70' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' /%3E%3C/svg%3E") no-repeat center / 100% 100%;
 }
 
 .sidebar-ff {
