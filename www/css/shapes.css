@@ -2,10 +2,10 @@
 .gate {
     position: absolute;
     display: grid;
-    grid-template-columns: 20px 112px 20px;
-    padding: 2px;
+    grid-template-columns: 20px 120px 20px;
+    padding: 0;
     gap: 0;
-    width: 152px;
+    width: 160px;
     align-items: center;
     transition: filter 0.15s ease;
 }
@@ -14,10 +14,10 @@
 .flipflop {
     position: absolute;
     display: grid;
-    grid-template-columns: 20px 100px 20px;
-    padding: 2px;
+    grid-template-columns: 20px 120px 20px;
+    padding: 0;
     gap: 0;
-    width: 140px;
+    width: 160px;
     align-items: center;
     transition: filter 0.15s ease;
 }
@@ -34,9 +34,10 @@
 .input {
     position: absolute;
     display: grid;
-    grid-template-columns: 30px 20px;
+    grid-template-columns: 40px 20px;
     gap: 0;
-    width: 50px;
+    width: 60px;
+    height: 40px;
     align-items: center;
     transition: filter 0.15s ease;
 }
@@ -45,8 +46,8 @@
 .button {
     border-radius: 6px;
     border: 3px solid #000;
-    width: 30px;
-    height: 30px;
+    width: 40px;
+    height: 40px;
     transition: background-color var(--transition), box-shadow var(--transition);
     cursor: pointer;
 }
@@ -54,12 +55,12 @@
 /* ===== Switch ===== */
 .switch {
     border-radius: 6px;
-    width: 30px;
-    height: 30px;
+    width: 40px;
+    height: 40px;
     border: 3px solid #000;
     display: grid;
-    grid-template-rows: 10px 10px;
-    gap: 4px;
+    grid-template-rows: 1fr 1fr;
+    gap: 2px;
     cursor: pointer;
     transition: background-color var(--transition);
 }
@@ -86,18 +87,18 @@
 .light {
     position: absolute;
     display: grid;
-    grid-template-rows: 35px 20px;
-    width: 30px;
-    height: 55px;
+    grid-template-rows: 40px 20px;
+    width: 40px;
+    height: 60px;
     transition: filter 0.15s ease;
 }
 
 .led {
     border: 3px solid #000;
-    width: 30px;
-    height: 35px;
+    width: 40px;
+    height: 40px;
     border-bottom: 7px solid #000;
-    border-radius: 30px 30px 3px 3px;
+    border-radius: 40px 40px 6px 6px;
     transition: background-color var(--transition), box-shadow var(--transition);
 }
 
@@ -120,12 +121,12 @@
 /* ===== Constants ===== */
 .const {
     border-radius: 6px;
-    width: 30px;
-    height: 30px;
+    width: 40px;
+    height: 40px;
     border: 3px solid #000;
     display: grid;
     gap: 4px;
-    font-size: 18pt;
+    font-size: 14pt;
     font-weight: 700;
     font-family: 'JetBrains Mono', monospace;
     color: #fff;
@@ -133,19 +134,19 @@
     transition: background-color var(--transition);
 }
 .const.low {
-    line-height: 25px;
-    text-indent: 3px;
+    line-height: 35px;
+    text-indent: 10px;
 }
 .const.high {
-    line-height: 25px;
-    text-indent: 7px;
+    line-height: 35px;
+    text-indent: 12px;
 }
 
 /* ===== Clock Component ===== */
 .clock-body {
     border-radius: 6px;
-    width: 30px;
-    height: 30px;
+    width: 40px;
+    height: 40px;
     border: 3px solid #000;
     display: flex;
     flex-direction: column;
@@ -157,14 +158,14 @@
     overflow: hidden;
 }
 .clock-body .clock-pulse {
-    font-size: 9px;
+    font-size: 8px;
     font-weight: 700;
     color: #fff;
     line-height: 1;
     transition: var(--transition);
 }
 .clock-body .clock-label {
-    font-size: 6px;
+    font-size: 5px;
     font-weight: 600;
     font-family: 'JetBrains Mono', monospace;
     color: rgba(255,255,255,0.7);
@@ -192,58 +193,251 @@
 /* ===== Gate Input Groups ===== */
 .gate .in-1 {
     position: relative;
+    display: grid;
+    grid-template-rows: 10px;
+    width: 20px;
+    gap: 0;
     align-items: center;
-    justify-content: right;
+    justify-content: center;
 }
 .gate .in-2 {
     position: relative;
     display: grid;
-    grid-template-rows: 20px 20px;
+    grid-template-rows: 10px 10px;
     width: 20px;
-    gap: 5px;
+    gap: 30px;
     align-items: center;
-    justify-content: right;
+    justify-content: center;
+}
+
+/* ===== Gate Body (HTML+CSS) ===== */
+.gate-body {
+    width: 120px;
+    height: 80px;
+    background: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: grab;
+    position: relative;
+    box-sizing: border-box;
+}
+.gate-body:active {
+    cursor: grabbing;
+}
+.gate-body .gate-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: #222;
+    letter-spacing: 1px;
+    user-select: none;
+    pointer-events: none;
+    position: relative;
+    z-index: 1;
+}
+/* Inversion bubble for NAND, NOR, XNOR, NOT */
+.gate-body .gate-bubble {
+    position: absolute;
+    right: -9px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2.5px solid #222;
+    box-sizing: border-box;
+    z-index: 2;
+}
+/* AND shape - D-shape via border-radius */
+.gate-body.and-shape {
+    background: #fff;
+    border: 3px solid #222;
+    border-radius: 0 50% 50% 0;
+}
+/* OR shape - shield via SVG */
+.gate-body.or-shape::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 80'%3E%3Cpath d='M10,2 Q30,40 10,78 L60,78 Q110,76 118,40 Q110,4 60,2 Z' fill='white' stroke='%23222' stroke-width='3' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
+    z-index: 0;
+}
+/* NOT shape - triangle via SVG */
+.gate-body.not-shape::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 80'%3E%3Cpath d='M5,4 L98,40 L5,76 Z' fill='white' stroke='%23222' stroke-width='3' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
+    z-index: 0;
+}
+/* XOR shape - shield + extra input curve via SVG */
+.gate-body.xor-shape::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 80'%3E%3Cpath d='M15,2 Q35,40 15,78 L60,78 Q110,76 118,40 Q110,4 60,2 Z' fill='white' stroke='%23222' stroke-width='3' stroke-linejoin='round'/%3E%3Cpath d='M8,3 Q28,40 8,77' fill='none' stroke='%23222' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
+    z-index: 0;
+}
+
+/* ===== Connector Line Stubs ===== */
+/* Input connector lines (extend left from gate/ff body) */
+.in-1 + .gate-body::before {
+    content: '';
+    position: absolute;
+    left: -5px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 5px;
+    height: 2px;
+    background: #222;
+}
+.in-2 + .gate-body::before {
+    content: '';
+    position: absolute;
+    left: -5px;
+    top: 19px;
+    width: 5px;
+    height: 2px;
+    background: #222;
+    box-shadow: 0 40px 0 #222;
+}
+.in-2 + .ff-body::before {
+    content: '';
+    position: absolute;
+    left: -5px;
+    top: 9px;
+    width: 5px;
+    height: 2px;
+    background: #222;
+    box-shadow: 0 60px 0 #222;
+}
+.in-3 + .ff-body::before {
+    content: '';
+    position: absolute;
+    left: -5px;
+    top: 9px;
+    width: 5px;
+    height: 2px;
+    background: #222;
+    box-shadow: 0 30px 0 #222, 0 60px 0 #222;
+}
+
+/* Output connector lines (extend right from gate/ff body) */
+.gate-body::after {
+    content: '';
+    position: absolute;
+    right: -5px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 5px;
+    height: 2px;
+    background: #222;
+}
+.ff-body::after {
+    content: '';
+    position: absolute;
+    right: -5px;
+    top: 9px;
+    width: 5px;
+    height: 2px;
+    background: #222;
+    box-shadow: 0 60px 0 #222;
 }
 
 /* ===== Flip-Flop Connector Groups ===== */
 .flipflop .in-3 {
     position: relative;
     display: grid;
-    grid-template-rows: 20px 20px 20px;
+    grid-template-rows: 10px 10px 10px;
     width: 20px;
-    gap: 2px;
+    gap: 10px;
 }
 .flipflop .out-2,
 .flipflop .in-2 {
     position: relative;
-    padding-top: 0.5px;
+    padding-top: 0;
     display: grid;
-    grid-template-rows: 20px 20px;
+    grid-template-rows: 10px 10px;
     width: 20px;
-    gap: 24px;
+    gap: 30px;
+}
+
+/* ===== Flip-Flop Body (HTML+CSS) ===== */
+.ff-body {
+    width: 120px;
+    height: 80px;
+    background: #fff;
+    border: 3px solid #222;
+    border-radius: 3px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    cursor: grab;
+    position: relative;
+    box-sizing: border-box;
+}
+.ff-body:active {
+    cursor: grabbing;
+}
+.ff-body .ff-pin {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    color: #222;
+    display: flex;
+    align-items: center;
+    user-select: none;
+    pointer-events: none;
+}
+.ff-body .ff-pin.left {
+    padding-left: 6px;
+    justify-content: flex-start;
+}
+.ff-body .ff-pin.right {
+    padding-right: 6px;
+    justify-content: flex-end;
+}
+.ff-body .ff-pin.overline {
+    text-decoration: overline;
+}
+/* Clock triangle indicator */
+.ff-body .ff-clk-triangle {
+    width: 0;
+    height: 0;
+    border-left: 6px solid #222;
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    margin-left: 3px;
+    display: inline-block;
+    pointer-events: none;
 }
 
 /* ===== 7-Segment Display ===== */
 .seg7 .in-4 {
     position: relative;
     display: grid;
-    grid-template-rows: 20px 20px 20px 20px;
+    grid-template-rows: 10px 10px 10px 10px;
     width: 20px;
-    gap: 5px;
+    gap: 10px;
     align-items: center;
-    justify-content: right;
+    justify-content: center;
 }
 
 /* ===== Connector Nodes ===== */
 .connector {
     padding: 0;
-    margin: 0;
-    width: 20px;
-    height: 20px;
+    margin: auto;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
-    border: 3px solid #000;
+    border: 2px solid #000;
     z-index: 100;
+    position: relative;
     transition: background-color var(--transition), box-shadow var(--transition), transform 0.075s ease;
+    box-sizing: border-box;
 }
 .connector:hover {
     cursor: pointer;
@@ -278,10 +472,11 @@
 .seg7 {
     position: absolute;
     display: grid;
-    grid-template-columns: 20px 65px;
-    width: 85px;
-    height: 94px;
+    grid-template-columns: 20px 60px;
+    width: 80px;
+    height: 80px;
     gap: 0;
+    align-items: center;
     transition: filter 0.15s ease;
 }
 
@@ -295,21 +490,96 @@
     border: 3px solid #000;
     border-radius: 5px;
     color: rgb(255,75,75);
-    width: 65px;
-    height: 94px;
+    width: 60px;
+    height: 80px;
     font-weight: bold;
     justify-content: right;
-    font-size: 62pt;
+    font-size: 52pt;
     align-items: center;
-    line-height: 90px;
+    line-height: 76px;
     text-indent: -3.5px;
     align-content: right;
     font-family: Seven-Seg;
     margin: auto;
 }
 
-/* ===== Gate SVG Images ===== */
-.gate .body img,
-.flipflop .body img {
-    width: 100%;
+/* ===== Sidebar Previews ===== */
+.sidebar-gate {
+    width: 60px;
+    height: 30px;
+    background: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    cursor: grab;
+}
+.sidebar-gate .gate-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    color: #222;
+    letter-spacing: 0.5px;
+    user-select: none;
+    position: relative;
+    z-index: 1;
+}
+.sidebar-gate .gate-bubble {
+    position: absolute;
+    right: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid #222;
+    z-index: 2;
+}
+/* AND sidebar */
+.sidebar-gate.and-shape {
+    background: #fff;
+    border: 2px solid #222;
+    border-radius: 0 50% 50% 0;
+}
+/* OR sidebar */
+.sidebar-gate.or-shape::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 30'%3E%3Cpath d='M6,2 Q15,15 6,28 L35,28 Q54,26 58,15 Q54,4 35,2 Z' fill='white' stroke='%23222' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
+}
+/* NOT sidebar */
+.sidebar-gate.not-shape::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 30'%3E%3Cpath d='M3,2 L46,15 L3,28 Z' fill='white' stroke='%23222' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
+}
+/* XOR sidebar */
+.sidebar-gate.xor-shape::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 30'%3E%3Cpath d='M10,2 Q19,15 10,28 L35,28 Q54,26 58,15 Q54,4 35,2 Z' fill='white' stroke='%23222' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M5,2 Q14,15 5,28' fill='none' stroke='%23222' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
+}
+
+.sidebar-ff {
+    width: 50px;
+    height: 40px;
+    background: #fff;
+    border: 2px solid #222;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: grab;
+}
+.sidebar-ff .ff-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    color: #222;
+    user-select: none;
 }

@@ -11,13 +11,13 @@ engine.start()
 
 // Component inner HTML
 let HTML = {
-    'and': '<div class="in-2"><div class="connector float" tabindex="1"></div><div class="connector float" tabindex="1"></div></div><div class="body and" tabindex="1"><img src="../images/gates/AND.svg" draggable="false"></div><div class="connector float" tabindex="1"></div>',
-    'or': '<div class="in-2"><div class="connector float" tabindex="1"></div><div class="connector float" tabindex="1"></div></div><div class="body or" tabindex="1"><img src="../images/gates/OR.svg" draggable="false"></div><div class="connector float" tabindex="1"></div>',
-    'not': '<div class="in-1"><div class="connector float" tabindex="1"></div></div><div class="body not" tabindex="1"><img src="../images/gates/NOT.svg" draggable="false"></div><div class="connector float" tabindex="1"></div>',
-    'nand': '<div class="in-2"><div class="connector float" tabindex="1"></div><div class="connector float" tabindex="1"></div></div><div class="body nand" tabindex="1"><img src="../images/gates/NAND.svg" draggable="false"></div><div class="connector float" tabindex="1"></div>',
-    'nor': '<div class="in-2"><div class="connector float" tabindex="1"></div><div class="connector float" tabindex="1"></div></div><div class="body nor" tabindex="1"><img src="../images/gates/NOR.svg" draggable="false"></div><div class="connector float" tabindex="1"></div>',
-    'xor': '<div class="in-2"><div class="connector float" tabindex="1"></div><div class="connector float" tabindex="1"></div></div><div class="body xor" tabindex="1"><img src="../images/gates/XOR.svg" draggable="false"></div><div class="connector float" tabindex="1"></div>',
-    'xnor': '<div class="in-2"><div class="connector float" tabindex="1"></div><div class="connector float" tabindex="1"></div></div><div class="body xnor" tabindex="1"><img src="../images/gates/XNOR.svg" draggable="false"></div><div class="connector float" tabindex="1"></div>',
+    'and': '<div class="in-2"><div class="connector float" tabindex="1"></div><div class="connector float" tabindex="1"></div></div><div class="body gate-body and-shape" tabindex="1"><span class="gate-label">AND</span></div><div class="connector float" tabindex="1"></div>',
+    'or': '<div class="in-2"><div class="connector float" tabindex="1"></div><div class="connector float" tabindex="1"></div></div><div class="body gate-body or-shape" tabindex="1"><span class="gate-label">OR</span></div><div class="connector float" tabindex="1"></div>',
+    'not': '<div class="in-1"><div class="connector float" tabindex="1"></div></div><div class="body gate-body not-shape" tabindex="1"><span class="gate-label">NOT</span><div class="gate-bubble"></div></div><div class="connector float" tabindex="1"></div>',
+    'nand': '<div class="in-2"><div class="connector float" tabindex="1"></div><div class="connector float" tabindex="1"></div></div><div class="body gate-body and-shape" tabindex="1"><span class="gate-label">NAND</span><div class="gate-bubble"></div></div><div class="connector float" tabindex="1"></div>',
+    'nor': '<div class="in-2"><div class="connector float" tabindex="1"></div><div class="connector float" tabindex="1"></div></div><div class="body gate-body or-shape" tabindex="1"><span class="gate-label">NOR</span><div class="gate-bubble"></div></div><div class="connector float" tabindex="1"></div>',
+    'xor': '<div class="in-2"><div class="connector float" tabindex="1"></div><div class="connector float" tabindex="1"></div></div><div class="body gate-body xor-shape" tabindex="1"><span class="gate-label">XOR</span></div><div class="connector float" tabindex="1"></div>',
+    'xnor': '<div class="in-2"><div class="connector float" tabindex="1"></div><div class="connector float" tabindex="1"></div></div><div class="body gate-body xor-shape" tabindex="1"><span class="gate-label">XNOR</span><div class="gate-bubble"></div></div><div class="connector float" tabindex="1"></div>',
     'button': '<div class="body button low" tabindex="1"></div><div class="connector off" tabindex="1"></div>',
     'switch': '<div class="body switch low" tabindex="1"><div class="top"></div><div class="bottom"></div></div><div class="connector off" tabindex="1"></div>',
     'gnd': '<div class="body const low" tabindex="1">0</div><div class="connector off" tabindex="1"></div>',
@@ -26,10 +26,10 @@ let HTML = {
     'led': '<div class="body led float" tabindex="1"></div><div class="connector float" tabindex="1"></div>',
     'seg7': '<div class="in-4"><div class="connector float"></div><div class="connector float"></div><div class="connector float"></div><div class="connector float"></div></div><div class="display">0</div>',
     'label': 'NANDlabel',
-    'jkff': '<div class="in-3"><div class="connector float" tabindex="1"></div><div class="connector float" tabindex="1"></div><div class="connector float" tabindex="1"></div></div><div class="body jk" tabindex="1"><img src="../images/flipflops/JKFF.svg" draggable="false"></div><div class="out-2"><div class="connector float" tabindex="1"></div><div class="connector float" tabindex="1"></div></div>',
-    'tff': '<div class="in-2"><div class="connector float" tabindex="1"></div><div class="connector float" tabindex="1"></div></div><div class="body t" tabindex="1"><img src="../images/flipflops/TFF.svg" draggable="false"></div><div class="out-2"><div class="connector float" tabindex="1"></div><div class="connector float" tabindex="1"></div></div>',
-    'dff': '<div class="in-2"><div class="connector float" tabindex="1"></div><div class="connector float" tabindex="1"></div></div><div class="body d" tabindex="1"><img src="../images/flipflops/DFF.svg" draggable="false"></div><div class="out-2"><div class="connector float" tabindex="1"></div><div class="connector float" tabindex="1"></div></div>',
-    'srff': '<div class="in-3"><div class="connector float" tabindex="1"></div><div class="connector float" tabindex="1"></div><div class="connector float" tabindex="1"></div></div><div class="body sr" tabindex="1"><img src="../images/flipflops/SRFF.svg" draggable="false"></div><div class="out-2"><div class="connector float" tabindex="1"></div><div class="connector float" tabindex="1"></div></div>',
+    'jkff': '<div class="in-3"><div class="connector float" tabindex="1"></div><div class="connector float" tabindex="1"></div><div class="connector float" tabindex="1"></div></div><div class="body ff-body" tabindex="1"><div class="ff-pin left">J</div><div class="ff-pin right">Q</div><div class="ff-pin left"><div class="ff-clk-triangle"></div></div><div class="ff-pin right"></div><div class="ff-pin left">K</div><div class="ff-pin right overline">Q</div></div><div class="out-2"><div class="connector float" tabindex="1"></div><div class="connector float" tabindex="1"></div></div>',
+    'tff': '<div class="in-2"><div class="connector float" tabindex="1"></div><div class="connector float" tabindex="1"></div></div><div class="body ff-body" tabindex="1"><div class="ff-pin left">T</div><div class="ff-pin right">Q</div><div class="ff-pin left"><div class="ff-clk-triangle"></div></div><div class="ff-pin right"></div><div class="ff-pin left"></div><div class="ff-pin right overline">Q</div></div><div class="out-2"><div class="connector float" tabindex="1"></div><div class="connector float" tabindex="1"></div></div>',
+    'dff': '<div class="in-2"><div class="connector float" tabindex="1"></div><div class="connector float" tabindex="1"></div></div><div class="body ff-body" tabindex="1"><div class="ff-pin left">D</div><div class="ff-pin right">Q</div><div class="ff-pin left"><div class="ff-clk-triangle"></div></div><div class="ff-pin right"></div><div class="ff-pin left"></div><div class="ff-pin right overline">Q</div></div><div class="out-2"><div class="connector float" tabindex="1"></div><div class="connector float" tabindex="1"></div></div>',
+    'srff': '<div class="in-3"><div class="connector float" tabindex="1"></div><div class="connector float" tabindex="1"></div><div class="connector float" tabindex="1"></div></div><div class="body ff-body" tabindex="1"><div class="ff-pin left">S</div><div class="ff-pin right">Q</div><div class="ff-pin left"><div class="ff-clk-triangle"></div></div><div class="ff-pin right"></div><div class="ff-pin left">R</div><div class="ff-pin right overline">Q</div></div><div class="out-2"><div class="connector float" tabindex="1"></div><div class="connector float" tabindex="1"></div></div>',
 }
 
 // Possible types of components
@@ -44,7 +44,8 @@ let categories = {
     'led': connTypes[2],
     'seg7': 'seg7',
     'label': 'label',
-    'tff': connTypes[3], 'jkff': connTypes[3], 'dff': connTypes[3], 'srff': connTypes[3]
+    'tff': connTypes[3], 'jkff': connTypes[3], 'dff': connTypes[3], 'srff': connTypes[3],
+    'junction': 'junction'
 }
 
 // Fix: use let for globals
@@ -54,6 +55,7 @@ let elementId = 0
 let connectorId = 0
 let wireId = 0
 let scale = 1
+let GRID = 10  // Universal grid size — all coordinates snap to this
 let components = {}
 let connectors = {}
 let wires = {}
@@ -884,6 +886,8 @@ document.addEventListener('click', (event) => {
         drawWire = false; wireOrigin = null
     }
     else if (event.target.classList.value.includes('connector') && navMode == 1) {
+        // Skip if wire was just completed via drag-to-connect
+        if (justDragged) return
         if (drawWire) {
             let s = null, e = null
             if (connectors[event.target.id].type == 'in') {
@@ -892,17 +896,11 @@ document.addEventListener('click', (event) => {
                 s = connectors[event.target.id]; e = connectors[wireOrigin.id]
             }
             if (s != e && s.parent != e.parent && s.type != e.type && e.parent['i' + e.loc] == null) {
-                wires['w' + wireId] = new Wire('w' + wireId, s, e, e.parent)
-                let sComp = components[s.parent.dom.id]
-                sComp.addOut = wires['w' + wireId]
-                components[e.parent.dom.id]['i' + e.loc] = wires['w' + wireId]
-                wires['w' + wireId].render(scale)
-                sim.appendChild(wires['w' + wireId].dom)
-                engine.registerWire('w' + wireId, wires['w' + wireId])
-                wireId += 1
-                wireOrigin = null; drawWire = false
-                s.deselect(); e.deselect()
-                pushHistory()
+                if (createWireConnection(s, e)) {
+                    wireOrigin = null; drawWire = false
+                    s.deselect(); e.deselect()
+                    pushHistory()
+                }
             } else {
                 s.deselect(); e.select(); wireOrigin = event.target
             }
@@ -936,7 +934,7 @@ dropzone.addEventListener('drop', (event) => {
         if (cat == 'gate') {
             let loc_x = ((ex - sim.getBoundingClientRect().x) / scale) - dropData['xoff'] - 20
             let loc_y = (((ey - yoff) - (sim.getBoundingClientRect().y - yoff)) / scale) - dropData['yoff']
-            if (snapToGrid) { loc_x = Math.round(loc_x / 20) * 20; loc_y = Math.round(loc_y / 20) * 20; }
+            loc_x = Math.round(loc_x / GRID) * GRID; loc_y = Math.round(loc_y / GRID) * GRID;
             let component = document.createElement('div')
             component.classList.add(cat)
             component.setAttribute('style', 'top:' + loc_y + 'px;left:' + loc_x + 'px;')
@@ -971,7 +969,7 @@ dropzone.addEventListener('drop', (event) => {
         else if (cat == 'input') {
             let loc_x = ((ex - sim.getBoundingClientRect().x) / scale) - dropData['xoff']
             let loc_y = (((ey - yoff) - (sim.getBoundingClientRect().y - yoff)) / scale) - dropData['yoff']
-            if (snapToGrid) { loc_x = Math.round(loc_x / 20) * 20; loc_y = Math.round(loc_y / 20) * 20; }
+            loc_x = Math.round(loc_x / GRID) * GRID; loc_y = Math.round(loc_y / GRID) * GRID;
             let component = document.createElement('div')
             component.classList.add(cat)
             component.setAttribute('style', 'top:' + loc_y + 'px;left:' + loc_x + 'px;')
@@ -998,7 +996,7 @@ dropzone.addEventListener('drop', (event) => {
         else if (cat == 'light') {
             let loc_x = ((ex - sim.getBoundingClientRect().x) / scale) - dropData['xoff']
             let loc_y = (((ey - yoff) - (sim.getBoundingClientRect().y - yoff)) / scale) - dropData['yoff']
-            if (snapToGrid) { loc_x = Math.round(loc_x / 20) * 20; loc_y = Math.round(loc_y / 20) * 20; }
+            loc_x = Math.round(loc_x / GRID) * GRID; loc_y = Math.round(loc_y / GRID) * GRID;
             let component = document.createElement('div')
             component.classList.add(cat)
             component.setAttribute('style', 'top:' + loc_y + 'px;left:' + loc_x + 'px;')
@@ -1019,7 +1017,7 @@ dropzone.addEventListener('drop', (event) => {
         else if (dropData['type'] == 'label') {
             let loc_x = ((ex - sim.getBoundingClientRect().x) / scale) - dropData['xoff']
             let loc_y = (((ey - yoff) - (sim.getBoundingClientRect().y - yoff)) / scale) - dropData['yoff']
-            if (snapToGrid) { loc_x = Math.round(loc_x / 20) * 20; loc_y = Math.round(loc_y / 20) * 20; }
+            loc_x = Math.round(loc_x / GRID) * GRID; loc_y = Math.round(loc_y / GRID) * GRID;
             let component = document.createElement('div')
             component.classList.add(categories[dropData['type']])
             component.setAttribute('style', 'top:' + loc_y + 'px;left:' + loc_x + 'px;')
@@ -1035,7 +1033,7 @@ dropzone.addEventListener('drop', (event) => {
         else if (dropData['type'] == 'seg7') {
             let loc_x = ((ex - sim.getBoundingClientRect().x) / scale) - dropData['xoff'] - 20
             let loc_y = (((ey - yoff) - (sim.getBoundingClientRect().y - yoff)) / scale) - dropData['yoff']
-            if (snapToGrid) { loc_x = Math.round(loc_x / 20) * 20; loc_y = Math.round(loc_y / 20) * 20; }
+            loc_x = Math.round(loc_x / GRID) * GRID; loc_y = Math.round(loc_y / GRID) * GRID;
             let component = document.createElement('div')
             component.classList.add(dropData['type'])
             component.setAttribute('style', 'top:' + loc_y + 'px;left:' + loc_x + 'px;')
@@ -1059,7 +1057,7 @@ dropzone.addEventListener('drop', (event) => {
         else if (cat == 'flipflop') {
             let loc_x = ((ex - sim.getBoundingClientRect().x) / scale) - dropData['xoff'] - 20
             let loc_y = (((ey - yoff) - (sim.getBoundingClientRect().y - yoff)) / scale) - dropData['yoff']
-            if (snapToGrid) { loc_x = Math.round(loc_x / 20) * 20; loc_y = Math.round(loc_y / 20) * 20; }
+            loc_x = Math.round(loc_x / GRID) * GRID; loc_y = Math.round(loc_y / GRID) * GRID;
             let component = document.createElement('div')
             component.classList.add(cat)
             component.setAttribute('style', 'top:' + loc_y + 'px;left:' + loc_x + 'px;')
@@ -1214,8 +1212,8 @@ let toggleSettings = () => {
 }
 
 // ===== GRID TOGGLE =====
-let gridEnabled = false
-let snapToGrid = false
+let gridEnabled = true
+let snapToGrid = true
 
 let toggleSnap = (on) => {
     snapToGrid = on
@@ -1233,6 +1231,8 @@ let toggleGrid = (on) => {
 
 // Store current theme for grid reapplication
 let currentTheme = 'light'
+
+toggleGrid(true)
 
 let applyTheme = (theme) => {
     currentTheme = theme
@@ -1261,17 +1261,188 @@ function applyGridForTheme() {
     // Make sure we apply initial transform sync
     if (typeof instance !== 'undefined') {
         let transform = instance.getTransform()
-        let size = 20 * transform.scale
+        let size = GRID * transform.scale
         dw.style.backgroundSize = `${size}px ${size}px`
         dw.style.backgroundPosition = `${transform.x}px ${transform.y}px`
     } else {
-        dw.style.backgroundSize = '20px 20px'
+        dw.style.backgroundSize = GRID + 'px ' + GRID + 'px'
     }
 }
 
 // ===== ELEMENT DRAGGING (reposition placed components) =====
 let dragState = { active: false, compId: null, offsetX: 0, offsetY: 0, lastX: 0, lastY: 0 }
 let wireDragState = { active: false, wireId: null, segIndex: -1, isHorizontal: false, startX: 0, startY: 0, originalBends: null }
+let wireDrawState = { active: false, sourceConnId: null, previewSvg: null }
+
+function createWirePreview() {
+    let svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+    svg.setAttribute('style', 'position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:999;')
+    svg.setAttribute('viewBox', '0 0 10000 10000')
+    let line = document.createElementNS('http://www.w3.org/2000/svg', 'line')
+    line.setAttribute('stroke', '#2ecc71')
+    line.setAttribute('stroke-width', '2')
+    line.setAttribute('stroke-dasharray', '6 4')
+    line.setAttribute('opacity', '0.8')
+    svg.appendChild(line)
+    sim.appendChild(svg)
+    return svg
+}
+
+function updateWirePreview(svg, x1, y1, x2, y2) {
+    let line = svg.querySelector('line')
+    if (line) {
+        line.setAttribute('x1', x1)
+        line.setAttribute('y1', y1)
+        line.setAttribute('x2', x2)
+        line.setAttribute('y2', y2)
+    }
+}
+
+function removeWirePreview() {
+    if (wireDrawState.previewSvg && wireDrawState.previewSvg.parentElement) {
+        wireDrawState.previewSvg.remove()
+    }
+    wireDrawState.previewSvg = null
+    wireDrawState.active = false
+    wireDrawState.sourceConnId = null
+}
+
+// Create a wire connection between source and end connectors (shared logic)
+function createWireConnection(s, e) {
+    if (s === e || s.parent === e.parent || s.type === e.type) return false
+    if (e.parent['i' + e.loc] != null) return false
+    wires['w' + wireId] = new Wire('w' + wireId, s, e, e.parent)
+    let sComp = components[s.parent.dom.id]
+    sComp.addOut = wires['w' + wireId]
+    components[e.parent.dom.id]['i' + e.loc] = wires['w' + wireId]
+    wires['w' + wireId].render(scale)
+    sim.appendChild(wires['w' + wireId].dom)
+    engine.registerWire('w' + wireId, wires['w' + wireId])
+    wireId += 1
+    renderJunctions()
+    return true
+}
+
+// Create a junction by connecting a connector to an existing wire
+function createJunction(conn, targetWireId, jx, jy) {
+    let targetWire = wires[targetWireId]
+    if (!targetWire) return false
+    let srcConn = targetWire.n1  // output side of target wire
+    let dstConn = targetWire.n2  // input side of target wire
+    // Only allow input connectors to tap into wires
+    if (conn.type !== 'in') return false
+    if (conn.parent === srcConn.parent || conn.parent === dstConn.parent) return false
+    if (conn.parent['i' + conn.loc] != null) return false
+
+    // Snap junction to nearest point on target wire's rendered path
+    let pts = targetWire.getPoints(scale)
+    let bestDist = Infinity
+    let snapX = jx, snapY = jy
+    for (let i = 0; i < pts.length - 1; i++) {
+        let p1 = pts[i], p2 = pts[i + 1]
+        let dx = p2.x - p1.x, dy = p2.y - p1.y
+        let len2 = dx * dx + dy * dy
+        let t = len2 === 0 ? 0 : Math.max(0, Math.min(1, ((jx - p1.x) * dx + (jy - p1.y) * dy) / len2))
+        let px = p1.x + t * dx
+        let py = p1.y + t * dy
+        let dist = Math.sqrt((jx - px) * (jx - px) + (jy - py) * (jy - py))
+        if (dist < bestDist) {
+            bestDist = dist
+            snapX = Math.round(px / GRID) * GRID
+            snapY = Math.round(py / GRID) * GRID
+        }
+    }
+
+    // Save original wire's bends before removing it
+    let origBends = targetWire.bends ? JSON.parse(JSON.stringify(targetWire.bends)) : null
+    let srcCompId = srcConn.parent.dom.id
+    let dstCompId = dstConn.parent.dom.id
+
+    // --- Create the Junction component ---
+    let jDom = document.createElement('div')
+    jDom.classList.add('junction')
+    jDom.id = elementId
+    jDom.setAttribute('style', 'position:absolute;top:' + (snapY - 6) + 'px;left:' + (snapX - 6) + 'px;width:12px;height:12px;z-index:1;')
+    let jBody = document.createElement('div')
+    jBody.classList.add('junction-body')
+    jBody.style.cssText = 'width:12px;height:12px;border-radius:50%;background:#2ecc71;cursor:pointer;'
+    jDom.appendChild(jBody)
+    // Input connector (invisible, centered)
+    let jInDom = document.createElement('div')
+    jInDom.classList.add('connector')
+    jInDom.style.cssText = 'position:absolute;width:12px;height:12px;top:0;left:0;border-radius:50%;pointer-events:none;'
+    jDom.appendChild(jInDom)
+    // Output connector (invisible, centered)
+    let jOutDom = document.createElement('div')
+    jOutDom.classList.add('connector')
+    jOutDom.style.cssText = 'position:absolute;width:12px;height:12px;top:0;left:0;border-radius:50%;pointer-events:none;'
+    jDom.appendChild(jOutDom)
+
+    let junction = new Junction(snapX - 6, snapY - 6, jDom)
+    components[elementId] = junction
+    let jId = elementId
+    elementId++
+
+    // Input connector
+    junction.n1 = new Connector('in', '1', jInDom, junction)
+    junction.n1.dom.id = 'c' + connectorId
+    connectors['c' + connectorId] = junction.n1
+    connectorId++
+
+    // Output connector
+    junction.nOut = new Connector('out', 'nOut', jOutDom, junction)
+    junction.nOut.dom.id = 'c' + connectorId
+    connectors['c' + connectorId] = junction.nOut
+    connectorId++
+
+    junction.enableSelect()
+    engine.registerComponent(jId, junction)
+    enableComponentDrag(jDom, jId)
+    sim.appendChild(jDom)
+
+    // --- Remove the original wire ---
+    removeWire(targetWire)
+
+    // --- Create Wire 1: original source → junction input ---
+    let w1 = new Wire('w' + wireId, srcConn, junction.n1, junction)
+    // Bends from original wire up to junction: filter bends that are between source and junction
+    // For simplicity, keep all original bends (they route source to junction area)
+    if (origBends) {
+        w1.bends = JSON.parse(JSON.stringify(origBends))
+    }
+    wires['w' + wireId] = w1
+    components[srcCompId].addOut = w1
+    junction.i1 = w1
+    w1.render(scale)
+    sim.appendChild(w1.dom)
+    engine.registerWire('w' + wireId, w1)
+    wireId++
+
+    // --- Create Wire 2: junction output → original destination ---
+    let w2 = new Wire('w' + wireId, junction.nOut, dstConn, components[dstCompId])
+    wires['w' + wireId] = w2
+    junction.addOut = w2
+    components[dstCompId]['i' + dstConn.loc] = w2
+    w2.render(scale)
+    sim.appendChild(w2.dom)
+    engine.registerWire('w' + wireId, w2)
+    wireId++
+
+    // --- Create Wire 3: junction output → new connector (the branch) ---
+    let w3 = new Wire('w' + wireId, junction.nOut, conn, conn.parent)
+    wires['w' + wireId] = w3
+    junction.addOut = w3
+    conn.parent['i' + conn.loc] = w3
+    w3.render(scale)
+    sim.appendChild(w3.dom)
+    engine.registerWire('w' + wireId, w3)
+    wireId++
+
+    return true
+}
+
+// Junction dots are now real components, no overlay needed
+function renderJunctions() { }
 
 function enableComponentDrag(dom, compId) {
     let body = dom.querySelector('.body') || dom
@@ -1292,6 +1463,23 @@ function enableComponentDrag(dom, compId) {
 
 document.addEventListener('pointerdown', (e) => {
     if (navMode !== 1) return
+    // Start wire drawing from connector via drag
+    if (e.target.classList && e.target.classList.contains('connector')) {
+        let connId = e.target.id
+        if (connId && connectors[connId]) {
+            e.stopPropagation()
+            wireDrawState.active = true
+            wireDrawState.sourceConnId = connId
+            wireDrawState.previewSvg = createWirePreview()
+            let simRect = sim.getBoundingClientRect()
+            let cRect = e.target.getBoundingClientRect()
+            let cx = (cRect.left + cRect.width/2 - simRect.left) / scale
+            let cy = (cRect.top + cRect.height/2 - simRect.top) / scale
+            wireDrawState.startX = cx
+            wireDrawState.startY = cy
+            return
+        }
+    }
     if (e.target.classList && e.target.classList.contains('wire-hit')) {
         e.stopPropagation()
         let wireId = e.target.dataset.wireId
@@ -1362,6 +1550,14 @@ document.addEventListener('pointerdown', (e) => {
 })
 
 document.addEventListener('pointermove', (e) => {
+    // Wire drawing preview
+    if (wireDrawState.active && navMode === 1 && wireDrawState.previewSvg) {
+        let simRect = sim.getBoundingClientRect()
+        let mx = (e.clientX - simRect.left) / scale
+        let my = (e.clientY - simRect.top) / scale
+        updateWirePreview(wireDrawState.previewSvg, wireDrawState.startX, wireDrawState.startY, mx, my)
+    }
+
     // Wire dragging
     if (wireDragState.active && navMode === 1) {
         let wire = wires[wireDragState.wireId]
@@ -1371,10 +1567,8 @@ document.addEventListener('pointermove', (e) => {
         let mx = (e.clientX - rect.left) / scale
         let my = (e.clientY - rect.top) / scale
         
-        if (snapToGrid) {
-            mx = Math.round(mx / 20) * 20
-            my = Math.round(my / 20) * 20
-        }
+        mx = Math.round(mx / GRID) * GRID
+        my = Math.round(my / GRID) * GRID
         
         let origBends = wireDragState.originalBends
         let newBends = JSON.parse(JSON.stringify(origBends))
@@ -1392,17 +1586,9 @@ document.addEventListener('pointermove', (e) => {
         let p1 = wire._getConnectorPos(wire.n1.dom, scale)
         let p2 = wire._getConnectorPos(wire.n2.dom, scale)
         let ptsCount = origBends.length + 2
-        let snapDist = 10
         
         if (wireDragState.isHorizontal) {
             let newY = my
-            let distToP1 = Math.abs(newY - p1.y)
-            let distToP2 = Math.abs(newY - p2.y)
-            if (distToP1 < snapDist && distToP1 <= distToP2) {
-                newY = p1.y
-            } else if (distToP2 < snapDist) {
-                newY = p2.y
-            }
 
             if (i === 0) {
                 newBends.unshift({x: p1.x, y: newY})
@@ -1417,13 +1603,6 @@ document.addEventListener('pointermove', (e) => {
             }
         } else {
             let newX = mx
-            let distToP1 = Math.abs(newX - p1.x)
-            let distToP2 = Math.abs(newX - p2.x)
-            if (distToP1 < snapDist && distToP1 <= distToP2) {
-                newX = p1.x
-            } else if (distToP2 < snapDist) {
-                newX = p2.x
-            }
 
             if (i === 0) {
                 newBends.unshift({x: newX, y: p1.y})
@@ -1440,6 +1619,77 @@ document.addEventListener('pointermove', (e) => {
         
         wire.bends = newBends
         wire.updatePath(scale)
+
+        // Move connected junctions when the segment touching them is dragged
+        let srcComp = components[wire.n1.parent.dom.id]
+        let dstComp = components[wire.n2.parent.dom.id]
+        let updatedPts = wire.getPoints(scale)
+
+        // Helper: snap junction to connected wire endpoints to eliminate overlapping segments
+        function snapJunctionToWires(junc, juncCompId, draggedWireId) {
+            let jx = junc.x + 6  // center of junction
+            let jy = junc.y + 6
+            let snapThreshold = 15
+            // Collect positions of all non-junction endpoints connected to this junction
+            for (let wid of Object.keys(wires)) {
+                if (wid === draggedWireId) continue
+                let w = wires[wid]
+                if (!w || !w.n1 || !w.n2) continue
+                let wSrcId = String(w.n1.parent.dom.id)
+                let wDstId = String(w.n2.parent.dom.id)
+                if (wSrcId !== String(juncCompId) && wDstId !== String(juncCompId)) continue
+                // Get the other endpoint (the non-junction connector)
+                let otherConn = (wSrcId === String(juncCompId)) ? w.n2 : w.n1
+                let otherComp = otherConn.parent
+                // Get other connector's position
+                let simRect = sim.getBoundingClientRect()
+                let oRect = otherConn.dom.getBoundingClientRect()
+                let ox = (oRect.left + oRect.width / 2 - simRect.left) / scale
+                let oy = (oRect.top + oRect.height / 2 - simRect.top) / scale
+                // Also check bend points of connected wires for snap targets
+                let wPts = w.getPoints(scale)
+                for (let pt of wPts) {
+                    if (Math.abs(jy - pt.y) < snapThreshold && Math.abs(jy - pt.y) > 0.5) {
+                        junc.y = pt.y - 6
+                        junc.dom.style.top = (pt.y - 6) + 'px'
+                        jy = pt.y
+                    }
+                    if (Math.abs(jx - pt.x) < snapThreshold && Math.abs(jx - pt.x) > 0.5) {
+                        junc.x = pt.x - 6
+                        junc.dom.style.left = (pt.x - 6) + 'px'
+                        jx = pt.x
+                    }
+                }
+            }
+        }
+
+        // If destination is a junction and we're dragging the last segment
+        if (dstComp instanceof Junction && (i + 1 >= ptsCount - 1 || i >= newBends.length - 1)) {
+            let meetPt = updatedPts.length >= 2 ? updatedPts[updatedPts.length - 2] : updatedPts[updatedPts.length - 1]
+            if (wireDragState.isHorizontal) {
+                dstComp.y = meetPt.y - 6
+                dstComp.dom.style.top = (meetPt.y - 6) + 'px'
+            } else {
+                dstComp.x = meetPt.x - 6
+                dstComp.dom.style.left = (meetPt.x - 6) + 'px'
+            }
+            snapJunctionToWires(dstComp, wire.n2.parent.dom.id, wireDragState.wireId)
+            rerenderWiresForComponent(wire.n2.parent.dom.id)
+        }
+
+        // If source is a junction and we're dragging the first segment
+        if (srcComp instanceof Junction && i === 0) {
+            let meetPt = updatedPts.length >= 2 ? updatedPts[1] : updatedPts[0]
+            if (wireDragState.isHorizontal) {
+                srcComp.y = meetPt.y - 6
+                srcComp.dom.style.top = (meetPt.y - 6) + 'px'
+            } else {
+                srcComp.x = meetPt.x - 6
+                srcComp.dom.style.left = (meetPt.x - 6) + 'px'
+            }
+            snapJunctionToWires(srcComp, wire.n1.parent.dom.id, wireDragState.wireId)
+            rerenderWiresForComponent(wire.n1.parent.dom.id)
+        }
     }
 
     // Element dragging (with group support)
@@ -1468,12 +1718,8 @@ document.addEventListener('pointermove', (e) => {
             let dom = comp.getDom || comp.dom
             comp.x = (comp.x || 0) + dx
             comp.y = (comp.y || 0) + dy
-            let drawX = comp.x
-            let drawY = comp.y
-            if (snapToGrid) {
-                drawX = Math.round(drawX / 20) * 20
-                drawY = Math.round(drawY / 20) * 20
-            }
+            let drawX = Math.round(comp.x / GRID) * GRID
+            let drawY = Math.round(comp.y / GRID) * GRID
             dom.style.left = drawX + 'px'
             dom.style.top = drawY + 'px'
         }
@@ -1516,6 +1762,46 @@ document.addEventListener('pointermove', (e) => {
 })
 
 document.addEventListener('pointerup', (e) => {
+    // End wire drawing (drag-to-connect)
+    if (wireDrawState.active) {
+        let sourceConn = connectors[wireDrawState.sourceConnId]
+        removeWirePreview()
+        if (sourceConn) {
+            // Check if released on a connector
+            if (e.target.classList && e.target.classList.contains('connector')) {
+                let targetConn = connectors[e.target.id]
+                if (targetConn) {
+                    let s, en
+                    if (targetConn.type === 'in' && sourceConn.type === 'out') {
+                        s = sourceConn; en = targetConn
+                    } else if (targetConn.type === 'out' && sourceConn.type === 'in') {
+                        s = targetConn; en = sourceConn
+                    } else if (sourceConn.type === 'in' && targetConn.type === 'in') {
+                        s = null; en = null  // invalid: both inputs
+                    } else {
+                        s = null; en = null  // invalid: both outputs
+                    }
+                    if (s && en && createWireConnection(s, en)) {
+                        s.deselect(); en.deselect()
+                        pushHistory()
+                    }
+                }
+            }
+            // Check if released on a wire (junction)
+            else if (e.target.classList && e.target.classList.contains('wire-hit')) {
+                let targetWireId = e.target.dataset.wireId
+                let simRect = sim.getBoundingClientRect()
+                let jx = (e.clientX - simRect.left) / scale
+                let jy = (e.clientY - simRect.top) / scale
+                if (createJunction(sourceConn, targetWireId, jx, jy)) {
+                    sourceConn.deselect()
+                    pushHistory()
+                }
+            }
+        }
+        justDragged = true  // prevent click handler from also processing
+    }
+
     // End wire dragging
     if (wireDragState.active) {
         if (wireDragState.isHold) {
@@ -1565,9 +1851,9 @@ document.addEventListener('pointerup', (e) => {
             let toMove = draggedComp.selected ? Object.keys(components).filter(id => components[id].selected) : [dragState.compId]
             for (let id of toMove) {
                 let c = components[id]
-                if (snapToGrid && c.x !== undefined && c.y !== undefined) {
-                    c.x = Math.round(c.x / 20) * 20
-                    c.y = Math.round(c.y / 20) * 20
+                if (c.x !== undefined && c.y !== undefined) {
+                    c.x = Math.round(c.x / GRID) * GRID
+                    c.y = Math.round(c.y / GRID) * GRID
                 }
             }
         }
@@ -1689,6 +1975,8 @@ function rerenderWiresForComponent(compId) {
         let srcId = wire.n1.parent.dom.id
         let dstId = wire.n2.parent.dom.id
         if (srcId == compId || dstId == compId) {
+            // Skip the wire currently being dragged to avoid fighting with the drag handler
+            if (wireDragState.active && wid === wireDragState.wireId) continue
             if (wire.dom && wire.dom.parentElement) {
                 wire.updatePath(scale)
             } else {
@@ -1697,6 +1985,7 @@ function rerenderWiresForComponent(compId) {
             }
         }
     }
+    renderJunctions()
 }
 
 // ===== MULTI-SELECT =====

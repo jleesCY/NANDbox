@@ -179,31 +179,31 @@
                         <div class="menu-items">
                             <div style="display:grid;grid-template-columns: 1fr 1fr; gap:12px">
                                 <div id='not-gate' style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px">
-                                    <div id="not" style="margin:auto"><img class='draggable' src="../images/gates/NOT.svg" style="height:50px" draggable="true"/></div>
+                                    <div id="not" style="margin:auto"><div class="sidebar-gate not-shape draggable" draggable="true"><span class="gate-label">NOT</span><div class="gate-bubble"></div></div></div>
                                     <div style="font-size: 15px;color: #222">NOT</div>
                                 </div>
                                 <div id="and-gate" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px">
-                                    <div id="and" style="margin:auto"><img class='draggable' src="../images/gates/AND.svg" style="height:50px" draggable="true"/></div>
+                                    <div id="and" style="margin:auto"><div class="sidebar-gate and-shape draggable" draggable="true"><span class="gate-label">AND</span></div></div>
                                     <div style="font-size: 15px;color: #222">AND</div>
                                 </div>
                                 <div id="or-gate" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px">
-                                    <div id="or" style="margin:auto"><img class='draggable' src="../images/gates/OR.svg" style="height:50px" draggable="true"/></div>
+                                    <div id="or" style="margin:auto"><div class="sidebar-gate or-shape draggable" draggable="true"><span class="gate-label">OR</span></div></div>
                                     <div style="font-size: 15px;color: #222">OR</div>
                                 </div>
                                 <div id='nand-gate' style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px">
-                                    <div id="nand" style="margin:auto"><img class="draggable" src="../images/gates/NAND.svg" style="height:50px" draggable="true"/></div>
+                                    <div id="nand" style="margin:auto"><div class="sidebar-gate and-shape draggable" draggable="true"><span class="gate-label">NAND</span><div class="gate-bubble"></div></div></div>
                                     <div style="font-size: 15px;color: #222">NAND</div>
                                 </div>
                                 <div id="nor-gate" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px">
-                                    <div id="nor" style="margin:auto"><img class="draggable" src="../images/gates/NOR.svg" style="height:50px" draggable="true"/></div>
+                                    <div id="nor" style="margin:auto"><div class="sidebar-gate or-shape draggable" draggable="true"><span class="gate-label">NOR</span><div class="gate-bubble"></div></div></div>
                                     <div style="font-size: 15px;color: #222">NOR</div>
                                 </div>
                                 <div id="xor-gate" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px">
-                                    <div id="xor" style="margin:auto"><img class="draggable" src="../images/gates/XOR.svg" style="height:50px" draggable='true'/></div>
+                                    <div id="xor" style="margin:auto"><div class="sidebar-gate xor-shape draggable" draggable="true"><span class="gate-label">XOR</span></div></div>
                                     <div style="font-size: 15px;color: #222">XOR</div>
                                 </div>
                                 <div id="xnor-gate" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px" draggable='false'>
-                                    <div id="xnor" style="margin:auto"><img class="draggable" src="../images/gates/XNOR.svg" style="height:50px" draggable="true"/></div>
+                                    <div id="xnor" style="margin:auto"><div class="sidebar-gate xor-shape draggable" draggable="true"><span class="gate-label">XNOR</span><div class="gate-bubble"></div></div></div>
                                     <div style="font-size: 15px;color: #222">XNOR</div>
                                 </div>
                             </div>
@@ -215,19 +215,19 @@
                             <div style="display:grid;grid-template-columns: 1fr 1fr; gap:12px">
                                 
                                 <div id="dff-item" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px" draggable='false'>
-                                    <div id="dff" style="margin:auto"><img class='draggable' src="../images/flipflops/DFF.svg" style="width:100px" draggable="true"/></div>
+                                    <div id="dff" style="margin:auto"><div class="sidebar-ff draggable" draggable="true"><span class="ff-label">D FF</span></div></div>
                                     <div style="font-size: 15px;color: #222">D Flip Flop</div>
                                 </div>
                                 <div id="srff-item" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px" draggable='false'>
-                                    <div id="srff" style="margin:auto"><img class='draggable' src="../images/flipflops/SRFF.svg" style="width:100px" draggable="true"/></div>
+                                    <div id="srff" style="margin:auto"><div class="sidebar-ff draggable" draggable="true"><span class="ff-label">SR FF</span></div></div>
                                     <div style="font-size: 15px;color: #222">SR Flip Flop</div>
                                 </div>
                                 <div id="tff-item" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px" draggable='false'>
-                                    <div id="tff" style="margin:auto"><img class='draggable' src="../images/flipflops/TFF.svg" style="width:100px" draggable="true"/></div>
+                                    <div id="tff" style="margin:auto"><div class="sidebar-ff draggable" draggable="true"><span class="ff-label">T FF</span></div></div>
                                     <div style="font-size: 15px;color: #222">T Flip Flop</div>
                                 </div>
                                 <div id="jkff-item" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px" draggable='false'>
-                                    <div id="jkff" style="margin:auto"><img class='draggable' src="../images/flipflops/JKFF.svg" style="width:100px" draggable="true"/></div>
+                                    <div id="jkff" style="margin:auto"><div class="sidebar-ff draggable" draggable="true"><span class="ff-label">JK FF</span></div></div>
                                     <div style="font-size: 15px;color: #222">JK Flip Flop</div>
                                 </div>
                             </div>
@@ -348,6 +348,7 @@
         <script src="../js/label.js"></script>
         <script src="../js/7Seg.js"></script>
         <script src="../js/flipflop.js"></script>
+        <script src="../js/junction.js"></script>
         <script src="../js/index.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>

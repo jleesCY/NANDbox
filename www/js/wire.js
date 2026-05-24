@@ -64,9 +64,12 @@ class Wire {
     _getConnectorPos = (el, scale) => {
         let simRect = sim.getBoundingClientRect()
         let rect = el.getBoundingClientRect()
+        let x = (rect.left + rect.width / 2 - simRect.left) / scale
+        let y = (rect.top + rect.height / 2 - simRect.top) / scale
+        // Snap to grid
         return {
-            x: (rect.left + rect.width / 2 - simRect.left) / scale,
-            y: (rect.top + rect.height / 2 - simRect.top) / scale
+            x: Math.round(x / GRID) * GRID,
+            y: Math.round(y / GRID) * GRID
         }
     }
 
@@ -111,20 +114,13 @@ class Wire {
             return [p1, ...adjusted, p2]
         }
 
-        let dx = p2.x - p1.x
-        let dy = p2.y - p1.y
-        let snapDist = 10
-
-        if (Math.abs(dy) < snapDist) {
-            return [p1, { x: p2.x, y: p1.y }, p2]
+        // Default: single 90-degree L-turn (horizontal first, then vertical)
+        if (p1.x === p2.x || p1.y === p2.y) {
+            // Already aligned — straight line
+            return [p1, p2]
         }
-
-        if (Math.abs(dx) < snapDist) {
-            return [p1, { x: p1.x, y: p2.y }, p2]
-        }
-
-        let midX = p1.x + dx / 2
-        return [p1, { x: midX, y: p1.y }, { x: midX, y: p2.y }, p2]
+        // L-shaped: go horizontal from source, then vertical to destination
+        return [p1, { x: p2.x, y: p1.y }, p2]
     }
 
     /**
