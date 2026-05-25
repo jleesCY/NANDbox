@@ -47,11 +47,9 @@ class Label {
         this.dom.removeEventListener('dblclick', this.select)
     }
     enableEdit = () => {
-        this.dom.setAttribute('contenteditable','true')
-        this.editable = true
+        this.editable = false
     }
     disableEdit = () => {
-        this.dom.setAttribute('contenteditable','false')
         this.editable = false
     }
 }

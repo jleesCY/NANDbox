@@ -14,7 +14,6 @@ class Clock {
         this.nOut = null
         this.selected = false
         this.value = false
-        this.running = true
         this.period = 30        // Toggle every N engine ticks (30 = ~0.5s at 60Hz)
         this.tickCounter = 0
     }
@@ -65,12 +64,10 @@ class Clock {
      * Evaluate: auto-toggle and write to output
      */
     evaluate() {
-        if (this.running) {
-            this.tickCounter++
-            if (this.tickCounter >= this.period) {
-                this.tickCounter = 0
-                this.value = !this.value
-            }
+        this.tickCounter++
+        if (this.tickCounter >= this.period) {
+            this.tickCounter = 0
+            this.value = !this.value
         }
 
         if (this.nOut) {
@@ -123,22 +120,9 @@ class Clock {
     disableSelect = () => {
         this.dom.removeEventListener('dblclick', this.select)
     }
-    enablePress = () => {
-        // Click to toggle running state
-        this.dom.children[0].addEventListener('pointerup', this.toggleRunning)
-    }
-    disablePress = () => {
-        this.dom.children[0].removeEventListener('pointerup', this.toggleRunning)
-    }
-    toggleRunning = () => {
-        this.running = !this.running
-        let body = this.dom.children[0]
-        if (this.running) {
-            body.classList.remove('paused')
-        } else {
-            body.classList.add('paused')
-        }
-    }
+    enablePress = () => {}
+    disablePress = () => {}
+    toggleRunning = () => {}
     on = () => {
         this.value = true
         this.dom.children[0].classList.remove('low')

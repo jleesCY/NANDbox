@@ -54,12 +54,7 @@ class Gate {
         this.n2 = null          // Input 2 connector
         this.nOut = null        // Output connector
         this.selected = false
-        this._computedOutput = null  // Computed during evaluate phase
-        // Delay support (in engine ticks)
-        this.inputDelay = 0
-        this.outputDelay = 0
-        this._inputQueue = []   // [{value1, value2, ticksLeft}]
-        this._outputQueue = []  // [{value, ticksLeft}]
+        this._computedOutput = null
     }
 
     //
@@ -140,60 +135,18 @@ class Gate {
     // ----- ENGINE INTERFACE -----
     //
 
-    /**
-     * Evaluate: compute output from current input values with optional delays
-     */
     evaluate() {
         let v1 = (this.n1 !== null) ? this.n1.value : null
         let v2 = (this.n2 !== null) ? this.n2.value : null
 
-        // Apply input delay
-        let effectiveV1 = v1, effectiveV2 = v2
-        if (this.inputDelay > 0) {
-            this._inputQueue.push({v1: v1, v2: v2, ticks: this.inputDelay})
-            // Process queue
-            for (let i = this._inputQueue.length - 1; i >= 0; i--) {
-                this._inputQueue[i].ticks--
-                if (this._inputQueue[i].ticks <= 0) {
-                    let ready = this._inputQueue.splice(0, i + 1)
-                    let last = ready[ready.length - 1]
-                    effectiveV1 = last.v1
-                    effectiveV2 = last.v2
-                    break
-                }
-            }
-            // If nothing ready yet, use null
-            if (this._inputQueue.length > 0 && this._inputQueue[0].ticks > 0 && effectiveV1 === v1) {
-                effectiveV1 = null
-                effectiveV2 = null
-            }
-        }
-
-        // Compute gate output
+        // Compute gate output immediately
         let gateFn = GATE_FUNCTIONS[this.type]
-        let rawOutput = gateFn ? gateFn(effectiveV1, effectiveV2) : null
-
-        // Apply output delay
-        if (this.outputDelay > 0) {
-            this._outputQueue.push({value: rawOutput, ticks: this.outputDelay})
-            this._computedOutput = null // default until something is ready
-            for (let i = this._outputQueue.length - 1; i >= 0; i--) {
-                this._outputQueue[i].ticks--
-                if (this._outputQueue[i].ticks <= 0) {
-                    let ready = this._outputQueue.splice(0, i + 1)
-                    this._computedOutput = ready[ready.length - 1].value
-                    break
-                }
-            }
-        } else {
-            this._computedOutput = rawOutput
-        }
+        this._computedOutput = gateFn ? gateFn(v1, v2) : null
 
         // Update output connector
         if (this.nOut) {
             this.nOut.value = this._computedOutput
         }
-
     }
 
     /**

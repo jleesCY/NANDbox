@@ -233,14 +233,6 @@ function copySelection() {
             rotation: comp.rotation || 0
         }
         if (entry.type === '7seg') entry.type = 'seg7'
-        if (comp instanceof Gate) {
-            entry.inputDelay = comp.inputDelay || 0
-            entry.outputDelay = comp.outputDelay || 0
-        }
-        if (comp instanceof Clock) {
-            entry.period = comp.period
-            entry.running = comp.running
-        }
         if (comp instanceof Light && comp.lightColor) entry.lightColor = comp.lightColor
         if (comp instanceof Seg7 && comp.displayColor) entry.displayColor = comp.displayColor
         if (comp instanceof Label) entry.text = comp.dom.innerText
@@ -336,16 +328,6 @@ function serializeCircuit() {
         }
         // Normalize 7seg type for template compatibility
         if (entry.type === '7seg') entry.type = 'seg7'
-        // Gate-specific: input/output delays
-        if (comp instanceof Gate) {
-            entry.inputDelay = comp.inputDelay || 0
-            entry.outputDelay = comp.outputDelay || 0
-        }
-        // Clock-specific: period and running state
-        if (comp instanceof Clock) {
-            entry.period = comp.period
-            entry.running = comp.running
-        }
         // LED-specific: color
         if (comp instanceof Light && comp.lightColor) {
             entry.lightColor = comp.lightColor
@@ -444,8 +426,6 @@ function loadCircuit(data, append) {
         if (cat === 'gate') {
             components[newElemId] = new Gate(t, lx, ly, component)
             components[newElemId].enableSelect()
-            if (entry.inputDelay) components[newElemId].inputDelay = entry.inputDelay
-            if (entry.outputDelay) components[newElemId].outputDelay = entry.outputDelay
             components[newElemId].setN1 = new Connector('in', 'n1', component.children[0].children[0], components[newElemId])
             components[newElemId].getN1.getDom.id = 'c' + connectorId
             connIdMap[entry.connectorIds.n1] = 'c' + connectorId
@@ -472,7 +452,6 @@ function loadCircuit(data, append) {
         } else if (cat === 'input') {
             if (t === 'clock') {
                 components[newElemId] = new Clock(lx, ly, component)
-                if (entry.period) components[newElemId].period = entry.period
             } else {
                 components[newElemId] = new Input(t, lx, ly, component)
             }
@@ -2031,105 +2010,92 @@ function openCompSettings(compId) {
     let comp = components[compId]
     if (!comp) return
     compSettingsTarget = compId
-    let cat = categories[comp.getType || comp.type]
-    let typeName = (comp.getType || comp.type).toUpperCase()
-
+    let t = comp.getType || comp.type
     let overlay = document.getElementById('comp-settings-panel')
-    let title = document.getElementById('comp-settings-title')
     let body = document.getElementById('comp-settings-body')
 
-    title.textContent = typeName + ' — Settings'
-
-    // Build settings form
     let html = ''
 
-    // Position info
+    // For Label text content:
+    if (t === 'label') {
+        html += '<div class="modal-field">'
+        html += '<label class="modal-label">Text Content</label>'
+        html += '<input type="text" class="modal-input" style="width:100%" value="' + (comp.dom.innerText || '') + '" oninput="updateLabelText(\'' + compId + '\', this.value)">'
+        html += '</div>'
+    }
+
+    // Position info (Editable by increments of 10 only)
     html += '<div class="modal-field">'
-    html += '<label class="modal-label">Position</label>'
-    html += '<div style="display:flex;gap:10px">'
-    html += '<div><label style="font-size:10px;color:#636b7e">X</label><input type="number" class="modal-input" style="width:80px" value="' + Math.round(comp.x || 0) + '" onchange="moveCompTo(\'' + compId + '\',\'x\',+this.value)"></div>'
-    html += '<div><label style="font-size:10px;color:#636b7e">Y</label><input type="number" class="modal-input" style="width:80px" value="' + Math.round(comp.y || 0) + '" onchange="moveCompTo(\'' + compId + '\',\'y\',+this.value)"></div>'
+    html += '<label class="modal-label">Position (Grid)</label>'
+    html += '<div style="display:flex;gap:16px">'
+    
+    html += '<div style="display:flex; align-items:center; gap:8px">'
+    html += '<span style="font-size:12px;color:#636b7e;font-weight:600">X</span>'
+    html += '<input type="number" step="10" class="modal-input" style="width:75px" value="' + Math.round(comp.x || 0) + '" onchange="moveCompTo(\'' + compId + '\',\'x\',+this.value)">'
+    html += '</div>'
+
+    html += '<div style="display:flex; align-items:center; gap:8px">'
+    html += '<span style="font-size:12px;color:#636b7e;font-weight:600">Y</span>'
+    html += '<input type="number" step="10" class="modal-input" style="width:75px" value="' + Math.round(comp.y || 0) + '" onchange="moveCompTo(\'' + compId + '\',\'y\',+this.value)">'
+    html += '</div>'
+    
     html += '</div></div>'
 
-    // Rotation
-    let curRot = comp.rotation || 0
-    html += '<div class="modal-field">'
-    html += '<label class="modal-label">Rotation</label>'
-    html += '<div style="display:flex;align-items:center;gap:8px">'
-    html += '<button class="tb-btn" style="border:1px solid rgba(255,255,255,0.15);padding:4px 10px;font-size:12px" onclick="rotateComponent(\'' + compId + '\',-90)">↺ 90°</button>'
-    html += '<span id="comp-rot-display" style="font-family:\'JetBrains Mono\',monospace;font-size:13px;color:#e8eaed;min-width:40px;text-align:center">' + curRot + '°</span>'
-    html += '<button class="tb-btn" style="border:1px solid rgba(255,255,255,0.15);padding:4px 10px;font-size:12px" onclick="rotateComponent(\'' + compId + '\',90)">↻ 90°</button>'
-    html += '<button class="tb-btn" style="border:1px solid rgba(255,255,255,0.15);padding:4px 10px;font-size:11px;margin-left:4px" onclick="rotateComponent(\'' + compId + '\',0,true)">Reset</button>'
-    html += '</div></div>'
-
-    // Gate-specific: input/output delays
-    if (comp instanceof Gate) {
+    // Rotation (90 degree angles only) - except 4-Junction
+    if (t !== 'junc4') {
+        let curRot = comp.rotation || 0
         html += '<div class="modal-field">'
-        html += '<label class="modal-label">Input Delay (ticks)</label>'
-        html += '<input type="number" class="modal-input" style="width:80px" min="0" value="' + (comp.inputDelay || 0) + '" onchange="components[\'' + compId + '\'].inputDelay=Math.max(0,+this.value||0)">'
-        html += '</div>'
-        html += '<div class="modal-field">'
-        html += '<label class="modal-label">Output Delay (ticks)</label>'
-        html += '<input type="number" class="modal-input" style="width:80px" min="0" value="' + (comp.outputDelay || 0) + '" onchange="components[\'' + compId + '\'].outputDelay=Math.max(0,+this.value||0)">'
-        html += '</div>'
+        html += '<label class="modal-label">Rotation</label>'
+        html += '<div style="display:flex;align-items:center;gap:8px;background:rgba(0,0,0,0.2);padding:6px;border-radius:6px;border:1px solid rgba(255,255,255,0.05);width:fit-content">'
+        html += '<button class="tb-btn" style="border:1px solid rgba(255,255,255,0.2);padding:6px 12px;font-size:12px;background:rgba(255,255,255,0.1);color:#fff;border-radius:4px" onclick="rotateComponent(\'' + compId + '\',-90)">↺ 90°</button>'
+        html += '<span id="comp-rot-display" style="font-family:\'JetBrains Mono\',monospace;font-size:14px;color:#e8eaed;width:48px;text-align:center;font-weight:600">' + curRot + '°</span>'
+        html += '<button class="tb-btn" style="border:1px solid rgba(255,255,255,0.2);padding:6px 12px;font-size:12px;background:rgba(255,255,255,0.1);color:#fff;border-radius:4px" onclick="rotateComponent(\'' + compId + '\',90)">↻ 90°</button>'
+        html += '</div></div>'
     }
 
-    // Flip-flop: no user-configurable delays currently, but show type info
-    if (comp instanceof FlipFlop) {
-        html += '<div class="modal-field">'
-        html += '<label class="modal-label">Flip-Flop Type</label>'
-        let ffTypeName = 'Flip-Flop (edge-triggered)'
-        if (comp.type === 'jkff') ffTypeName = 'JK Flip-Flop (edge-triggered)'
-        if (comp.type === 'tff') ffTypeName = 'T Flip-Flop (edge-triggered)'
-        if (comp.type === 'srff') ffTypeName = 'SR Flip-Flop (edge-triggered)'
-        if (comp.type === 'dff') ffTypeName = 'D Flip-Flop (edge-triggered)'
-        html += '<div style="font-size:13px;color:#e8eaed">' + ffTypeName + '</div>'
-        html += '</div>'
-        html += '<div class="modal-field">'
-        html += '<label class="modal-label">Current Q State</label>'
-        html += '<div style="font-size:13px;color:' + (comp.q ? 'var(--signal-high)' : 'var(--signal-low)') + ';font-weight:700">' + (comp.q ? 'HIGH (1)' : 'LOW (0)') + '</div>'
-        html += '</div>'
-    }
-
-    // Clock: period and running state
-    if (comp instanceof Clock) {
-        html += '<div class="modal-field">'
-        html += '<label class="modal-label">Period (ticks per cycle)</label>'
-        html += '<input type="number" class="modal-input" style="width:80px" min="1" value="' + (comp.period || 30) + '" onchange="components[\'' + compId + '\'].period=Math.max(1,+this.value||1)">'
-        html += '</div>'
-        html += '<div class="modal-field">'
-        html += '<label class="modal-check"><input type="checkbox" ' + (comp.running !== false ? 'checked' : '') + ' onchange="components[\'' + compId + '\'].running=this.checked"> Running</label>'
-        html += '</div>'
-    }
-
-    // LED: light color
+    // Color (Light, 7seg)
     if (comp instanceof Light) {
         let currentColor = comp.lightColor || '#ff4b4b'
         html += '<div class="modal-field">'
-        html += '<label class="modal-label">LED Color (when HIGH)</label>'
+        html += '<label class="modal-label">Color</label>'
         html += '<div id="swatches-led">' + generateColorSwatches(currentColor, "setLedColor('" + compId + "', '%COLOR%')") + '</div>'
         html += '</div>'
-    }
-
-    // 7Seg: display color
-    if (comp instanceof Seg7) {
+    } else if (comp instanceof Seg7) {
         let currentColor = comp.displayColor || '#ff4b4b'
         html += '<div class="modal-field">'
-        html += '<label class="modal-label">Display Color</label>'
+        html += '<label class="modal-label">Color</label>'
         html += '<div id="swatches-seg7">' + generateColorSwatches(currentColor, "setSeg7Color('" + compId + "', '%COLOR%')") + '</div>'
         html += '</div>'
     }
 
-    // Input type info
-    if (comp instanceof Input) {
-        html += '<div class="modal-field">'
-        html += '<label class="modal-label">Input Type</label>'
-        html += '<div style="font-size:13px;color:#e8eaed">' + typeName + '</div>'
-        html += '</div>'
+    // Footer Buttons (Delete & Close)
+    html += '<div style="margin-top: 24px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px; display: flex; gap: 8px">'
+    if (t !== 'junc3' && t !== 'junc4') {
+        html += '<button class="tb-btn" style="flex:1; justify-content:center; background:rgba(255, 75, 75, 0.15); color:#ff4b4b; border:1px solid rgba(255, 75, 75, 0.3); padding:8px 0; border-radius:6px; font-size:13px; font-weight:600;" onclick="deleteComponentButton(\'' + compId + '\')">Delete</button>'
     }
+    html += '<button class="tb-btn" style="flex:1; justify-content:center; background:rgba(255,255,255,0.05); color:#e8eaed; border:1px solid rgba(255,255,255,0.15); padding:8px 0; border-radius:6px; font-size:13px; font-weight:600;" onclick="closeCompSettings()">Close</button>'
+    html += '</div>'
 
     body.innerHTML = html
     overlay.style.display = 'flex'
+}
+
+function updateLabelText(compId, text) {
+    let comp = components[compId]
+    if (comp && comp.dom) {
+        comp.dom.innerText = text
+    }
+}
+
+function deleteComponentButton(compId) {
+    let comp = components[compId]
+    if (comp) {
+        comp.selected = true
+        let toDelete = Object.keys(components).filter(id => components[id].selected)
+        for (let id of toDelete) deleteComponent(id)
+        if (toDelete.length > 0) pushHistory()
+        updateSettingsPanel()
+    }
 }
 
 function closeCompSettings() {
