@@ -100,22 +100,32 @@ let panelDragstart = (event) => {
     ghost.className = cat === 'seg7' ? 'seg7' : (cat || t)
     ghost.innerHTML = HTML[t] || ''
     ghost.style.position = 'absolute'
-    ghost.style.left = '-9999px'
-    ghost.style.top = '-9999px'
-    ghost.style.opacity = '0.8'
+    ghost.style.opacity = '0.5'
     ghost.style.pointerEvents = 'none'
-    document.body.appendChild(ghost)
+    ghost.style.zIndex = '1000'
+    ghost.style.visibility = 'hidden'
+    sim.appendChild(ghost)
 
-    // Measure the ghost to center the drag offset
-    let gRect = ghost.getBoundingClientRect()
-    let offsetX = Math.min(mx * (gRect.width / rect.width), gRect.width)
-    let offsetY = Math.min(my * (gRect.height / rect.height), gRect.height)
-    event.dataTransfer.setDragImage(ghost, offsetX, offsetY)
+    // Store drag preview info globally
+    window.dropPreviewData = {
+        type: t,
+        cat: cat,
+        xoff: mx,
+        yoff: my,
+        dom: ghost
+    }
 
-    // Clean up the ghost after drag starts (browser captures it as image)
-    requestAnimationFrame(() => {
-        setTimeout(() => ghost.remove(), 0)
-    })
+    // Hide the native browser drag ghost by using an empty 1x1 image
+    let emptyImg = new Image()
+    emptyImg.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
+    event.dataTransfer.setDragImage(emptyImg, 0, 0)
+}
+
+let panelDragend = (event) => {
+    if (window.dropPreviewData && window.dropPreviewData.dom) {
+        window.dropPreviewData.dom.remove()
+        window.dropPreviewData = null
+    }
 }
 
 let updateMode = () => {
@@ -136,6 +146,7 @@ let updateMode = () => {
         for (let id of Object.keys(connectors)) connectors[id].disableSelect()
         for (let elem of document.querySelectorAll(".draggable")) {
             elem.removeEventListener('dragstart', panelDragstart)
+            elem.removeEventListener('dragend', panelDragend)
             elem.setAttribute('draggable', 'false')
         }
     } else {
@@ -152,6 +163,7 @@ let updateMode = () => {
         for (let id of Object.keys(connectors)) connectors[id].enableSelect()
         for (let elem of document.querySelectorAll(".draggable")) {
             elem.addEventListener('dragstart', panelDragstart)
+            elem.addEventListener('dragend', panelDragend)
             elem.setAttribute('draggable', 'true')
         }
     }
@@ -941,8 +953,27 @@ document.addEventListener('click', (event) => {
     updateSettingsPanel()
 })
 
-// Fix: explicit event parameter
-dropzone.addEventListener('dragover', (event) => { event.preventDefault() })
+dropzone.addEventListener('dragover', (event) => { 
+    event.preventDefault() 
+    event.dataTransfer.dropEffect = 'move'
+    if (window.dropPreviewData && window.dropPreviewData.dom) {
+        let dropData = window.dropPreviewData
+        let ex = event.clientX || event.x || 0
+        let ey = event.clientY || event.y || 0
+        let yoff = document.querySelector("#navbar").getBoundingClientRect().height
+        
+        let cat = dropData.cat
+        let loc_x = ((ex - sim.getBoundingClientRect().x) / scale) - dropData.xoff - (cat === 'gate' || cat === 'flipflop' || dropData.type === 'seg7' ? 20 : 0)
+        let loc_y = (((ey - yoff) - (sim.getBoundingClientRect().y - yoff)) / scale) - dropData.yoff
+        
+        loc_x = Math.round(loc_x / GRID) * GRID
+        loc_y = Math.round(loc_y / GRID) * GRID
+        
+        dropData.dom.style.left = loc_x + 'px'
+        dropData.dom.style.top = loc_y + 'px'
+        dropData.dom.style.visibility = 'visible'
+    }
+})
 
 dropzone.addEventListener('drop', (event) => {
     event.preventDefault()
@@ -1617,25 +1648,39 @@ document.addEventListener('pointermove', (e) => {
             dom.style.top = drawY + 'px'
         }
 
-        // Translate bends for wires where BOTH endpoints are being moved,
-        // so the wire shape stays visually identical during group drags.
         let toMoveSet = new Set(toMove.map(id => String(id)))
+        let wiresToUpdate = new Set()
+        
         for (let wid of Object.keys(wires)) {
             let wire = wires[wid]
-            if (!wire || !wire.bends || wire.bends.length === 0) continue
-            if (!wire.n1 || !wire.n2) continue
+            if (!wire || !wire.n1 || !wire.n2) continue
             let srcId = String(wire.n1.parent.dom.id)
             let dstId = String(wire.n2.parent.dom.id)
-            if (toMoveSet.has(srcId) && toMoveSet.has(dstId)) {
-                for (let bend of wire.bends) {
-                    bend.x += dx
-                    bend.y += dy
+            
+            let moveSrc = toMoveSet.has(srcId)
+            let moveDst = toMoveSet.has(dstId)
+            
+            if (moveSrc || moveDst) {
+                wiresToUpdate.add(wid)
+                // Translate bends only if BOTH endpoints are moving
+                if (moveSrc && moveDst && wire.bends && wire.bends.length > 0) {
+                    for (let bend of wire.bends) {
+                        bend.x += dx
+                        bend.y += dy
+                    }
                 }
             }
         }
 
-        for (let id of toMove) {
-            rerenderWiresForComponent(id)
+        for (let wid of wiresToUpdate) {
+            let wire = wires[wid]
+            if (wireDragState.active && wid === wireDragState.wireId) continue
+            if (wire.dom && wire.dom.parentElement) {
+                wire.updatePath(scale)
+            } else {
+                wire.render(scale)
+                sim.appendChild(wire.dom)
+            }
         }
     }
 
