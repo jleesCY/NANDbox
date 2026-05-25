@@ -76,9 +76,6 @@ class Clock {
         if (this.nOut) {
             this.nOut.value = this.value
         }
-        for (let wire of this.out) {
-            wire.value = this.value
-        }
     }
 
     /**

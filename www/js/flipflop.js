@@ -81,15 +81,15 @@ class FlipFlop {
      */
     evaluate() {
         // Read input values
-        let clockVal = (this.in3 !== null) ? this.in3.getValue : null
+        let clockVal = (this.nC !== null) ? this.nC.value : null
 
         // Detect rising edge of clock
         let risingEdge = (this.prevClock === false && clockVal === true)
         this.prevClock = clockVal
 
         if (this.type === 'jkff') {
-            let j = (this.in1 !== null) ? this.in1.getValue : null
-            let k = (this.in2 !== null) ? this.in2.getValue : null
+            let j = (this.n1 !== null) ? this.n1.value : null
+            let k = (this.n2 !== null) ? this.n2.value : null
 
             if (risingEdge && j !== null && k !== null) {
                 if (j && !k) {
@@ -102,7 +102,7 @@ class FlipFlop {
                 // j=0, k=0 → Hold (no change)
             }
         } else if (this.type === 'tff') {
-            let t = (this.in1 !== null) ? this.in1.getValue : null
+            let t = (this.n1 !== null) ? this.n1.value : null
 
             if (risingEdge && t !== null) {
                 if (t) {
@@ -111,8 +111,8 @@ class FlipFlop {
                 // t=0 → Hold (no change)
             }
         } else if (this.type === 'srff') {
-            let s = (this.in1 !== null) ? this.in1.getValue : null
-            let r = (this.in2 !== null) ? this.in2.getValue : null
+            let s = (this.n1 !== null) ? this.n1.value : null
+            let r = (this.n2 !== null) ? this.n2.value : null
 
             if (risingEdge && s !== null && r !== null) {
                 if (s && !r) {
@@ -125,7 +125,7 @@ class FlipFlop {
                 // s=0, r=0 → Hold
             }
         } else if (this.type === 'dff') {
-            let d = (this.in1 !== null) ? this.in1.getValue : null
+            let d = (this.n1 !== null) ? this.n1.value : null
 
             if (risingEdge && d !== null) {
                 this.q = d                  // Q follows D
@@ -142,20 +142,8 @@ class FlipFlop {
             qNotVal = null
         }
 
-        if (this.nQ) {
-            this.nQ.value = qVal
-        }
-        if (this.nQNot) {
-            this.nQNot.value = qNotVal
-        }
-
-        // Propagate to output wires
-        for (let wire of this.qOut) {
-            wire.value = qVal
-        }
-        for (let wire of this.qNotOut) {
-            wire.value = qNotVal
-        }
+        if (this.nQ) this.nQ.value = qVal
+        if (this.nQNot) this.nQNot.value = qNotVal
     }
 
     /**
@@ -164,15 +152,12 @@ class FlipFlop {
     updateVisuals() {
         // Input connectors
         if (this.n1) {
-            this.n1.value = (this.in1 !== null) ? this.in1.getValue : null
             this.n1.updateVisual()
         }
         if ((this.type === 'jkff' || this.type === 'srff') && this.n2 && this.n2 !== this.n1) {
-            this.n2.value = (this.in2 !== null) ? this.in2.getValue : null
             this.n2.updateVisual()
         }
         if (this.nC) {
-            this.nC.value = (this.in3 !== null) ? this.in3.getValue : null
             this.nC.updateVisual()
         }
         // Output connectors

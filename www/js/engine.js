@@ -22,12 +22,28 @@ class SimulationEngine {
      */
     registerComponent(id, component) {
         this.components[id] = component
+        // Auto-register all known connector properties from the component
+        const cProps = ['n1', 'n2', 'n3', 'n4', 'nC', 'nOut', 'nQ', 'nQNot', 'n']
+        for (let prop of cProps) {
+            if (component[prop]) {
+                this.registerConnector(component[prop].dom.id, component[prop])
+            }
+        }
     }
 
     /**
      * Unregister a component
      */
     unregisterComponent(id) {
+        let component = this.components[id]
+        if (component) {
+            const cProps = ['n1', 'n2', 'n3', 'n4', 'nC', 'nOut', 'nQ', 'nQNot', 'n']
+            for (let prop of cProps) {
+                if (component[prop]) {
+                    this.unregisterConnector(component[prop].dom.id)
+                }
+            }
+        }
         delete this.components[id]
     }
 
@@ -61,16 +77,90 @@ class SimulationEngine {
 
     /**
      * Perform a single simulation tick:
-     * 1. Propagate wire values from source connectors
+     * 1. Propagate wire values from source connectors using a net-based solver
      * 2. Evaluate all components (compute new outputs from current inputs)
      * 3. Update all component visuals
      */
     tick() {
-        // Phase 1: Propagate wire values — each wire reads from its source connector
-        for (let id of Object.keys(this.wires)) {
-            let wire = this.wires[id]
+        // Phase 1: Resolve Nets
+        let parent = {}
+        function find(i) {
+            if (parent[i] === undefined) return i;
+            if (parent[i] === i) return i;
+            return parent[i] = find(parent[i]);
+        }
+        function union(i, j) {
+            let rootI = find(i);
+            let rootJ = find(j);
+            if (rootI !== rootJ) parent[rootI] = rootJ;
+        }
+
+        // Connect wire endpoints
+        for (let wId in this.wires) {
+            let wire = this.wires[wId];
+            if (wire && wire.n1 && wire.n2) {
+                union(wire.n1.dom.id, wire.n2.dom.id);
+            }
+        }
+
+        // Connect junction points internally
+        for (let id of Object.keys(this.components)) {
+            let comp = this.components[id];
+            if (comp && (comp.type === 'junction' || comp.type === 'junc3' || comp.type === 'junc4')) {
+                if (comp.n1 && comp.n2) union(comp.n1.dom.id, comp.n2.dom.id);
+                if (comp.n1 && comp.n3) union(comp.n1.dom.id, comp.n3.dom.id);
+                if (comp.n1 && comp.n4) union(comp.n1.dom.id, comp.n4.dom.id);
+            }
+        }
+
+        // Gather drivers on each net
+        let netDrivers = {}
+        for (let cId in this.connectors) {
+            let conn = this.connectors[cId];
+            if (conn && conn.type === 'out') {
+                let root = find(cId);
+                if (!netDrivers[root]) netDrivers[root] = [];
+                if (conn.value !== null && conn.value !== undefined) {
+                    netDrivers[root].push(conn.value);
+                }
+            }
+        }
+
+        // Determine net values
+        let netValues = {}
+        for (let root in netDrivers) {
+            let drivers = netDrivers[root];
+            if (drivers.length === 0) {
+                netValues[root] = null;
+            } else {
+                let hasHigh = drivers.includes(true);
+                let hasLow = drivers.includes(false);
+                let hasShort = drivers.includes('short');
+                
+                if (hasShort || (hasHigh && hasLow)) {
+                    netValues[root] = 'short';
+                } else if (hasHigh) {
+                    netValues[root] = true;
+                } else {
+                    netValues[root] = false;
+                }
+            }
+        }
+
+        // Apply net values to wires and inputs
+        for (let wId in this.wires) {
+            let wire = this.wires[wId];
             if (wire && wire.n1) {
-                wire.value = wire.n1.value
+                let root = find(wire.n1.dom.id);
+                wire.value = netValues[root] !== undefined ? netValues[root] : null;
+            }
+        }
+
+        for (let cId in this.connectors) {
+            let conn = this.connectors[cId];
+            if (conn) {
+                let root = find(cId);
+                conn.value = netValues[root] !== undefined ? netValues[root] : null;
             }
         }
 

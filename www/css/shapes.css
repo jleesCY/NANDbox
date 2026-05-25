@@ -8,6 +8,7 @@
     width: 160px;
     align-items: center;
     transition: filter 0.15s ease;
+    pointer-events: none;
 }
 
 /* ===== Flip-Flop ===== */
@@ -20,12 +21,14 @@
     width: 160px;
     align-items: center;
     transition: filter 0.15s ease;
+    pointer-events: none;
 }
 
 /* ===== Component Body ===== */
 .body, .display {
     position: relative;
     z-index: 10;
+    pointer-events: auto;
 }
 .in-1, .in-2, .in-3, .in-4, .out-1, .out-2 {
     position: relative;
@@ -49,6 +52,7 @@
     height: 40px;
     align-items: center;
     transition: filter 0.15s ease;
+    pointer-events: none;
 }
 
 /* ===== Button ===== */
@@ -100,6 +104,7 @@
     width: 40px;
     height: 60px;
     transition: filter 0.15s ease;
+    pointer-events: none;
 }
 
 .led {
@@ -133,6 +138,28 @@
 }
 .low {
     background-color: var(--signal-low);
+}
+.short {
+    background-color: var(--signal-short);
+}
+
+.junction {
+    position: absolute;
+    display: block;
+    width: 50px;
+    height: 50px;
+    margin-left: -5px;
+    margin-top: -5px;
+    transition: filter 0.15s ease;
+    z-index: 2;
+    pointer-events: none;
+}
+
+#simulation-window .junction:hover {
+    cursor: grab;
+}
+#simulation-window .junction:active {
+    cursor: grabbing;
 }
 
 /* ===== Constants ===== */
@@ -419,6 +446,7 @@
     position: relative;
     transition: background-color var(--transition), box-shadow var(--transition), transform 0.075s ease;
     box-sizing: border-box;
+    pointer-events: auto;
 }
 .connector:hover {
     cursor: pointer;
@@ -432,6 +460,9 @@
 }
 .float {
     background-color: var(--signal-float);
+}
+.short {
+    background-color: var(--signal-short);
 }
 
 /* ===== Label ===== */
@@ -447,6 +478,7 @@
     font-size: 12pt;
     font-family: 'JetBrains Mono', monospace;
     border: none;
+    pointer-events: auto;
 }
 
 /* ===== 7-Segment Display ===== */
@@ -459,6 +491,7 @@
     gap: 0;
     align-items: center;
     transition: filter 0.15s ease;
+    pointer-events: none;
 }
 
 @font-face {

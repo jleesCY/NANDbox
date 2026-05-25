@@ -144,8 +144,8 @@ class Gate {
      * Evaluate: compute output from current input values with optional delays
      */
     evaluate() {
-        let v1 = (this.in1 !== null) ? this.in1.getValue : null
-        let v2 = (this.in2 !== null) ? this.in2.getValue : null
+        let v1 = (this.n1 !== null) ? this.n1.value : null
+        let v2 = (this.n2 !== null) ? this.n2.value : null
 
         // Apply input delay
         let effectiveV1 = v1, effectiveV2 = v2
@@ -189,15 +189,11 @@ class Gate {
             this._computedOutput = rawOutput
         }
 
-        // Write computed output to the output connector
+        // Update output connector
         if (this.nOut) {
             this.nOut.value = this._computedOutput
         }
 
-        // Write output value to all output wires
-        for (let wire of this.out) {
-            wire.value = this._computedOutput
-        }
     }
 
     /**
@@ -206,13 +202,9 @@ class Gate {
     updateVisuals() {
         // Update input connector visuals
         if (this.n1) {
-            let v1 = (this.in1 !== null) ? this.in1.getValue : null
-            this.n1.value = v1
             this.n1.updateVisual()
         }
         if (this.type !== 'not' && this.n2) {
-            let v2 = (this.in2 !== null) ? this.in2.getValue : null
-            this.n2.value = v2
             this.n2.updateVisual()
         }
         // Update output connector visual

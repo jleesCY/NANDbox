@@ -70,14 +70,11 @@ class Input {
     //
 
     /**
-     * Evaluate: write current value to output connector and wires
+     * Evaluate: write current value to output connector
      */
     evaluate() {
         if (this.nOut) {
             this.nOut.value = this.value
-        }
-        for (let wire of this.out) {
-            wire.value = this.value
         }
     }
 

@@ -36,9 +36,10 @@ class Wire {
      * Get the signal color based on current value
      */
     _getColor() {
-        if (this.value === null) return '#2ecc71'   // Green for floating
-        if (this.value) return '#ff4b4b'            // Red for high
-        return '#636e7a'                            // Gray for low
+        if (this.value === 'short') return 'var(--signal-short)'
+        if (this.value === null) return 'var(--signal-float)'
+        if (this.value) return 'var(--signal-high)'
+        return 'var(--signal-low)'
     }
 
     /**
@@ -106,9 +107,15 @@ class Wire {
                     bLast.x = p2.x
                 }
             } else if (adjusted.length === 1) {
-                 // For a single bend, ensure it maintains a right angle
-                 if (Math.abs(b0.x - p1.x) < 3) b0.y = p2.y
-                 else b0.x = p2.x
+                 // For a single bend, it forms an L-shape with p1 and p2.
+                 // Check which coordinate of the bend matches p2 to determine orientation.
+                 if (Math.abs(b0.x - p2.x) < 3) {
+                     b0.x = p2.x
+                     b0.y = p1.y
+                 } else {
+                     b0.x = p1.x
+                     b0.y = p2.y
+                 }
             }
 
             return [p1, ...adjusted, p2]
@@ -154,7 +161,7 @@ class Wire {
             'height:' + h + 'px;' +
             'overflow:visible;' +
             'pointer-events:none;' +
-            'z-index:1;')
+            'z-index:-1;')
         this.dom.setAttribute('viewBox', minX + ' ' + minY + ' ' + w + ' ' + h)
 
         let paths = this.dom.querySelectorAll('path')
@@ -199,7 +206,7 @@ class Wire {
             'height:' + h + 'px;' +
             'overflow:visible;' +
             'pointer-events:none;' +
-            'z-index:1;')
+            'z-index:-1;')
         svg.setAttribute('viewBox', minX + ' ' + minY + ' ' + w + ' ' + h)
 
         let hitPath = document.createElementNS('http://www.w3.org/2000/svg', 'path')
@@ -211,6 +218,15 @@ class Wire {
         hitPath.style.cursor = 'pointer'
         hitPath.classList.add('wire-hit')
         hitPath.dataset.wireId = this.id
+        hitPath.addEventListener('contextmenu', (e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            // Delete wire on right click
+            if (typeof removeWire === 'function') {
+                removeWire(this)
+                if (typeof pushHistory === 'function') pushHistory()
+            }
+        })
 
         let path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
         path.setAttribute('d', pathD)

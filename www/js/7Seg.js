@@ -43,33 +43,10 @@ class Seg7 {
     evaluate() {
         let v1 = '0', v2 = '0', v3 = '0', v4 = '0'
 
-        if (this.in1 !== null && this.in1.getValue !== null) {
-            v1 = this.in1.getValue ? '1' : '0'
-            if (this.n1) { this.n1.value = this.in1.getValue }
-        } else {
-            if (this.n1) { this.n1.value = null }
-        }
-
-        if (this.in2 !== null && this.in2.getValue !== null) {
-            v2 = this.in2.getValue ? '1' : '0'
-            if (this.n2) { this.n2.value = this.in2.getValue }
-        } else {
-            if (this.n2) { this.n2.value = null }
-        }
-
-        if (this.in3 !== null && this.in3.getValue !== null) {
-            v3 = this.in3.getValue ? '1' : '0'
-            if (this.n3) { this.n3.value = this.in3.getValue }
-        } else {
-            if (this.n3) { this.n3.value = null }
-        }
-
-        if (this.in4 !== null && this.in4.getValue !== null) {
-            v4 = this.in4.getValue ? '1' : '0'
-            if (this.n4) { this.n4.value = this.in4.getValue }
-        } else {
-            if (this.n4) { this.n4.value = null }
-        }
+        if (this.n1 && this.n1.value) v1 = '1'
+        if (this.n2 && this.n2.value) v2 = '1'
+        if (this.n3 && this.n3.value) v3 = '1'
+        if (this.n4 && this.n4.value) v4 = '1'
 
         this.dom.children[1].innerHTML = parseInt(v4 + v3 + v2 + v1, 2).toString(16).toUpperCase()
     }

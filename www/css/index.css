@@ -20,6 +20,7 @@
     --signal-high: #ff4b4b;
     --signal-low: #636e7a;
     --signal-float: #2ecc71;
+    --signal-short: #00ffff;
 
     --border: rgba(255, 255, 255, 0.06);
     --border-light: rgba(255, 255, 255, 0.1);

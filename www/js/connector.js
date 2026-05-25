@@ -29,7 +29,9 @@ class Connector {
      * Update the visual state of this connector based on its value
      */
     updateVisual() {
-        if (this.value === null) {
+        if (this.value === 'short') {
+            this.short()
+        } else if (this.value === null) {
             this.float()
         } else if (this.value) {
             this.on()
@@ -67,18 +69,19 @@ class Connector {
         this.dom.removeEventListener('mouseout', this.unenlarge)
     }
     on = () => {
-        this.dom.classList.remove('off')
-        this.dom.classList.remove('float')
+        this.dom.classList.remove('off', 'float', 'short')
         this.dom.classList.add('on')
     }
     off = () => {
-        this.dom.classList.remove('on')
-        this.dom.classList.remove('float')
+        this.dom.classList.remove('on', 'float', 'short')
         this.dom.classList.add('off')
     }
     float = () => {
-        this.dom.classList.remove('on')
-        this.dom.classList.remove('off')
+        this.dom.classList.remove('on', 'off', 'short')
         this.dom.classList.add('float')
+    }
+    short = () => {
+        this.dom.classList.remove('on', 'off', 'float')
+        this.dom.classList.add('short')
     }
 }

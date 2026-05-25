@@ -66,16 +66,12 @@ class Light {
      * Evaluate: read input wire value and update visual state
      */
     evaluate() {
-        let val = null
-        if (this.in1 !== null) {
-            val = this.in1.getValue
-        }
-        // Update connector value
-        if (this.n1) {
-            this.n1.value = val
-        }
+        let val = this.n1 ? this.n1.value : null;
+
         // Update LED body
-        if (val === null) {
+        if (val === 'short') {
+            this._setShort()
+        } else if (val === null) {
             this._setFloat()
         } else if (val) {
             this._setOn()
@@ -105,7 +101,7 @@ class Light {
     // ----- VISUAL HELPERS -----
     //
     _setOn() {
-        this.dom.children[0].classList.remove('low', 'float')
+        this.dom.children[0].classList.remove('low', 'float', 'short')
         this.dom.children[0].classList.add('high')
         if (this.lightColor) {
             this.dom.children[0].style.backgroundColor = this.lightColor
@@ -114,13 +110,19 @@ class Light {
         }
     }
     _setOff() {
-        this.dom.children[0].classList.remove('high', 'float')
+        this.dom.children[0].classList.remove('high', 'float', 'short')
         this.dom.children[0].classList.add('low')
         this.dom.children[0].style.backgroundColor = ''
     }
     _setFloat() {
-        this.dom.children[0].classList.remove('high', 'low')
+        this.dom.children[0].classList.remove('high', 'low', 'short')
         this.dom.children[0].classList.add('float')
+        this.dom.children[0].style.backgroundColor = ''
+    }
+    _setShort() {
+        this.dom.children[0].classList.remove('high', 'low', 'float')
+        this.dom.children[0].classList.add('short')
+        this.dom.children[0].style.backgroundColor = ''
     }
 
     // Legacy on/off/float methods (still used by some code paths)
@@ -135,6 +137,10 @@ class Light {
     float = () => {
         this._setFloat()
         if (this.n1) this.n1.float()
+    }
+    short = () => {
+        this._setShort()
+        if (this.n1) this.n1.short()
     }
 
     //

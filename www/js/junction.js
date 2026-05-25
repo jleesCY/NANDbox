@@ -1,77 +1,73 @@
 /*
-    Junction Component
-    A pass-through node that forwards input signal to output.
-    Visually appears as a small dot on the canvas.
-    Used where wires branch/merge.
+    Junction Components
+    Passes a single input signal to multiple output paths.
+    Junction3: 1 In, 2 Out (T-shape)
+    Junction4: 1 In, 3 Out (Plus-shape)
 */
 
 class Junction {
-    constructor(x, y, dom) {
-        this.type = 'junction'
+    constructor(type, x, y, dom) {
+        this.type = type
         this.dom = dom
         this.x = x
         this.y = y
-        this.out = []
-        this.nOut = null   // output connector
-        this.n1 = null     // input connector (alias for compatibility)
-        this.in1 = null    // input wire
+        
+        // Input wire
+        this.in1 = null
+
+        // Connectors
+        this.n1 = null // Input
+        this.n2 = null // Output 1
+        this.n3 = null // Output 2
+        this.n4 = null // Output 3 (only for junc4)
+
+        // Output wire arrays
+        this.out2 = []
+        this.out3 = []
+        this.out4 = []
+
         this.selected = false
-        this.rotation = 0
         this.value = null
     }
 
     // ----- GETTERS -----
     get getType() { return this.type }
-    get getOut() { return this.out }
-    get getN() { return this.nOut }
     get getX() { return this.x }
     get getY() { return this.y }
     get getDom() { return this.dom }
+    get getN1() { return this.n1 }
+    get getNOut() { return this.n2 }
 
-    // ----- SETTERS -----
-    set setOut(wires) { this.out = wires }
-    set addOut(wire) { this.out.push(wire) }
-    set setN(n) { this.nOut = n }
-    set setX(x) { this.x = x }
-    set setY(y) { this.y = y }
-
-    // Input wire property (i + loc pattern)
+    // Input wire property
     get i1() { return this.in1 }
     set i1(wire) { this.in1 = wire }
 
-    // ----- ENGINE INTERFACE -----
-    evaluate() {
-        // Read value from input wire
-        if (this.in1) {
-            this.value = this.in1.value
+    // ----- SETTERS -----
+    set setX(x) { this.x = x }
+    set setY(y) { this.y = y }
+    
+    set addOut(wire) {
+        if (wire.n1 === this.n3) {
+            this.out3.push(wire)
+        } else if (wire.n1 === this.n4) {
+            this.out4.push(wire)
         } else {
-            this.value = null
-        }
-        // Write to output connector
-        if (this.nOut) {
-            this.nOut.value = this.value
-        }
-        // Write to output wires
-        for (let wire of this.out) {
-            wire.value = this.value
+            this.out2.push(wire)
         }
     }
 
+    // ----- ENGINE INTERFACE -----
+    evaluate() {
+        // Handled by the engine's net solver
+    }
+
     updateVisuals() {
-        if (this.nOut) {
-            this.nOut.updateVisual()
+        if (this.n1) {
+            this.n1.updateVisual()
         }
-        // Update dot color based on signal
-        let dot = this.dom.querySelector('.junction-body')
-        if (dot) {
-            if (this.value === null) {
-                dot.style.background = '#2ecc71'
-            } else if (this.value) {
-                dot.style.background = '#ff4b4b'
-            } else {
-                dot.style.background = '#636e7a'
-            }
-        }
+        if (this.n2) this.n2.updateVisual()
+        if (this.n3) this.n3.updateVisual()
+        if (this.n4) this.n4.updateVisual()
     }
 
     // ----- INTERACTION -----

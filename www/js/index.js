@@ -30,6 +30,8 @@ let HTML = {
     'tff': '<div class="in-2"><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div></div><div class="body ff-body" tabindex="1"><div class="ff-pin left">T</div><div class="ff-pin right">Q</div><div class="ff-pin left"></div><div class="ff-pin right"></div><div class="ff-pin left"><div class="ff-clk-triangle"></div></div><div class="ff-pin right overline">Q</div></div><div class="out-2"><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div></div>',
     'dff': '<div class="in-2"><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div></div><div class="body ff-body" tabindex="1"><div class="ff-pin left">D</div><div class="ff-pin right">Q</div><div class="ff-pin left"></div><div class="ff-pin right"></div><div class="ff-pin left"><div class="ff-clk-triangle"></div></div><div class="ff-pin right overline">Q</div></div><div class="out-2"><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div></div>',
     'srff': '<div class="in-3"><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div></div><div class="body ff-body" tabindex="1"><div class="ff-pin left">S</div><div class="ff-pin right">Q</div><div class="ff-pin left"><div class="ff-clk-triangle"></div></div><div class="ff-pin right"></div><div class="ff-pin left">R</div><div class="ff-pin right overline">Q</div></div><div class="out-2"><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div></div>',
+    'junc3': '<svg class="body junc-body" width="40" height="40" viewBox="0 0 40 40" style="position:absolute;left:5px;top:5px;pointer-events:auto;z-index:0;"><rect width="40" height="40" fill="transparent" style="pointer-events:all;"/><path d="M0,20 L40,20 M20,20 L20,40" stroke="#000" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none" style="pointer-events:none;"/><circle cx="20" cy="20" r="6" fill="#000" stroke="#000" stroke-width="1" style="pointer-events:auto;"/></svg><div class="connector float" tabindex="1" style="position:absolute;left:0px;top:20px;z-index:10;"><div class="connector-bridge" style="left:auto; right:-10px;"></div></div><div class="connector float" tabindex="1" style="position:absolute;left:40px;top:20px;z-index:10;"><div class="connector-bridge" style="left:-10px;"></div></div><div class="connector float" tabindex="1" style="position:absolute;left:20px;top:40px;z-index:10;"><div class="connector-bridge" style="width:3px; height:10px; top:-10px; left:50%; transform:translateX(-50%);"></div></div>',
+    'junc4': '<svg class="body junc-body" width="40" height="40" viewBox="0 0 40 40" style="position:absolute;left:5px;top:5px;pointer-events:auto;z-index:0;"><rect width="40" height="40" fill="transparent" style="pointer-events:all;"/><path d="M0,20 L40,20 M20,0 L20,40" stroke="#000" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none" style="pointer-events:none;"/><circle cx="20" cy="20" r="6" fill="#000" stroke="#000" stroke-width="1" style="pointer-events:auto;"/></svg><div class="connector float" tabindex="1" style="position:absolute;left:0px;top:20px;z-index:10;"><div class="connector-bridge" style="left:auto; right:-10px;"></div></div><div class="connector float" tabindex="1" style="position:absolute;left:40px;top:20px;z-index:10;"><div class="connector-bridge" style="left:-10px;"></div></div><div class="connector float" tabindex="1" style="position:absolute;left:20px;top:0px;z-index:10;"><div class="connector-bridge" style="width:3px; height:10px; top:auto; bottom:-10px; left:50%; transform:translateX(-50%);"></div></div><div class="connector float" tabindex="1" style="position:absolute;left:20px;top:40px;z-index:10;"><div class="connector-bridge" style="width:3px; height:10px; top:-10px; left:50%; transform:translateX(-50%);"></div></div>'
 }
 
 // Possible types of components
@@ -45,7 +47,9 @@ let categories = {
     'seg7': 'seg7',
     'label': 'label',
     'tff': connTypes[3], 'jkff': connTypes[3], 'dff': connTypes[3], 'srff': connTypes[3],
-    'junction': 'junction'
+    'junction': 'junction',
+    'junc3': 'junction',
+    'junc4': 'junction'
 }
 
 // Fix: use let for globals
@@ -235,7 +239,7 @@ function copySelection() {
         if (comp.nQ && comp.nQ.dom) entry.connectorIds.nQ = comp.nQ.dom.id
         if (comp.nQNot && comp.nQNot.dom) entry.connectorIds.nQNot = comp.nQNot.dom.id
         if (comp.nC && comp.nC.dom) entry.connectorIds.nC = comp.nC.dom.id
-        if (entry.type === 'seg7') {
+        if (entry.type === 'seg7' || entry.type === 'junc3' || entry.type === 'junc4') {
             entry.connectorIds.n1 = comp.n1 ? comp.n1.dom.id : null
             entry.connectorIds.n2 = comp.n2 ? comp.n2.dom.id : null
             entry.connectorIds.n3 = comp.n3 ? comp.n3.dom.id : null
@@ -351,7 +355,7 @@ function serializeCircuit() {
         if (comp.nQNot && comp.nQNot.dom) entry.connectorIds.nQNot = comp.nQNot.dom.id
         if (comp.nC && comp.nC.dom) entry.connectorIds.nC = comp.nC.dom.id
         // 7seg pins
-        if (entry.type === 'seg7') {
+        if (entry.type === 'seg7' || entry.type === 'junc3' || entry.type === 'junc4') {
             entry.connectorIds.n1 = comp.n1 ? comp.n1.dom.id : null
             entry.connectorIds.n2 = comp.n2 ? comp.n2.dom.id : null
             entry.connectorIds.n3 = comp.n3 ? comp.n3.dom.id : null
@@ -586,6 +590,51 @@ function loadCircuit(data, append) {
             connectors['c' + connectorId].enableSelect()
             connectorId++
             engine.registerComponent(newElemId, components[newElemId])
+        } else if (cat === 'junction') {
+            components[newElemId] = new Junction(t, lx, ly, component)
+            components[newElemId].enableSelect()
+            
+            // Input connector (Left)
+            components[newElemId].n1 = new Connector('in', 'n1', component.children[1], components[newElemId])
+            components[newElemId].n1.dom.id = 'c' + connectorId
+            connIdMap[entry.connectorIds.n1] = 'c' + connectorId
+            connectors['c' + connectorId] = components[newElemId].n1
+            connectors['c' + connectorId].enableSelect()
+            connectorId++
+            
+            // Output connector 1 (Right)
+            components[newElemId].n2 = new Connector('in', 'n2', component.children[2], components[newElemId])
+            components[newElemId].n2.dom.id = 'c' + connectorId
+            connIdMap[entry.connectorIds.n2] = 'c' + connectorId
+            connectors['c' + connectorId] = components[newElemId].n2
+            connectors['c' + connectorId].enableSelect()
+            connectorId++
+
+            if (t === 'junc3') {
+                // Output connector 2 (Bottom)
+                components[newElemId].n3 = new Connector('in', 'n3', component.children[3], components[newElemId])
+                components[newElemId].n3.dom.id = 'c' + connectorId
+                connIdMap[entry.connectorIds.n3] = 'c' + connectorId
+                connectors['c' + connectorId] = components[newElemId].n3
+                connectors['c' + connectorId].enableSelect()
+                connectorId++
+            } else if (t === 'junc4') {
+                // Output connector 2 (Top)
+                components[newElemId].n3 = new Connector('in', 'n3', component.children[3], components[newElemId])
+                components[newElemId].n3.dom.id = 'c' + connectorId
+                connIdMap[entry.connectorIds.n3] = 'c' + connectorId
+                connectors['c' + connectorId] = components[newElemId].n3
+                connectors['c' + connectorId].enableSelect()
+                connectorId++
+                // Output connector 3 (Bottom)
+                components[newElemId].n4 = new Connector('in', 'n4', component.children[4], components[newElemId])
+                components[newElemId].n4.dom.id = 'c' + connectorId
+                connIdMap[entry.connectorIds.n4] = 'c' + connectorId
+                connectors['c' + connectorId] = components[newElemId].n4
+                connectors['c' + connectorId].enableSelect()
+                connectorId++
+            }
+            engine.registerComponent(newElemId, components[newElemId])
         }
 
         // Apply rotation if stored
@@ -615,9 +664,6 @@ function loadCircuit(data, append) {
                 y: b.y + offsetY
             }))
         }
-        let sComp = components[s.parent.dom.id]
-        if (sComp) sComp.addOut = wires[wId]
-        components[e.parent.dom.id]['i' + e.loc] = wires[wId]
         wires[wId].render(scale)
         sim.appendChild(wires[wId].dom)
         engine.registerWire(wId, wires[wId])
@@ -674,29 +720,6 @@ let help = () => { window.open('../help', '_blank') }
 // Helper: remove a wire and clean up references
 function removeWire(wire) {
     if (!wire) return
-    // Remove from source's output list
-    let srcComp = components[wire.n1.parent.dom.id]
-    if (srcComp) {
-        let cat = categories[srcComp.getType || srcComp.type]
-        if (cat === 'flipflop') {
-            // Check both qOut and qNotOut
-            let qi = srcComp.qOut ? srcComp.qOut.indexOf(wire) : -1
-            if (qi >= 0) srcComp.qOut.splice(qi, 1)
-            let qni = srcComp.qNotOut ? srcComp.qNotOut.indexOf(wire) : -1
-            if (qni >= 0) srcComp.qNotOut.splice(qni, 1)
-        } else if (srcComp.out) {
-            let idx = srcComp.out.indexOf(wire)
-            if (idx >= 0) srcComp.out.splice(idx, 1)
-        }
-    }
-    // Clear destination's input reference
-    let dstComp = components[wire.n2.parent.dom.id]
-    if (dstComp) {
-        // Find which input slot this wire is in
-        for (let key of ['in1', 'in2', 'in3', 'in4']) {
-            if (dstComp[key] === wire) dstComp[key] = null
-        }
-    }
     wire.delete()
     engine.unregisterWire(wire.id)
     delete wires[wire.id]
@@ -708,21 +731,24 @@ function deleteComponent(id) {
     if (!comp) return
     let cat = categories[comp.getType || comp.type]
 
-    // Collect all wires connected to this component
+    // Collect all wires connected to this component's connectors
     let wiresToRemove = []
-
-    // Output wires
-    if (cat === 'flipflop') {
-        if (comp.qOut) wiresToRemove.push(...comp.qOut)
-        if (comp.qNotOut) wiresToRemove.push(...comp.qNotOut)
-    } else if (comp.out) {
-        wiresToRemove.push(...comp.out)
+    let compConns = new Set()
+    let props = ['n1', 'n2', 'n3', 'n4', 'nOut', 'nC', 'nQ', 'nQNot', 'n']
+    for (let key of props) {
+        if (comp[key] && comp[key].dom && comp[key].dom.id) {
+            compConns.add(comp[key].dom.id)
+        }
+    }
+    // Also include .getN for legacy references if any
+    if (comp.getN && comp.getN.dom && comp.getN.dom.id) {
+        compConns.add(comp.getN.dom.id)
     }
 
-    // Input wires
-    for (let key of ['in1', 'in2', 'in3', 'in4']) {
-        if (comp[key] && comp[key] instanceof Wire) {
-            wiresToRemove.push(comp[key])
+    for (let wId in wires) {
+        let w = wires[wId]
+        if ((w.n1 && compConns.has(w.n1.dom.id)) || (w.n2 && compConns.has(w.n2.dom.id))) {
+            wiresToRemove.push(w)
         }
     }
 
@@ -759,6 +785,7 @@ $(function () {
                 if (components[id].selected) toDelete.push(id)
             }
             for (let id of toDelete) deleteComponent(id)
+
             if (toDelete.length > 0) pushHistory()
             updateSettingsPanel()
         }
@@ -875,6 +902,11 @@ document.addEventListener('click', (event) => {
                             if (comp.n2) comp.n2.deselect()
                             if (comp.n3) comp.n3.deselect()
                             if (comp.n4) comp.n4.deselect()
+                        } else if (cat === 'junction') {
+                            if (comp.n1) comp.n1.deselect()
+                            if (comp.n2) comp.n2.deselect()
+                            if (comp.n3) comp.n3.deselect()
+                            if (comp.n4) comp.n4.deselect()
                         }
                     }
                 }
@@ -889,13 +921,10 @@ document.addEventListener('click', (event) => {
         // Skip if wire was just completed via drag-to-connect
         if (justDragged) return
         if (drawWire) {
-            let s = null, e = null
-            if (connectors[event.target.id].type == 'in') {
-                s = connectors[wireOrigin.id]; e = connectors[event.target.id]
-            } else {
-                s = connectors[event.target.id]; e = connectors[wireOrigin.id]
-            }
-            if (s != e && s.parent != e.parent && s.type != e.type && e.parent['i' + e.loc] == null) {
+            let s = connectors[wireOrigin.id];
+            let e = connectors[event.target.id];
+            
+            if (s && e && s != e) {
                 if (createWireConnection(s, e)) {
                     wireOrigin = null; drawWire = false
                     s.deselect(); e.deselect()
@@ -1151,6 +1180,59 @@ dropzone.addEventListener('drop', (event) => {
             sim.appendChild(component)
             elementId++
         }
+        else if (dropData['type'] === 'junc3' || dropData['type'] === 'junc4') {
+            let loc_x = ((ex - sim.getBoundingClientRect().x) / scale) - dropData['xoff']
+            let loc_y = (((ey - yoff) - (sim.getBoundingClientRect().y - yoff)) / scale) - dropData['yoff']
+            loc_x = Math.round(loc_x / GRID) * GRID; loc_y = Math.round(loc_y / GRID) * GRID;
+            let component = document.createElement('div')
+            component.classList.add(categories[dropData['type']])
+            component.setAttribute('style', 'top:' + loc_y + 'px;left:' + loc_x + 'px;')
+            component.id = elementId
+            component.innerHTML = HTML[dropData['type']]
+            components[elementId] = new Junction(dropData['type'], loc_x, loc_y, component)
+            components[elementId].enableSelect()
+            
+            // Input connector (Left)
+            components[elementId].n1 = new Connector('in', 'n1', component.children[1], components[elementId])
+            components[elementId].n1.dom.id = 'c' + connectorId
+            connectors['c' + connectorId] = components[elementId].n1
+            connectors['c' + connectorId].enableSelect()
+            connectorId++
+            
+            // Output connector 1 (Right)
+            components[elementId].n2 = new Connector('in', 'n2', component.children[2], components[elementId])
+            components[elementId].n2.dom.id = 'c' + connectorId
+            connectors['c' + connectorId] = components[elementId].n2
+            connectors['c' + connectorId].enableSelect()
+            connectorId++
+
+            if (dropData['type'] === 'junc3') {
+                // Output connector 2 (Bottom)
+                components[elementId].n3 = new Connector('in', 'n3', component.children[3], components[elementId])
+                components[elementId].n3.dom.id = 'c' + connectorId
+                connectors['c' + connectorId] = components[elementId].n3
+                connectors['c' + connectorId].enableSelect()
+                connectorId++
+            } else if (dropData['type'] === 'junc4') {
+                // Output connector 2 (Top)
+                components[elementId].n3 = new Connector('in', 'n3', component.children[3], components[elementId])
+                components[elementId].n3.dom.id = 'c' + connectorId
+                connectors['c' + connectorId] = components[elementId].n3
+                connectors['c' + connectorId].enableSelect()
+                connectorId++
+                // Output connector 3 (Bottom)
+                components[elementId].n4 = new Connector('in', 'n4', component.children[4], components[elementId])
+                components[elementId].n4.dom.id = 'c' + connectorId
+                connectors['c' + connectorId] = components[elementId].n4
+                connectors['c' + connectorId].enableSelect()
+                connectorId++
+            }
+
+            engine.registerComponent(elementId, components[elementId])
+            enableComponentDrag(component, elementId)
+            sim.appendChild(component)
+            elementId++
+        }
     }
     pushHistory()
 })
@@ -1309,140 +1391,14 @@ function removeWirePreview() {
 
 // Create a wire connection between source and end connectors (shared logic)
 function createWireConnection(s, e) {
-    if (s === e || s.parent === e.parent || s.type === e.type) return false
-    if (e.parent['i' + e.loc] != null) return false
+    if (s === e) return false
     wires['w' + wireId] = new Wire('w' + wireId, s, e, e.parent)
-    let sComp = components[s.parent.dom.id]
-    sComp.addOut = wires['w' + wireId]
-    components[e.parent.dom.id]['i' + e.loc] = wires['w' + wireId]
     wires['w' + wireId].render(scale)
     sim.appendChild(wires['w' + wireId].dom)
     engine.registerWire('w' + wireId, wires['w' + wireId])
     wireId += 1
-    renderJunctions()
     return true
 }
-
-// Create a junction by connecting a connector to an existing wire
-function createJunction(conn, targetWireId, jx, jy) {
-    let targetWire = wires[targetWireId]
-    if (!targetWire) return false
-    let srcConn = targetWire.n1  // output side of target wire
-    let dstConn = targetWire.n2  // input side of target wire
-    // Only allow input connectors to tap into wires
-    if (conn.type !== 'in') return false
-    if (conn.parent === srcConn.parent || conn.parent === dstConn.parent) return false
-    if (conn.parent['i' + conn.loc] != null) return false
-
-    // Snap junction to nearest point on target wire's rendered path
-    let pts = targetWire.getPoints(scale)
-    let bestDist = Infinity
-    let snapX = jx, snapY = jy
-    for (let i = 0; i < pts.length - 1; i++) {
-        let p1 = pts[i], p2 = pts[i + 1]
-        let dx = p2.x - p1.x, dy = p2.y - p1.y
-        let len2 = dx * dx + dy * dy
-        let t = len2 === 0 ? 0 : Math.max(0, Math.min(1, ((jx - p1.x) * dx + (jy - p1.y) * dy) / len2))
-        let px = p1.x + t * dx
-        let py = p1.y + t * dy
-        let dist = Math.sqrt((jx - px) * (jx - px) + (jy - py) * (jy - py))
-        if (dist < bestDist) {
-            bestDist = dist
-            snapX = Math.round(px / GRID) * GRID
-            snapY = Math.round(py / GRID) * GRID
-        }
-    }
-
-    // Save original wire's bends before removing it
-    let origBends = targetWire.bends ? JSON.parse(JSON.stringify(targetWire.bends)) : null
-    let srcCompId = srcConn.parent.dom.id
-    let dstCompId = dstConn.parent.dom.id
-
-    // --- Create the Junction component ---
-    let jDom = document.createElement('div')
-    jDom.classList.add('junction')
-    jDom.id = elementId
-    jDom.setAttribute('style', 'position:absolute;top:' + (snapY - 6) + 'px;left:' + (snapX - 6) + 'px;width:12px;height:12px;z-index:1;')
-    let jBody = document.createElement('div')
-    jBody.classList.add('junction-body')
-    jBody.style.cssText = 'width:12px;height:12px;border-radius:50%;background:#2ecc71;cursor:pointer;'
-    jDom.appendChild(jBody)
-    // Input connector (invisible, centered)
-    let jInDom = document.createElement('div')
-    jInDom.classList.add('connector')
-    jInDom.style.cssText = 'position:absolute;width:12px;height:12px;top:0;left:0;border-radius:50%;pointer-events:none;'
-    jDom.appendChild(jInDom)
-    // Output connector (invisible, centered)
-    let jOutDom = document.createElement('div')
-    jOutDom.classList.add('connector')
-    jOutDom.style.cssText = 'position:absolute;width:12px;height:12px;top:0;left:0;border-radius:50%;pointer-events:none;'
-    jDom.appendChild(jOutDom)
-
-    let junction = new Junction(snapX - 6, snapY - 6, jDom)
-    components[elementId] = junction
-    let jId = elementId
-    elementId++
-
-    // Input connector
-    junction.n1 = new Connector('in', '1', jInDom, junction)
-    junction.n1.dom.id = 'c' + connectorId
-    connectors['c' + connectorId] = junction.n1
-    connectorId++
-
-    // Output connector
-    junction.nOut = new Connector('out', 'nOut', jOutDom, junction)
-    junction.nOut.dom.id = 'c' + connectorId
-    connectors['c' + connectorId] = junction.nOut
-    connectorId++
-
-    junction.enableSelect()
-    engine.registerComponent(jId, junction)
-    enableComponentDrag(jDom, jId)
-    sim.appendChild(jDom)
-
-    // --- Remove the original wire ---
-    removeWire(targetWire)
-
-    // --- Create Wire 1: original source → junction input ---
-    let w1 = new Wire('w' + wireId, srcConn, junction.n1, junction)
-    // Bends from original wire up to junction: filter bends that are between source and junction
-    // For simplicity, keep all original bends (they route source to junction area)
-    if (origBends) {
-        w1.bends = JSON.parse(JSON.stringify(origBends))
-    }
-    wires['w' + wireId] = w1
-    components[srcCompId].addOut = w1
-    junction.i1 = w1
-    w1.render(scale)
-    sim.appendChild(w1.dom)
-    engine.registerWire('w' + wireId, w1)
-    wireId++
-
-    // --- Create Wire 2: junction output → original destination ---
-    let w2 = new Wire('w' + wireId, junction.nOut, dstConn, components[dstCompId])
-    wires['w' + wireId] = w2
-    junction.addOut = w2
-    components[dstCompId]['i' + dstConn.loc] = w2
-    w2.render(scale)
-    sim.appendChild(w2.dom)
-    engine.registerWire('w' + wireId, w2)
-    wireId++
-
-    // --- Create Wire 3: junction output → new connector (the branch) ---
-    let w3 = new Wire('w' + wireId, junction.nOut, conn, conn.parent)
-    wires['w' + wireId] = w3
-    junction.addOut = w3
-    conn.parent['i' + conn.loc] = w3
-    w3.render(scale)
-    sim.appendChild(w3.dom)
-    engine.registerWire('w' + wireId, w3)
-    wireId++
-
-    return true
-}
-
-// Junction dots are now real components, no overlay needed
-function renderJunctions() { }
 
 function enableComponentDrag(dom, compId) {
     let body = dom.querySelector('.body') || dom
@@ -1477,6 +1433,8 @@ document.addEventListener('pointerdown', (e) => {
             let cy = (cRect.top + cRect.height/2 - simRect.top) / scale
             wireDrawState.startX = cx
             wireDrawState.startY = cy
+            wireDrawState.pointerStartX = e.clientX
+            wireDrawState.pointerStartY = e.clientY
             return
         }
     }
@@ -1625,71 +1583,6 @@ document.addEventListener('pointermove', (e) => {
         let dstComp = components[wire.n2.parent.dom.id]
         let updatedPts = wire.getPoints(scale)
 
-        // Helper: snap junction to connected wire endpoints to eliminate overlapping segments
-        function snapJunctionToWires(junc, juncCompId, draggedWireId) {
-            let jx = junc.x + 6  // center of junction
-            let jy = junc.y + 6
-            let snapThreshold = 15
-            // Collect positions of all non-junction endpoints connected to this junction
-            for (let wid of Object.keys(wires)) {
-                if (wid === draggedWireId) continue
-                let w = wires[wid]
-                if (!w || !w.n1 || !w.n2) continue
-                let wSrcId = String(w.n1.parent.dom.id)
-                let wDstId = String(w.n2.parent.dom.id)
-                if (wSrcId !== String(juncCompId) && wDstId !== String(juncCompId)) continue
-                // Get the other endpoint (the non-junction connector)
-                let otherConn = (wSrcId === String(juncCompId)) ? w.n2 : w.n1
-                let otherComp = otherConn.parent
-                // Get other connector's position
-                let simRect = sim.getBoundingClientRect()
-                let oRect = otherConn.dom.getBoundingClientRect()
-                let ox = (oRect.left + oRect.width / 2 - simRect.left) / scale
-                let oy = (oRect.top + oRect.height / 2 - simRect.top) / scale
-                // Also check bend points of connected wires for snap targets
-                let wPts = w.getPoints(scale)
-                for (let pt of wPts) {
-                    if (Math.abs(jy - pt.y) < snapThreshold && Math.abs(jy - pt.y) > 0.5) {
-                        junc.y = pt.y - 6
-                        junc.dom.style.top = (pt.y - 6) + 'px'
-                        jy = pt.y
-                    }
-                    if (Math.abs(jx - pt.x) < snapThreshold && Math.abs(jx - pt.x) > 0.5) {
-                        junc.x = pt.x - 6
-                        junc.dom.style.left = (pt.x - 6) + 'px'
-                        jx = pt.x
-                    }
-                }
-            }
-        }
-
-        // If destination is a junction and we're dragging the last segment
-        if (dstComp instanceof Junction && (i + 1 >= ptsCount - 1 || i >= newBends.length - 1)) {
-            let meetPt = updatedPts.length >= 2 ? updatedPts[updatedPts.length - 2] : updatedPts[updatedPts.length - 1]
-            if (wireDragState.isHorizontal) {
-                dstComp.y = meetPt.y - 6
-                dstComp.dom.style.top = (meetPt.y - 6) + 'px'
-            } else {
-                dstComp.x = meetPt.x - 6
-                dstComp.dom.style.left = (meetPt.x - 6) + 'px'
-            }
-            snapJunctionToWires(dstComp, wire.n2.parent.dom.id, wireDragState.wireId)
-            rerenderWiresForComponent(wire.n2.parent.dom.id)
-        }
-
-        // If source is a junction and we're dragging the first segment
-        if (srcComp instanceof Junction && i === 0) {
-            let meetPt = updatedPts.length >= 2 ? updatedPts[1] : updatedPts[0]
-            if (wireDragState.isHorizontal) {
-                srcComp.y = meetPt.y - 6
-                srcComp.dom.style.top = (meetPt.y - 6) + 'px'
-            } else {
-                srcComp.x = meetPt.x - 6
-                srcComp.dom.style.left = (meetPt.x - 6) + 'px'
-            }
-            snapJunctionToWires(srcComp, wire.n1.parent.dom.id, wireDragState.wireId)
-            rerenderWiresForComponent(wire.n1.parent.dom.id)
-        }
     }
 
     // Element dragging (with group support)
@@ -1766,40 +1659,29 @@ document.addEventListener('pointerup', (e) => {
     if (wireDrawState.active) {
         let sourceConn = connectors[wireDrawState.sourceConnId]
         removeWirePreview()
+        
+        let dx = e.clientX - wireDrawState.pointerStartX
+        let dy = e.clientY - wireDrawState.pointerStartY
+        let dist = Math.hypot(dx, dy)
+        let wasDrag = dist > 5 // if mouse moved more than 5px, it's a drag
+        let didConnect = false
+        
         if (sourceConn) {
-            // Check if released on a connector
             if (e.target.classList && e.target.classList.contains('connector')) {
                 let targetConn = connectors[e.target.id]
                 if (targetConn) {
-                    let s, en
-                    if (targetConn.type === 'in' && sourceConn.type === 'out') {
-                        s = sourceConn; en = targetConn
-                    } else if (targetConn.type === 'out' && sourceConn.type === 'in') {
-                        s = targetConn; en = sourceConn
-                    } else if (sourceConn.type === 'in' && targetConn.type === 'in') {
-                        s = null; en = null  // invalid: both inputs
-                    } else {
-                        s = null; en = null  // invalid: both outputs
-                    }
-                    if (s && en && createWireConnection(s, en)) {
+                    let s = sourceConn, en = targetConn;
+                    if (s && en && s !== en && createWireConnection(s, en)) {
                         s.deselect(); en.deselect()
                         pushHistory()
+                        didConnect = true
                     }
-                }
-            }
-            // Check if released on a wire (junction)
-            else if (e.target.classList && e.target.classList.contains('wire-hit')) {
-                let targetWireId = e.target.dataset.wireId
-                let simRect = sim.getBoundingClientRect()
-                let jx = (e.clientX - simRect.left) / scale
-                let jy = (e.clientY - simRect.top) / scale
-                if (createJunction(sourceConn, targetWireId, jx, jy)) {
-                    sourceConn.deselect()
-                    pushHistory()
                 }
             }
         }
-        justDragged = true  // prevent click handler from also processing
+        
+        justDragged = wasDrag || didConnect // prevent click handler if dragged or connected
+        wireDrawState.active = false
     }
 
     // End wire dragging
@@ -1854,6 +1736,25 @@ document.addEventListener('pointerup', (e) => {
                 if (c.x !== undefined && c.y !== undefined) {
                     c.x = Math.round(c.x / GRID) * GRID
                     c.y = Math.round(c.y / GRID) * GRID
+                }
+            }
+            
+            // Snap the translated bends for wires where both endpoints were moved
+            let toMoveSet = new Set(toMove.map(id => String(id)))
+            for (let wid of Object.keys(wires)) {
+                let wire = wires[wid]
+                if (!wire || !wire.bends || wire.bends.length === 0) continue
+                if (!wire.n1 || !wire.n2) continue
+                let srcId = String(wire.n1.parent.dom.id)
+                let dstId = String(wire.n2.parent.dom.id)
+                if (toMoveSet.has(srcId) && toMoveSet.has(dstId)) {
+                    for (let bend of wire.bends) {
+                        bend.x = Math.round(bend.x / GRID) * GRID
+                        bend.y = Math.round(bend.y / GRID) * GRID
+                    }
+                    if (wire.dom && wire.dom.parentElement) {
+                        wire.updatePath(scale)
+                    }
                 }
             }
         }
@@ -1985,7 +1886,6 @@ function rerenderWiresForComponent(compId) {
             }
         }
     }
-    renderJunctions()
 }
 
 // ===== MULTI-SELECT =====
@@ -2027,6 +1927,7 @@ function renderSignalColorPickers() {
     let high = getComputedStyle(root).getPropertyValue('--signal-high').trim() || '#ff4b4b'
     let low = getComputedStyle(root).getPropertyValue('--signal-low').trim() || '#636e7a'
     let float = getComputedStyle(root).getPropertyValue('--signal-float').trim() || '#2ecc71'
+    let shortC = getComputedStyle(root).getPropertyValue('--signal-short').trim() || '#00ffff'
 
     container.innerHTML = `
         <div>
@@ -2041,6 +1942,10 @@ function renderSignalColorPickers() {
             <label style="font-size:10px;color:#636b7e;display:block;margin-bottom:2px">FLOAT</label>
             ${generateColorSwatches(float, "applySignalColor('float', '%COLOR%')")}
         </div>
+        <div>
+            <label style="font-size:10px;color:#636b7e;display:block;margin-bottom:2px">SHORT</label>
+            ${generateColorSwatches(shortC, "applySignalColor('short', '%COLOR%')")}
+        </div>
     `
 }
 
@@ -2052,6 +1957,8 @@ function applySignalColor(type, color) {
         root.style.setProperty('--signal-low', color)
     } else if (type === 'float') {
         root.style.setProperty('--signal-float', color)
+    } else if (type === 'short') {
+        root.style.setProperty('--signal-short', color)
     }
     renderSignalColorPickers()
 }
@@ -2060,6 +1967,7 @@ function restoreDefaultColors() {
     applySignalColor('high', '#ff4b4b')
     applySignalColor('low', '#636e7a')
     applySignalColor('float', '#2ecc71')
+    applySignalColor('short', '#00ffff')
 }
 
 // ===== COMPONENT SETTINGS MODAL =====

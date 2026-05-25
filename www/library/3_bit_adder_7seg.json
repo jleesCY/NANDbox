@@ -5,8 +5,8 @@
       "id": "0",
       "type": "switch",
       "category": "input",
-      "x": 21.671875,
-      "y": 87.82421875,
+      "x": 30,
+      "y": 70,
       "rotation": 90,
       "connectorIds": {
         "nOut": "c0"
@@ -16,8 +16,8 @@
       "id": "1",
       "type": "switch",
       "category": "input",
-      "x": 81.671875,
-      "y": 87.82421875,
+      "x": 90,
+      "y": 70,
       "rotation": 90,
       "connectorIds": {
         "nOut": "c1"
@@ -27,8 +27,8 @@
       "id": "2",
       "type": "switch",
       "category": "input",
-      "x": 141.671875,
-      "y": 87.82421875,
+      "x": 150,
+      "y": 70,
       "rotation": 90,
       "connectorIds": {
         "nOut": "c2"
@@ -38,8 +38,8 @@
       "id": "3",
       "type": "switch",
       "category": "input",
-      "x": 241.671875,
-      "y": 87.82421875,
+      "x": 250,
+      "y": 70,
       "rotation": 90,
       "connectorIds": {
         "nOut": "c3"
@@ -49,8 +49,8 @@
       "id": "4",
       "type": "switch",
       "category": "input",
-      "x": 301.671875,
-      "y": 87.82421875,
+      "x": 310,
+      "y": 70,
       "rotation": 90,
       "connectorIds": {
         "nOut": "c4"
@@ -60,8 +60,8 @@
       "id": "5",
       "type": "switch",
       "category": "input",
-      "x": 361.671875,
-      "y": 87.82421875,
+      "x": 370,
+      "y": 70,
       "rotation": 90,
       "connectorIds": {
         "nOut": "c5"
@@ -71,8 +71,8 @@
       "id": "6",
       "type": "xor",
       "category": "gate",
-      "x": 625.515625,
-      "y": 101,
+      "x": 630,
+      "y": 90,
       "rotation": 0,
       "inputDelay": 0,
       "outputDelay": 0,
@@ -86,8 +86,8 @@
       "id": "7",
       "type": "xor",
       "category": "gate",
-      "x": 628.109375,
-      "y": 158.09375,
+      "x": 640,
+      "y": 200,
       "rotation": 0,
       "inputDelay": 0,
       "outputDelay": 0,
@@ -101,8 +101,8 @@
       "id": "8",
       "type": "xor",
       "category": "gate",
-      "x": 424.99609375,
-      "y": 146.234375,
+      "x": 430,
+      "y": 160,
       "rotation": 0,
       "inputDelay": 0,
       "outputDelay": 0,
@@ -116,8 +116,8 @@
       "id": "9",
       "type": "xor",
       "category": "gate",
-      "x": 652.13671875,
-      "y": 273.796875,
+      "x": 680,
+      "y": 350,
       "rotation": 0,
       "inputDelay": 0,
       "outputDelay": 0,
@@ -131,8 +131,8 @@
       "id": "10",
       "type": "xor",
       "category": "gate",
-      "x": 425.515625,
-      "y": 261,
+      "x": 430,
+      "y": 300,
       "rotation": 0,
       "inputDelay": 0,
       "outputDelay": 0,
@@ -146,8 +146,8 @@
       "id": "11",
       "type": "and",
       "category": "gate",
-      "x": 425.515625,
-      "y": 201,
+      "x": 430,
+      "y": 230,
       "rotation": 0,
       "inputDelay": 0,
       "outputDelay": 0,
@@ -161,8 +161,8 @@
       "id": "12",
       "type": "and",
       "category": "gate",
-      "x": 425.515625,
-      "y": 321,
+      "x": 430,
+      "y": 370,
       "rotation": 0,
       "inputDelay": 0,
       "outputDelay": 0,
@@ -176,8 +176,8 @@
       "id": "13",
       "type": "and",
       "category": "gate",
-      "x": 425.515625,
-      "y": 401,
+      "x": 430,
+      "y": 460,
       "rotation": 0,
       "inputDelay": 0,
       "outputDelay": 0,
@@ -191,8 +191,8 @@
       "id": "14",
       "type": "and",
       "category": "gate",
-      "x": 425.515625,
-      "y": 461,
+      "x": 430,
+      "y": 540,
       "rotation": 0,
       "inputDelay": 0,
       "outputDelay": 0,
@@ -206,8 +206,8 @@
       "id": "15",
       "type": "or",
       "category": "gate",
-      "x": 624.9765625,
-      "y": 412.515625,
+      "x": 630,
+      "y": 500,
       "rotation": 0,
       "inputDelay": 0,
       "outputDelay": 0,
@@ -220,8 +220,8 @@
     {
       "id": "16",
       "type": "seg7",
-      "x": 820.44921875,
-      "y": 194.0625,
+      "x": 880,
+      "y": 220,
       "rotation": 0,
       "connectorIds": {
         "n1": "c36",
@@ -234,8 +234,8 @@
       "id": "17",
       "type": "label",
       "category": "label",
-      "x": 21.671875,
-      "y": 27.82421875,
+      "x": 30,
+      "y": 10,
       "rotation": 0,
       "text": "A2",
       "connectorIds": {}
@@ -244,8 +244,8 @@
       "id": "18",
       "type": "label",
       "category": "label",
-      "x": 81.671875,
-      "y": 27.82421875,
+      "x": 90,
+      "y": 10,
       "rotation": 0,
       "text": "A1",
       "connectorIds": {}
@@ -254,8 +254,8 @@
       "id": "19",
       "type": "label",
       "category": "label",
-      "x": 141.671875,
-      "y": 27.82421875,
+      "x": 150,
+      "y": 10,
       "rotation": 0,
       "text": "A0",
       "connectorIds": {}
@@ -264,8 +264,8 @@
       "id": "20",
       "type": "label",
       "category": "label",
-      "x": 241.671875,
-      "y": 27.82421875,
+      "x": 250,
+      "y": 10,
       "rotation": 0,
       "text": "B2",
       "connectorIds": {}
@@ -274,8 +274,8 @@
       "id": "21",
       "type": "label",
       "category": "label",
-      "x": 301.671875,
-      "y": 27.82421875,
+      "x": 310,
+      "y": 10,
       "rotation": 0,
       "text": "B1",
       "connectorIds": {}
@@ -284,11 +284,109 @@
       "id": "22",
       "type": "label",
       "category": "label",
-      "x": 361.671875,
-      "y": 27.82421875,
+      "x": 370,
+      "y": 10,
       "rotation": 0,
       "text": "B0",
       "connectorIds": {}
+    },
+    {
+      "id": "23",
+      "type": "junc3",
+      "category": "junction",
+      "x": 640,
+      "y": 320,
+      "rotation": 0,
+      "connectorIds": {
+        "n1": "c40",
+        "n2": "c41",
+        "n3": "c42",
+        "n4": null
+      }
+    },
+    {
+      "id": "24",
+      "type": "junc3",
+      "category": "junction",
+      "x": 40,
+      "y": 300,
+      "rotation": 270,
+      "connectorIds": {
+        "n1": "c43",
+        "n2": "c44",
+        "n3": "c45",
+        "n4": null
+      }
+    },
+    {
+      "id": "25",
+      "type": "junc3",
+      "category": "junction",
+      "x": 600,
+      "y": 390,
+      "rotation": 0,
+      "connectorIds": {
+        "n1": "c46",
+        "n2": "c47",
+        "n3": "c48",
+        "n4": null
+      }
+    },
+    {
+      "id": "26",
+      "type": "junc3",
+      "category": "junction",
+      "x": 100,
+      "y": 160,
+      "rotation": 270,
+      "connectorIds": {
+        "n1": "c49",
+        "n2": "c50",
+        "n3": "c51",
+        "n4": null
+      }
+    },
+    {
+      "id": "27",
+      "type": "junc3",
+      "category": "junction",
+      "x": 260,
+      "y": 340,
+      "rotation": 270,
+      "connectorIds": {
+        "n1": "c52",
+        "n2": "c53",
+        "n3": "c54",
+        "n4": null
+      }
+    },
+    {
+      "id": "28",
+      "type": "junc3",
+      "category": "junction",
+      "x": 160,
+      "y": 130,
+      "rotation": 270,
+      "connectorIds": {
+        "n1": "c55",
+        "n2": "c56",
+        "n3": "c57",
+        "n4": null
+      }
+    },
+    {
+      "id": "29",
+      "type": "junc3",
+      "category": "junction",
+      "x": 320,
+      "y": 200,
+      "rotation": 270,
+      "connectorIds": {
+        "n1": "c58",
+        "n2": "c59",
+        "n3": "c60",
+        "n4": null
+      }
     }
   ],
   "wires": [
@@ -296,246 +394,300 @@
       "id": "w0",
       "src": "c5",
       "dst": "c6",
-      "bends": null
+      "bends": [
+        {
+          "x": 640,
+          "y": 110
+        }
+      ]
     },
     {
       "id": "w1",
-      "src": "c2",
-      "dst": "c7",
+      "src": "c8",
+      "dst": "c36",
       "bends": [
         {
-          "x": 166.671875,
-          "y": 143.5
+          "x": 890,
+          "y": 130
         }
       ]
     },
     {
       "id": "w2",
-      "src": "c8",
-      "dst": "c36",
+      "src": "c11",
+      "dst": "c37",
       "bends": [
         {
-          "x": 830.4453125,
-          "y": 131
+          "x": 870,
+          "y": 230
+        },
+        {
+          "x": 870,
+          "y": 250
         }
       ]
     },
     {
       "id": "w3",
-      "src": "c11",
-      "dst": "c37",
-      "bends": [
-        {
-          "x": 772.109375,
-          "y": 229.0625
-        }
-      ]
-    },
-    {
-      "id": "w4",
       "src": "c14",
       "dst": "c9",
       "bends": null
     },
     {
-      "id": "w5",
+      "id": "w4",
       "src": "c23",
       "dst": "c10",
       "bends": null
     },
     {
-      "id": "w6",
-      "src": "c1",
-      "dst": "c12",
+      "id": "w5",
+      "src": "c5",
+      "dst": "c22",
       "bends": [
         {
-          "x": 106.671875,
-          "y": 163.734375
+          "x": 400,
+          "y": 280
+        }
+      ]
+    },
+    {
+      "id": "w6",
+      "src": "c17",
+      "dst": "c38",
+      "bends": [
+        {
+          "x": 870,
+          "y": 330
+        },
+        {
+          "x": 870,
+          "y": 270
         }
       ]
     },
     {
       "id": "w7",
-      "src": "c4",
-      "dst": "c13",
-      "bends": [
-        {
-          "x": 326.671875,
-          "y": 188.734375
-        }
-      ]
-    },
-    {
-      "id": "w8",
-      "src": "c2",
-      "dst": "c21",
-      "bends": [
-        {
-          "x": 166.671875,
-          "y": 218.5
-        }
-      ]
-    },
-    {
-      "id": "w9",
-      "src": "c5",
-      "dst": "c22",
-      "bends": [
-        {
-          "x": 386.671875,
-          "y": 243.5
-        }
-      ]
-    },
-    {
-      "id": "w10",
-      "src": "c17",
-      "dst": "c38",
-      "bends": [
-        {
-          "x": 796.1328125,
-          "y": 254.0625
-        }
-      ]
-    },
-    {
-      "id": "w11",
-      "src": "c20",
-      "dst": "c15",
-      "bends": null
-    },
-    {
-      "id": "w12",
-      "src": "c26",
-      "dst": "c16",
-      "bends": null
-    },
-    {
-      "id": "w13",
       "src": "c29",
       "dst": "c33",
       "bends": null
     },
     {
-      "id": "w14",
+      "id": "w8",
       "src": "c32",
       "dst": "c34",
       "bends": null
     },
     {
-      "id": "w15",
+      "id": "w9",
       "src": "c35",
       "dst": "c39",
       "bends": [
         {
-          "x": 830.4453125,
-          "y": 442.515625
+          "x": 890,
+          "y": 700
+        }
+      ]
+    },
+    {
+      "id": "w10",
+      "src": "c41",
+      "dst": "c15",
+      "bends": null
+    },
+    {
+      "id": "w11",
+      "src": "c40",
+      "dst": "c20",
+      "bends": null
+    },
+    {
+      "id": "w12",
+      "src": "c42",
+      "dst": "c27",
+      "bends": [
+        {
+          "x": 640,
+          "y": 460
+        },
+        {
+          "x": 440,
+          "y": 460
+        }
+      ]
+    },
+    {
+      "id": "w13",
+      "src": "c0",
+      "dst": "c44",
+      "bends": null
+    },
+    {
+      "id": "w14",
+      "src": "c45",
+      "dst": "c18",
+      "bends": [
+        {
+          "x": 80,
+          "y": 320
+        }
+      ]
+    },
+    {
+      "id": "w15",
+      "src": "c43",
+      "dst": "c30",
+      "bends": [
+        {
+          "x": 60,
+          "y": 630
         }
       ]
     },
     {
       "id": "w16",
-      "src": "c0",
-      "dst": "c18",
-      "bends": [
-        {
-          "x": 46.671875,
-          "y": 278.5
-        }
-      ]
+      "src": "c47",
+      "dst": "c16",
+      "bends": null
     },
     {
       "id": "w17",
-      "src": "c3",
-      "dst": "c19",
-      "bends": [
-        {
-          "x": 266.671875,
-          "y": 303.5
-        }
-      ]
+      "src": "c46",
+      "dst": "c26",
+      "bends": null
     },
     {
       "id": "w18",
-      "src": "c1",
-      "dst": "c24",
+      "src": "c48",
+      "dst": "c28",
       "bends": [
         {
-          "x": 106.671875,
-          "y": 338.5
+          "x": 620,
+          "y": 450
+        },
+        {
+          "x": 420,
+          "y": 450
+        },
+        {
+          "x": 420,
+          "y": 680
         }
       ]
     },
     {
       "id": "w19",
-      "src": "c4",
-      "dst": "c25",
+      "src": "c12",
+      "dst": "c51",
       "bends": [
         {
-          "x": 326.671875,
-          "y": 363.5
+          "x": 440,
+          "y": 180
         }
       ]
     },
     {
       "id": "w20",
-      "src": "c20",
-      "dst": "c27",
-      "bends": [
-        {
-          "x": 594.0078125,
-          "y": 291
-        },
-        {
-          "x": 594.0078125,
-          "y": 396.23046875
-        },
-        {
-          "x": 437.515625,
-          "y": 396.23046875
-        }
-      ]
+      "src": "c50",
+      "dst": "c1",
+      "bends": null
     },
     {
       "id": "w21",
-      "src": "c26",
-      "dst": "c28",
+      "src": "c49",
+      "dst": "c24",
       "bends": [
         {
-          "x": 569.515625,
-          "y": 386.40234375
-        },
-        {
-          "x": 421.48828125,
-          "y": 386.40234375
-        },
-        {
-          "x": 421.48828125,
-          "y": 443.5
+          "x": 120,
+          "y": 360
         }
       ]
     },
     {
       "id": "w22",
-      "src": "c0",
-      "dst": "c30",
+      "src": "c19",
+      "dst": "c54",
+      "bends": null
+    },
+    {
+      "id": "w23",
+      "src": "c53",
+      "dst": "c3",
+      "bends": null
+    },
+    {
+      "id": "w24",
+      "src": "c52",
+      "dst": "c31",
       "bends": [
         {
-          "x": 46.671875,
-          "y": 478.5
+          "x": 280,
+          "y": 670
         }
       ]
     },
     {
-      "id": "w23",
-      "src": "c3",
-      "dst": "c31",
+      "id": "w25",
+      "src": "c2",
+      "dst": "c56",
+      "bends": null
+    },
+    {
+      "id": "w26",
+      "src": "c57",
+      "dst": "c7",
       "bends": [
         {
-          "x": 266.671875,
-          "y": 503.5
+          "x": 540,
+          "y": 150
+        },
+        {
+          "x": 540,
+          "y": 190
         }
       ]
+    },
+    {
+      "id": "w27",
+      "src": "c55",
+      "dst": "c21",
+      "bends": [
+        {
+          "x": 180,
+          "y": 240
+        }
+      ]
+    },
+    {
+      "id": "w28",
+      "src": "c13",
+      "dst": "c60",
+      "bends": [
+        {
+          "x": 380,
+          "y": 250
+        },
+        {
+          "x": 380,
+          "y": 220
+        }
+      ]
+    },
+    {
+      "id": "w29",
+      "src": "c58",
+      "dst": "c25",
+      "bends": [
+        {
+          "x": 340,
+          "y": 400
+        }
+      ]
+    },
+    {
+      "id": "w30",
+      "src": "c59",
+      "dst": "c4",
+      "bends": null
     }
   ]
 }
