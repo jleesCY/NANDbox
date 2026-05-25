@@ -164,6 +164,15 @@
                     <li><strong>📚 Library</strong> Opens the pre-made circuit library (SR Latch, Half Adder, etc.)</li>
                 </ul>
             </div>
+            
+            <div class="help-section">
+                <h2>Editing Wires</h2>
+                <ul>
+                    <li><strong>Drag to Connect</strong> Instead of clicking two endpoints, you can click and drag from a connector to draw a live wire directly to another component</li>
+                    <li><strong>Custom Bends</strong> Click and drag the middle of any existing wire to create custom routing bends. Wires will snap to the grid</li>
+                    <li><strong>Deletion</strong> Right-click on a wire to delete it, or select it and press Backspace</li>
+                </ul>
+            </div>
 
             <div class="help-section">
                 <h2>Mouse Controls</h2>
@@ -171,8 +180,8 @@
                     <li><strong>Panning</strong> While in PAN mode, click and drag to pan the circuit</li>
                     <li><strong>Zooming</strong> While in PAN mode, scroll to zoom in and out</li>
                     <li><strong>Inputs</strong> While in EDIT mode, click input components to activate them</li>
-                    <li><strong>Wiring</strong> In EDIT mode, click two connectors to wire them. Invalid connections are rejected</li>
-                    <li><strong>Selecting</strong> Double-click a component to select it for deletion</li>
+                    <li><strong>Wiring</strong> In EDIT mode, click two connectors to wire them, or click and drag a wire out of a connector</li>
+                    <li><strong>Selecting</strong> Double-click a component to select it, or right-click to deselect</li>
                     <li><strong>Multi-Select</strong> In EDIT mode, drag on empty canvas to draw a selection box</li>
                     <li><strong>Group Drag</strong> When dragging a selected component, all selected components move together</li>
                     <li><strong>Repositioning</strong> Drag any component's body to move it. Wires follow automatically</li>
@@ -184,7 +193,11 @@
                 <h2>Keyboard Shortcuts</h2>
                 <ul>
                     <li><strong>Delete / ⌫</strong> Delete selected component(s) and their wires</li>
-                    <li><strong>Ctrl+Click</strong> Hold Ctrl to keep existing selections when clicking</li>
+                    <li><strong>Ctrl+Click</strong> Hold Ctrl (or Cmd) to keep existing selections when clicking</li>
+                    <li><strong>Ctrl+C / Ctrl+X</strong> Copy or Cut the currently selected components</li>
+                    <li><strong>Ctrl+V</strong> Paste components from the clipboard at your mouse cursor</li>
+                    <li><strong>Ctrl+Z</strong> Undo your last action</li>
+                    <li><strong>Ctrl+Y / Ctrl+Shift+Z</strong> Redo your last undone action</li>
                 </ul>
             </div>
 
@@ -197,6 +210,7 @@
                     <li><strong>Clock</strong> Auto-toggling input. Click to pause/resume. Drives flip-flop clock inputs</li>
                     <li><strong>LED</strong> Visual output — lights up red when HIGH, gray when LOW</li>
                     <li><strong>7-Segment</strong> 4-bit BCD display — shows digits 0–F</li>
+                    <li><strong>Junctions</strong> 3-way and 4-way solder points for joining multiple wires into a single net</li>
                     <li><strong>Label</strong> Text annotation — double-click to edit text</li>
                 </ul>
             </div>
@@ -227,6 +241,7 @@
                 <ul>
                     <li><strong>Sim Speed</strong> Adjustable from 1 to 120 ticks/second (default: 60)</li>
                     <li><strong>Theme</strong> Light (default), Dark, or Blueprint canvas background</li>
+                    <li><strong>3D Effect</strong> Toggles a 3D perspective tilt on the main simulation canvas</li>
                     <li><strong>Grid</strong> Toggle the canvas grid on/off — grid scales with zoom</li>
                 </ul>
             </div>
@@ -245,6 +260,7 @@
                     <li><strong style="color:#ff4b4b">● Red</strong> HIGH signal (logic 1)</li>
                     <li><strong style="color:#636e7a">● Gray</strong> LOW signal (logic 0)</li>
                     <li><strong style="color:#2ecc71">● Green</strong> Floating / unconnected</li>
+                    <li><strong style="color:#00ffff">● Cyan</strong> Short Circuit (conflicting HIGH and LOW drivers on the same wire)</li>
                 </ul>
             </div>
 

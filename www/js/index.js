@@ -277,7 +277,7 @@ function copySelection() {
         }
     }
 
-    clipboard = { version: '0.2.0', components: compArr, wires: wireArr }
+    clipboard = { version: '0.4.0', components: compArr, wires: wireArr }
     pasteCount = 0
 }
 
@@ -385,7 +385,7 @@ function serializeCircuit() {
             bends: w.bends || null
         })
     }
-    return { version: '0.2.0', components: compArr, wires: wireArr }
+    return { version: '0.4.0', components: compArr, wires: wireArr }
 }
 
 // ===== IMPORT (load) =====
