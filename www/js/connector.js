@@ -6,6 +6,25 @@ class Connector {
         this.parent = parent
         this.selected = false
         this.value = null       // true = high, false = low, null = floating
+        this.lastVisualState = undefined // Cached visual state
+        this.localX = undefined
+        this.localY = undefined
+    }
+
+    /**
+     * Cache the connector's position relative to its parent component's top-left origin.
+     * This avoids costly layout thrashing during drag operations.
+     */
+    updateLocalOffset() {
+        if (!this.dom || !this.parent || !this.parent.dom) return;
+        let cRect = this.dom.getBoundingClientRect();
+        let pRect = this.parent.dom.getBoundingClientRect();
+        // Since getBoundingClientRect returns scaled pixels, we must unscale them
+        let transform = typeof instance !== 'undefined' ? instance.getTransform() : { scale: 1 };
+        let scale = transform.scale;
+        
+        this.localX = (cRect.left + cRect.width / 2 - pRect.left) / scale;
+        this.localY = (cRect.top + cRect.height / 2 - pRect.top) / scale;
     }
 
     //
@@ -29,6 +48,9 @@ class Connector {
      * Update the visual state of this connector based on its value
      */
     updateVisual() {
+        if (this.value === this.lastVisualState) return;
+        this.lastVisualState = this.value;
+
         if (this.value === 'short') {
             this.short()
         } else if (this.value === null) {

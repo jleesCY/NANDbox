@@ -15,6 +15,8 @@ class SimulationEngine {
         this._frameId = null
         this._lastTime = 0
         this._accumulator = 0
+        this._netsDirty = true
+        this.cachedNets = {} // Map of root ID -> { drivers: [], receivers: [], wires: [] }
     }
 
     /**
@@ -48,24 +50,11 @@ class SimulationEngine {
     }
 
     /**
-     * Register a wire with the engine
-     */
-    registerWire(id, wire) {
-        this.wires[id] = wire
-    }
-
-    /**
-     * Unregister a wire
-     */
-    unregisterWire(id) {
-        delete this.wires[id]
-    }
-
-    /**
      * Register a connector
      */
     registerConnector(id, connector) {
         this.connectors[id] = connector
+        this._netsDirty = true
     }
 
     /**
@@ -73,16 +62,29 @@ class SimulationEngine {
      */
     unregisterConnector(id) {
         delete this.connectors[id]
+        this._netsDirty = true
     }
 
     /**
-     * Perform a single simulation tick:
-     * 1. Propagate wire values from source connectors using a net-based solver
-     * 2. Evaluate all components (compute new outputs from current inputs)
-     * 3. Update all component visuals
+     * Register a wire with the engine
      */
-    tick() {
-        // Phase 1: Resolve Nets
+    registerWire(id, wire) {
+        this.wires[id] = wire
+        this._netsDirty = true
+    }
+
+    /**
+     * Unregister a wire
+     */
+    unregisterWire(id) {
+        delete this.wires[id]
+        this._netsDirty = true
+    }
+
+    /**
+     * Rebuild the topological nets cache
+     */
+    _rebuildNets() {
         let parent = {}
         function find(i) {
             if (parent[i] === undefined) return i;
@@ -113,54 +115,75 @@ class SimulationEngine {
             }
         }
 
-        // Gather drivers on each net
-        let netDrivers = {}
-        for (let cId in this.connectors) {
-            let conn = this.connectors[cId];
-            if (conn && conn.type === 'out') {
-                let root = find(cId);
-                if (!netDrivers[root]) netDrivers[root] = [];
-                if (conn.value !== null && conn.value !== undefined) {
-                    netDrivers[root].push(conn.value);
-                }
-            }
-        }
-
-        // Determine net values
-        let netValues = {}
-        for (let root in netDrivers) {
-            let drivers = netDrivers[root];
-            if (drivers.length === 0) {
-                netValues[root] = null;
-            } else {
-                let hasHigh = drivers.includes(true);
-                let hasLow = drivers.includes(false);
-                let hasShort = drivers.includes('short');
-                
-                if (hasShort || (hasHigh && hasLow)) {
-                    netValues[root] = 'short';
-                } else if (hasHigh) {
-                    netValues[root] = true;
-                } else {
-                    netValues[root] = false;
-                }
-            }
-        }
-
-        // Apply net values to wires and inputs
-        for (let wId in this.wires) {
-            let wire = this.wires[wId];
-            if (wire && wire.n1) {
-                let root = find(wire.n1.dom.id);
-                wire.value = netValues[root] !== undefined ? netValues[root] : null;
-            }
-        }
-
+        this.cachedNets = {}
         for (let cId in this.connectors) {
             let conn = this.connectors[cId];
             if (conn) {
                 let root = find(cId);
-                conn.value = netValues[root] !== undefined ? netValues[root] : null;
+                if (!this.cachedNets[root]) {
+                    this.cachedNets[root] = { drivers: [], receivers: [], wires: [] };
+                }
+                if (conn.type === 'out') {
+                    this.cachedNets[root].drivers.push(conn);
+                }
+                // All connectors are technically receivers of the net value
+                this.cachedNets[root].receivers.push(conn);
+            }
+        }
+
+        for (let wId in this.wires) {
+            let wire = this.wires[wId];
+            if (wire && wire.n1) {
+                let root = find(wire.n1.dom.id);
+                if (!this.cachedNets[root]) {
+                    this.cachedNets[root] = { drivers: [], receivers: [], wires: [] };
+                }
+                this.cachedNets[root].wires.push(wire);
+            }
+        }
+    }
+
+    /**
+     * Perform a single simulation tick:
+     * 1. Propagate wire values from source connectors using a net-based solver
+     * 2. Evaluate all components (compute new outputs from current inputs)
+     * 3. Update all component visuals
+     */
+    tick() {
+        // Phase 1: Resolve Nets
+        if (this._netsDirty) {
+            this._rebuildNets();
+            this._netsDirty = false;
+        }
+
+        for (let root in this.cachedNets) {
+            let net = this.cachedNets[root];
+            let hasHigh = false;
+            let hasLow = false;
+            let hasShort = false;
+            let isDriven = false;
+
+            for (let driver of net.drivers) {
+                if (driver.value !== null && driver.value !== undefined) {
+                    isDriven = true;
+                    if (driver.value === 'short') hasShort = true;
+                    else if (driver.value === true) hasHigh = true;
+                    else if (driver.value === false) hasLow = true;
+                }
+            }
+
+            let netValue = null;
+            if (isDriven) {
+                if (hasShort || (hasHigh && hasLow)) netValue = 'short';
+                else if (hasHigh) netValue = true;
+                else netValue = false;
+            }
+
+            for (let receiver of net.receivers) {
+                receiver.value = netValue;
+            }
+            for (let wire of net.wires) {
+                wire.value = netValue;
             }
         }
 
@@ -252,5 +275,7 @@ class SimulationEngine {
         this.wires = {}
         this.connectors = {}
         this.tickCount = 0
+        this._netsDirty = true
+        this.cachedNets = {}
     }
 }

@@ -7,6 +7,7 @@ class Wire {
         this.value = null
         this.dom = null       // SVG element
         this.bends = null     // Array of {x, y} points
+        this.lastRenderedValue = undefined // Cache to prevent redundant DOM updates
     }
 
     //
@@ -47,6 +48,9 @@ class Wire {
      */
     updateVisual = () => {
         if (!this.dom) return
+        if (this.value === this.lastRenderedValue) return
+        this.lastRenderedValue = this.value
+
         // The visual path is the one with class 'wire-path'
         let path = this.dom.querySelector('.wire-path')
         // Fallback for older saved wires before class was added
@@ -60,14 +64,31 @@ class Wire {
     }
 
     /**
-     * Get center position of a connector relative to the simulation window
+     * Get center position of a connector relative to the simulation window.
+     * Uses cached local offsets to prevent synchronous layout thrashing.
      */
-    _getConnectorPos = (el, scale) => {
-        let simRect = sim.getBoundingClientRect()
-        let rect = el.getBoundingClientRect()
-        let x = (rect.left + rect.width / 2 - simRect.left) / scale
-        let y = (rect.top + rect.height / 2 - simRect.top) / scale
-        // Snap to grid
+    _getConnectorPos = (connector, scale) => {
+        // Fallback to DOM querying if offset not cached (should be rare)
+        if (connector.localX === undefined || connector.localY === undefined) {
+            if (typeof connector.updateLocalOffset === 'function') {
+                connector.updateLocalOffset()
+            } else {
+                let simRect = sim.getBoundingClientRect()
+                let rect = connector.dom.getBoundingClientRect()
+                let x = (rect.left + rect.width / 2 - simRect.left) / scale
+                let y = (rect.top + rect.height / 2 - simRect.top) / scale
+                return {
+                    x: Math.round(x / GRID) * GRID,
+                    y: Math.round(y / GRID) * GRID
+                }
+            }
+        }
+
+        // Use cached offset relative to parent component's unscaled position
+        let comp = connector.parent
+        let x = (comp.x || 0) + connector.localX
+        let y = (comp.y || 0) + connector.localY
+        
         return {
             x: Math.round(x / GRID) * GRID,
             y: Math.round(y / GRID) * GRID
@@ -79,8 +100,8 @@ class Wire {
      * Incorporates custom bends if set, otherwise computes standard Manhattan routing.
      */
     getPoints = (scale) => {
-        let p1 = this._getConnectorPos(this.n1.dom, scale)
-        let p2 = this._getConnectorPos(this.n2.dom, scale)
+        let p1 = this._getConnectorPos(this.n1, scale)
+        let p2 = this._getConnectorPos(this.n2, scale)
 
         if (this.bends && this.bends.length > 0) {
             // Work on copies to avoid mutating stored bends

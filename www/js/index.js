@@ -112,7 +112,9 @@ let panelDragstart = (event) => {
         cat: cat,
         xoff: mx,
         yoff: my,
-        dom: ghost
+        dom: ghost,
+        simRect: sim.getBoundingClientRect(),
+        navbarHeight: document.querySelector("#navbar").getBoundingClientRect().height
     }
 
     // Hide the native browser drag ghost by using an empty 1x1 image
@@ -939,11 +941,12 @@ dropzone.addEventListener('dragover', (event) => {
         let dropData = window.dropPreviewData
         let ex = event.clientX || event.x || 0
         let ey = event.clientY || event.y || 0
-        let yoff = document.querySelector("#navbar").getBoundingClientRect().height
+        let yoff = dropData.navbarHeight
+        let simRect = dropData.simRect
         
         let cat = dropData.cat
-        let loc_x = ((ex - sim.getBoundingClientRect().x) / scale) - dropData.xoff - (cat === 'gate' || cat === 'flipflop' || dropData.type === 'seg7' ? 20 : 0)
-        let loc_y = (((ey - yoff) - (sim.getBoundingClientRect().y - yoff)) / scale) - dropData.yoff
+        let loc_x = ((ex - simRect.x) / scale) - dropData.xoff - (cat === 'gate' || cat === 'flipflop' || dropData.type === 'seg7' ? 20 : 0)
+        let loc_y = (((ey - yoff) - (simRect.y - yoff)) / scale) - dropData.yoff
         
         loc_x = Math.round(loc_x / GRID) * GRID
         loc_y = Math.round(loc_y / GRID) * GRID
@@ -1438,6 +1441,7 @@ document.addEventListener('pointerdown', (e) => {
             wireDrawState.sourceConnId = connId
             wireDrawState.previewSvg = createWirePreview()
             let simRect = sim.getBoundingClientRect()
+            wireDrawState.simRect = simRect
             let cRect = e.target.getBoundingClientRect()
             let cx = (cRect.left + cRect.width/2 - simRect.left) / scale
             let cy = (cRect.top + cRect.height/2 - simRect.top) / scale
@@ -1497,6 +1501,7 @@ document.addEventListener('pointerdown', (e) => {
                 isHorizontal: isHoriz,
                 startX: mx,
                 startY: my,
+                simRect: rect,
                 originalBends: JSON.parse(JSON.stringify(wire.bends)),
                 isHold: true,
                 holdTimeout: setTimeout(() => {
@@ -1520,7 +1525,7 @@ document.addEventListener('pointerdown', (e) => {
 document.addEventListener('pointermove', (e) => {
     // Wire drawing preview
     if (wireDrawState.active && navMode === 1 && wireDrawState.previewSvg) {
-        let simRect = sim.getBoundingClientRect()
+        let simRect = wireDrawState.simRect || sim.getBoundingClientRect()
         let mx = (e.clientX - simRect.left) / scale
         let my = (e.clientY - simRect.top) / scale
         updateWirePreview(wireDrawState.previewSvg, wireDrawState.startX, wireDrawState.startY, mx, my)
@@ -1531,7 +1536,7 @@ document.addEventListener('pointermove', (e) => {
         let wire = wires[wireDragState.wireId]
         if (!wire) return
         
-        let rect = sim.getBoundingClientRect()
+        let rect = wireDragState.simRect || sim.getBoundingClientRect()
         let mx = (e.clientX - rect.left) / scale
         let my = (e.clientY - rect.top) / scale
         
@@ -1551,8 +1556,8 @@ document.addEventListener('pointermove', (e) => {
             }
         }
         
-        let p1 = wire._getConnectorPos(wire.n1.dom, scale)
-        let p2 = wire._getConnectorPos(wire.n2.dom, scale)
+        let p1 = wire._getConnectorPos(wire.n1, scale)
+        let p2 = wire._getConnectorPos(wire.n2, scale)
         let ptsCount = origBends.length + 2
         
         if (wireDragState.isHorizontal) {
@@ -1715,8 +1720,8 @@ document.addEventListener('pointerup', (e) => {
         }
         let wire = wires[wireDragState.wireId]
         if (wire && wire.bends && wire.bends.length > 0) {
-            let p1 = wire._getConnectorPos(wire.n1.dom, scale)
-            let p2 = wire._getConnectorPos(wire.n2.dom, scale)
+            let p1 = wire._getConnectorPos(wire.n1, scale)
+            let p2 = wire._getConnectorPos(wire.n2, scale)
             let fullPts = [p1, ...wire.bends, p2]
             let cleanedPts = [fullPts[0]]
             for (let j = 1; j < fullPts.length - 1; j++) {
@@ -1862,8 +1867,8 @@ document.addEventListener('dblclick', (e) => {
             
             if (segIndex !== -1) {
                 let newBends = []
-                let p1 = wire._getConnectorPos(wire.n1.dom, scale)
-                let p2 = wire._getConnectorPos(wire.n2.dom, scale)
+                let p1 = wire._getConnectorPos(wire.n1, scale)
+                let p2 = wire._getConnectorPos(wire.n2, scale)
                 if (isHoriz) {
                     let segmentY = pts[segIndex].y
                     newBends = [
