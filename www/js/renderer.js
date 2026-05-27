@@ -82,7 +82,7 @@ class CanvasRenderer {
     hitTest(worldX, worldY) {
         // 1. Check Connectors
         for (let comp of Object.values(components)) {
-            let conns = [comp.n1, comp.n2, comp.nC, comp.nOut, comp.nQ, comp.nQNot].filter(c => c);
+            let conns = [comp.n1, comp.n2, comp.n3, comp.n4, comp.nC, comp.nOut, comp.nQ, comp.nQNot].filter(c => c);
             for (let c of conns) {
                 let dims = getCompDims(comp.type);
                 let originX = comp.x + dims.w / 2;
@@ -327,7 +327,7 @@ class CanvasRenderer {
         ctx.shadowBlur = 0; // Reset shadow for connectors
 
         // Draw connectors
-        let conns = [comp.n1, comp.n2, comp.nC, comp.nOut, comp.nQ, comp.nQNot].filter(c => c);
+        let conns = [comp.n1, comp.n2, comp.n3, comp.n4, comp.nC, comp.nOut, comp.nQ, comp.nQNot].filter(c => c);
         for (let c of conns) {
             this.drawConnector(ctx, c);
         }
@@ -336,7 +336,6 @@ class CanvasRenderer {
     }
 
     drawGate(ctx, comp) {
-        ctx.translate(20, 0); // Gate body offset
         ctx.fillStyle = this.colors.bgComp;
         ctx.strokeStyle = this.colors.border;
         ctx.lineWidth = 3;
@@ -373,12 +372,16 @@ class CanvasRenderer {
         ctx.fill();
         ctx.stroke();
 
-        if (comp.type === 'nand' || comp.type === 'nor' || comp.type === 'xnor' || comp.type === 'not') {
+        let bodyEndX = (comp.type === 'and' || comp.type === 'nand') ? 90 : 100;
+        let circleX = bodyEndX + 6;
+
+        if (comp.type === 'not' || comp.type === 'nand' || comp.type === 'nor' || comp.type === 'xnor') {
             ctx.beginPath();
-            ctx.arc(106, 40, 6, 0, Math.PI*2);
+            ctx.arc(circleX, 40, 6, 0, Math.PI*2);
             ctx.fillStyle = this.colors.bgComp;
             ctx.fill();
             ctx.stroke();
+            bodyEndX = circleX + 6;
         }
 
         // Draw bridges
@@ -387,12 +390,12 @@ class CanvasRenderer {
         ctx.beginPath();
         if (comp.type === 'not') {
             ctx.moveTo(0, 40); ctx.lineTo(25, 40); // In
-            ctx.moveTo(112, 40); ctx.lineTo(120, 40); // Out
+            ctx.moveTo(bodyEndX, 40); ctx.lineTo(120, 40); // Out
         } else {
-            ctx.moveTo(0, 20); ctx.lineTo(15, 20); // In 1
-            ctx.moveTo(0, 60); ctx.lineTo(15, 60); // In 2
-            let outX = (comp.type === 'nand' || comp.type === 'nor' || comp.type === 'xnor') ? 112 : 100;
-            ctx.moveTo(outX, 40); ctx.lineTo(120, 40); // Out
+            let inX = (comp.type === 'xor' || comp.type === 'xnor') ? 5 : 15;
+            ctx.moveTo(0, 20); ctx.lineTo(inX, 20); // In 1
+            ctx.moveTo(0, 60); ctx.lineTo(inX, 60); // In 2
+            ctx.moveTo(bodyEndX, 40); ctx.lineTo(120, 40); // Out
         }
         ctx.stroke();
         
@@ -401,7 +404,6 @@ class CanvasRenderer {
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText(comp.type.toUpperCase(), 50, 40);
-        ctx.translate(-20, 0); // Restore offset
     }
 
     drawInput(ctx, comp) {
@@ -474,11 +476,10 @@ class CanvasRenderer {
     }
 
     drawFlipFlop(ctx, comp) {
-        ctx.translate(20, 0);
         ctx.fillStyle = this.colors.bgComp;
         ctx.strokeStyle = this.colors.border;
         ctx.lineWidth = 3;
-        this.roundRect(ctx, 0, 0, 120, 80, 3);
+        this.roundRect(ctx, 20, 0, 100, 80, 3);
         ctx.fill();
         ctx.stroke();
 
@@ -488,22 +489,22 @@ class CanvasRenderer {
         
         ctx.textAlign = "left";
         if (comp.type === 'dff') {
-            ctx.fillText("D", 8, 20);
+            ctx.fillText("D", 28, 20);
         } else if (comp.type === 'srff') {
-            ctx.fillText("S", 8, 20);
-            ctx.fillText("R", 8, 60);
+            ctx.fillText("S", 28, 20);
+            ctx.fillText("R", 28, 60);
         } else if (comp.type === 'jkff') {
-            ctx.fillText("J", 8, 20);
-            ctx.fillText("K", 8, 60);
+            ctx.fillText("J", 28, 20);
+            ctx.fillText("K", 28, 60);
         } else if (comp.type === 'tff') {
-            ctx.fillText("T", 8, 20);
+            ctx.fillText("T", 28, 20);
         }
 
         // Clock Triangle
         ctx.beginPath();
-        ctx.moveTo(0, 33);
-        ctx.lineTo(10, 40);
-        ctx.lineTo(0, 47);
+        ctx.moveTo(20, 33);
+        ctx.lineTo(30, 40);
+        ctx.lineTo(20, 47);
         ctx.fillStyle = this.colors.border;
         ctx.fill();
 
@@ -519,20 +520,17 @@ class CanvasRenderer {
         // Bridges
         ctx.lineWidth = 3;
         ctx.beginPath();
-        ctx.moveTo(0, 20); ctx.lineTo(-20, 20);
-        ctx.moveTo(0, 40); ctx.lineTo(-20, 40);
+        ctx.moveTo(0, 20); ctx.lineTo(20, 20);
+        ctx.moveTo(0, 40); ctx.lineTo(20, 40);
         if (comp.type !== 'dff' && comp.type !== 'tff') {
-            ctx.moveTo(0, 60); ctx.lineTo(-20, 60);
+            ctx.moveTo(0, 60); ctx.lineTo(20, 60);
         }
         ctx.moveTo(120, 20); ctx.lineTo(140, 20);
         ctx.moveTo(120, 60); ctx.lineTo(140, 60);
         ctx.stroke();
-
-        ctx.translate(-20, 0);
     }
 
     drawJunction(ctx, comp) {
-        ctx.translate(-5, -5);
         ctx.strokeStyle = this.colors.border;
         ctx.lineWidth = 4;
         ctx.beginPath();
@@ -550,7 +548,6 @@ class CanvasRenderer {
         ctx.fill();
         ctx.lineWidth = 1;
         ctx.stroke();
-        ctx.translate(5, 5);
     }
 
     drawSeg7(ctx, comp) {

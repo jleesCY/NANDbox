@@ -58,7 +58,7 @@ let dropzone = renderer.canvas;
 document.querySelectorAll('.draggable').forEach(el => {
     el.addEventListener('dragstart', (e) => {
         let t = el.id || el.parentElement.id
-        if (el.classList.contains('seg7')) t = 'seg7'
+        if (el.classList.contains('seg7')) t = '7seg'
         if (el.classList.contains('label')) t = 'label'
         
         let rect = el.getBoundingClientRect()
@@ -109,7 +109,7 @@ function createComponent(type, x, y, id = null) {
     else if (category === 'light') comp = new Light(x, y, null);
     else if (category === 'flipflop') comp = new FlipFlop(type, x, y, null);
     else if (category === 'junction') comp = new Junction(type, x, y, null);
-    else if (type === 'seg7') comp = new Seg7(x, y, null);
+    else if (type === '7seg') comp = new Seg7(x, y, null);
     else if (type === 'label') comp = new Label(x, y, null);
 
     if (comp) {
@@ -136,7 +136,7 @@ function getCompDims(type) {
         return { w: 120, h: type === 'not' ? 40 : 80 };
     } else if (['dff','tff','jkff','srff'].includes(type)) {
         return { w: 140, h: 80 };
-    } else if (type === 'seg7') {
+    } else if (type === '7seg') {
         return { w: 100, h: 135 };
     } else if (type === 'label') {
         return { w: 100, h: 30 };
@@ -183,14 +183,14 @@ function createConnectorsFor(comp) {
         makeConn('out', 'nQNot', 140, 60)
     } else if (c === 'junction') {
         makeConn('in', 'n1', 0, 25)
-        makeConn('out', 'n2', 50, 25)
+        makeConn('in', 'n2', 50, 25)
         if (comp.type === 'junc3') {
-            makeConn('out', 'n3', 25, 50)
+            makeConn('in', 'n3', 25, 50)
         } else {
-            makeConn('out', 'n3', 25, 0)
-            makeConn('out', 'n4', 25, 50)
+            makeConn('in', 'n3', 25, 0)
+            makeConn('in', 'n4', 25, 50)
         }
-    } else if (comp.type === 'seg7') {
+    } else if (comp.type === '7seg') {
         makeConn('in', 'n1', 30, 80)
         makeConn('in', 'n2', 45, 80)
         makeConn('in', 'n3', 60, 80)
@@ -260,9 +260,58 @@ renderer.canvas.addEventListener('pointerdown', (e) => {
                 }
             })
         } else if (hit.type === 'wire') {
-            // Handle wire segment dragging
-            // Simplified wire bend for now - to be fully implemented later if needed
             hit.wire.select()
+            let wire = hit.wire
+            let pts = wire.getPoints()
+            if (!wire.bends || wire.bends.length === 0) {
+                wire.bends = pts.slice(1, pts.length - 1)
+            }
+            
+            let minDist = Infinity
+            let segIndex = -1
+            let isHoriz = false
+            let mx = worldPos.x
+            let my = worldPos.y
+
+            for (let i = 0; i < pts.length - 1; i++) {
+                let A = pts[i], B = pts[i+1]
+                let dist = Infinity
+                let horiz = Math.abs(A.y - B.y) < Math.abs(A.x - B.x)
+                if (horiz) {
+                    if (mx >= Math.min(A.x, B.x) - 15 && mx <= Math.max(A.x, B.x) + 15) {
+                        dist = Math.abs(my - A.y)
+                    }
+                } else {
+                    if (my >= Math.min(A.y, B.y) - 15 && my <= Math.max(A.y, B.y) + 15) {
+                        dist = Math.abs(mx - A.x)
+                    }
+                }
+                if (dist < minDist) {
+                    minDist = dist
+                    segIndex = i
+                    isHoriz = horiz
+                }
+            }
+            
+            if (segIndex !== -1) {
+                if (segIndex === 0) {
+                    wire.bends.unshift({x: pts[0].x, y: pts[0].y})
+                    segIndex++
+                }
+                if (segIndex === wire.bends.length) {
+                    wire.bends.push({x: pts[pts.length-1].x, y: pts[pts.length-1].y})
+                }
+
+                wireDragState = {
+                    active: true,
+                    wire: wire,
+                    segIndex: segIndex,
+                    isHoriz: isHoriz,
+                    pointerStartX: mx,
+                    pointerStartY: my,
+                    originalBends: JSON.parse(JSON.stringify(wire.bends))
+                }
+            }
         }
     } else {
         // Box select
@@ -303,6 +352,28 @@ window.addEventListener('pointermove', (e) => {
         })
     }
 
+    if (wireDragState.active) {
+        let dx = Math.round((worldPos.x - wireDragState.pointerStartX) / GRID) * GRID
+        let dy = Math.round((worldPos.y - wireDragState.pointerStartY) / GRID) * GRID
+        let b = wireDragState.wire.bends[wireDragState.segIndex - 1]
+        let bNext = wireDragState.wire.bends[wireDragState.segIndex]
+        
+        if (b && bNext && wireDragState.originalBends) {
+            b.x = wireDragState.originalBends[wireDragState.segIndex - 1].x
+            b.y = wireDragState.originalBends[wireDragState.segIndex - 1].y
+            bNext.x = wireDragState.originalBends[wireDragState.segIndex].x
+            bNext.y = wireDragState.originalBends[wireDragState.segIndex].y
+            
+            if (wireDragState.isHoriz) {
+                b.y += dy
+                bNext.y += dy
+            } else {
+                b.x += dx
+                bNext.x += dx
+            }
+        }
+    }
+
     if (wireDrawState.active) {
         let startPos = { 
             x: wireDrawState.startConnector.parent.x + wireDrawState.startConnector.localX,
@@ -336,6 +407,33 @@ window.addEventListener('pointerup', (e) => {
 
     if (dragState.active) {
         dragState.active = false
+        pushHistory()
+    }
+
+    if (wireDragState.active) {
+        let wire = wireDragState.wire
+        if (wire && wire.bends) {
+            let pts = wire.getPoints()
+            let cleanedPts = [pts[0]]
+            for (let j = 1; j < pts.length - 1; j++) {
+                let prev = cleanedPts[cleanedPts.length - 1]
+                let curr = pts[j]
+                let next = pts[j + 1]
+                let isCollinear = (Math.abs(prev.x - curr.x) < 1 && Math.abs(curr.x - next.x) < 1) ||
+                                  (Math.abs(prev.y - curr.y) < 1 && Math.abs(curr.y - next.y) < 1)
+                let isDuplicate = (Math.abs(prev.x - curr.x) < 1 && Math.abs(prev.y - curr.y) < 1)
+                if (!isCollinear && !isDuplicate) {
+                    cleanedPts.push(curr)
+                }
+            }
+            let lastPrev = cleanedPts[cleanedPts.length - 1]
+            let lastCurr = pts[pts.length - 1]
+            if (!(Math.abs(lastPrev.x - lastCurr.x) < 1 && Math.abs(lastPrev.y - lastCurr.y) < 1)) {
+                cleanedPts.push(lastCurr)
+            }
+            wire.bends = cleanedPts.length > 2 ? cleanedPts.slice(1, cleanedPts.length - 1) : null
+        }
+        wireDragState.active = false
         pushHistory()
     }
 
@@ -713,11 +811,12 @@ function loadCircuit(data, append) {
     let newCompIds = []
     
     for (let cData of data.components) {
+        let type = cData.type === 'seg7' ? '7seg' : cData.type;
         let newId = append ? ++elementId : parseInt(cData.id)
         if (!append && newId > elementId) elementId = newId
         idMap[cData.id] = newId
         
-        let comp = createComponent(cData.type, cData.x, cData.y, newId)
+        let comp = createComponent(type, cData.x, cData.y, newId)
         comp.rotation = cData.rotation || 0
         
         if (cData.lightColor && comp instanceof Light) {
@@ -1067,30 +1166,66 @@ window.trash = () => {
 };
 
 window.toggleSettings = () => {
-    let panel = document.getElementById('settings-panel');
-    if (panel) {
-        panel.style.display = panel.style.display === 'none' || panel.style.display === '' ? 'block' : 'none';
+    let overlay = document.getElementById('settings-overlay');
+    if (overlay) {
+        overlay.style.display = overlay.style.display === 'none' || overlay.style.display === '' ? 'flex' : 'none';
     }
 };
 
 window.help = () => {
-    alert("NANDbox Simulator\n\n- Drag components from the left panel.\n- Use Edit mode to wire and move components.\n- Use Pan mode to interact with buttons and switches.\n- Double click a component to open its settings.");
+    window.open('../help/', '_blank');
 };
 
 window.openLibrary = () => {
-    let panel = document.getElementById('side-panel');
-    if (panel) panel.classList.add('open');
+    let overlay = document.getElementById('library-overlay');
+    if (overlay) overlay.style.display = 'flex';
 };
 
 window.closeLibrary = () => {
-    let panel = document.getElementById('side-panel');
-    if (panel) panel.classList.remove('open');
+    let overlay = document.getElementById('library-overlay');
+    if (overlay) overlay.style.display = 'none';
 };
 
 window.recenterView = () => {
     renderer.setZoom(1.0, window.innerWidth / 2, window.innerHeight / 2);
     renderer.panX = 0;
     renderer.panY = 0;
+};
+
+window.loadLibraryCircuit = (filename) => {
+    fetch('../library/' + filename)
+        .then(r => r.json())
+        .then(data => {
+            loadCircuit(data, false);
+            window.closeLibrary();
+        })
+        .catch(e => {
+            console.error(e);
+            alert("Failed to load circuit.");
+        });
+};
+
+window.applyTheme = (theme) => {
+    document.body.className = theme === 'light' ? '' : 'theme-' + theme;
+    if (theme === 'dark') {
+        renderer.colors.bg = '#1e1e24';
+        renderer.colors.grid = 'rgba(255, 255, 255, 0.05)';
+        renderer.colors.text = '#dddddd';
+        renderer.colors.bgComp = '#2a2a35';
+        renderer.colors.border = '#444444';
+    } else if (theme === 'blueprint') {
+        renderer.colors.bg = '#0a4074';
+        renderer.colors.grid = 'rgba(255, 255, 255, 0.2)';
+        renderer.colors.text = '#ffffff';
+        renderer.colors.bgComp = '#0a4074';
+        renderer.colors.border = '#80bfff';
+    } else {
+        renderer.colors.bg = '#ffffff';
+        renderer.colors.grid = 'rgba(0,0,0,0.1)';
+        renderer.colors.text = '#222222';
+        renderer.colors.bgComp = '#ffffff';
+        renderer.colors.border = '#000000';
+    }
 };
 
 // Export let-defined functions to window
