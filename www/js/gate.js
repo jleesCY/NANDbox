@@ -178,22 +178,18 @@ class Gate {
     // ----- INTERACTION -----
     //
     select = () => {
-        this.dom.classList.add('selected')
         this.selected = true
     }
     deselect = () => {
-        this.dom.classList.remove('selected')
         this.selected = false
     }
     delete = () => {
-        if (this.dom && this.dom.parentElement) {
-            this.dom.parentElement.removeChild(this.dom)
-        }
+        // No-op for canvas refactor
     }
     enableSelect = () => {
-        this.dom.addEventListener('dblclick', this.select)
+        // No-op
     }
     disableSelect = () => {
-        this.dom.removeEventListener('dblclick', this.select)
+        // No-op
     }
 }

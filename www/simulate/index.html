@@ -9,7 +9,7 @@
         <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
         <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
         <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
-        <script src='https://unpkg.com/panzoom@9.4.0/dist/panzoom.min.js'></script>
+
         <link href="../css/index.css" rel="stylesheet">
         <link href="../css/shapes.css" rel="stylesheet">
         <link rel="stylesheet" media="screen" href="https://fontlibrary.org//face/segment7" type="text/css"/>
@@ -96,9 +96,7 @@
 
         <div id="body" class="editor-body">
             <div id='dropwindow' style="overflow:hidden;z-index:0;position:relative">
-                <div id="simulation-window" style="z-index:-1;position:relative;width:10000px;height:10000px">
-                    <!-- Clean canvas — no test components -->
-                </div>
+                <canvas id="circuit-canvas" style="position:absolute;left:0;top:0;width:100%;height:100%;z-index:-1;"></canvas>
                 <!-- Status bar -->
                 <div id="status-bar" style="display: flex; align-items: center; gap: 15px;">
                     <div style="display: flex; align-items: center; gap: 8px;">
@@ -107,8 +105,6 @@
                     </div>
                     <button class="tb-btn" onclick="recenterView()" style="border:1px solid rgba(255,255,255,0.15);padding:2px 8px;font-size:12px">Recenter</button>
                 </div>
-                <!-- Selection rectangle for multi-select -->
-                <div id="selection-box" style="display:none;position:fixed;border:2px dashed var(--accent);background:rgba(227,80,80,0.08);z-index:50;pointer-events:none"></div>
             </div>
             <div id="drawer-backdrop" class="drawer-backdrop" onclick="toggleDrawer()"></div>
             <div id="side-panel" class="drawer">
@@ -347,6 +343,7 @@
             </div>
         </div>
         <script src="../js/engine.js"></script>
+        <script src="../js/renderer.js"></script>
         <script src="../js/connector.js"></script>
         <script src="../js/input.js"></script>
         <script src="../js/clock.js"></script>

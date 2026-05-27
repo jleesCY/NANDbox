@@ -82,76 +82,43 @@ class Input {
      * Update visuals: apply current state to DOM
      */
     updateVisuals() {
-        if (this.nOut) {
-            this.nOut.updateVisual()
-        }
-        // Update body visual
-        if (this.value) {
-            this.dom.children[0].classList.remove('low')
-            this.dom.children[0].classList.add('high')
-        } else {
-            this.dom.children[0].classList.remove('high')
-            this.dom.children[0].classList.add('low')
-        }
+        // No-op for canvas refactor
     }
 
     //
     // ----- INTERACTION -----
     //
     select = () => {
-        this.dom.classList.add('selected')
         this.selected = true
     }
     deselect = () => {
-        this.dom.classList.remove('selected')
         this.selected = false
     }
     delete = () => {
-        if (this.dom && this.dom.parentElement) {
-            this.dom.parentElement.removeChild(this.dom)
-        }
+        // No-op
     }
     enableSelect = () => {
-        this.dom.addEventListener('dblclick', this.select)
+        // No-op
     }
     disableSelect = () => {
-        this.dom.removeEventListener('dblclick', this.select)
+        // No-op
     }
     enablePress = () => {
-        if (this.type == 'switch') {
-            this.dom.children[0].addEventListener('pointerup', this.toggle)
-        }
-        else if (this.type == 'button') {
-            this.dom.children[0].addEventListener('pointerdown', this.on)
-            this.dom.children[0].addEventListener('pointerup', this.off)
-        }
+        // No-op
     }
     disablePress = () => {
-        if (this.type == 'switch') {
-            this.dom.children[0].removeEventListener('pointerup', this.toggle)
-        }
-        else if (this.type == 'button') {
-            this.dom.children[0].removeEventListener('pointerdown', this.on)
-            this.dom.children[0].removeEventListener('pointerup', this.off)
-        }
+        // No-op
     }
     on = () => {
         this.value = true
-        // Visuals handled by engine tick, but update immediately for responsiveness
-        this.dom.children[0].classList.remove('low')
-        this.dom.children[0].classList.add('high')
         if (this.nOut) {
             this.nOut.value = true
-            this.nOut.on()
         }
     }
     off = () => {
         this.value = false
-        this.dom.children[0].classList.remove('high')
-        this.dom.children[0].classList.add('low')
         if (this.nOut) {
             this.nOut.value = false
-            this.nOut.off()
         }
     }
     toggle = () => {

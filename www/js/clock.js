@@ -79,66 +79,40 @@ class Clock {
      * Update visuals
      */
     updateVisuals() {
-        if (this.nOut) {
-            this.nOut.updateVisual()
-        }
-        // Update body visual
-        let body = this.dom.children[0]
-        if (this.value) {
-            body.classList.remove('low')
-            body.classList.add('high')
-        } else {
-            body.classList.remove('high')
-            body.classList.add('low')
-        }
-        // Update pulse indicator
-        let indicator = body.querySelector('.clock-pulse')
-        if (indicator) {
-            indicator.textContent = this.value ? '▲' : '▼'
-        }
+        // No-op
     }
 
     //
     // ----- INTERACTION -----
     //
     select = () => {
-        this.dom.classList.add('selected')
         this.selected = true
     }
     deselect = () => {
-        this.dom.classList.remove('selected')
         this.selected = false
     }
     delete = () => {
-        if (this.dom && this.dom.parentElement) {
-            this.dom.parentElement.removeChild(this.dom)
-        }
+        // No-op
     }
     enableSelect = () => {
-        this.dom.addEventListener('dblclick', this.select)
+        // No-op
     }
     disableSelect = () => {
-        this.dom.removeEventListener('dblclick', this.select)
+        // No-op
     }
     enablePress = () => {}
     disablePress = () => {}
     toggleRunning = () => {}
     on = () => {
         this.value = true
-        this.dom.children[0].classList.remove('low')
-        this.dom.children[0].classList.add('high')
         if (this.nOut) {
             this.nOut.value = true
-            this.nOut.on()
         }
     }
     off = () => {
         this.value = false
-        this.dom.children[0].classList.remove('high')
-        this.dom.children[0].classList.add('low')
         if (this.nOut) {
             this.nOut.value = false
-            this.nOut.off()
         }
     }
 }

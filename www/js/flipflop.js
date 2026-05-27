@@ -150,23 +150,7 @@ class FlipFlop {
      * Update visuals: apply current state to DOM
      */
     updateVisuals() {
-        // Input connectors
-        if (this.n1) {
-            this.n1.updateVisual()
-        }
-        if ((this.type === 'jkff' || this.type === 'srff') && this.n2 && this.n2 !== this.n1) {
-            this.n2.updateVisual()
-        }
-        if (this.nC) {
-            this.nC.updateVisual()
-        }
-        // Output connectors
-        if (this.nQ) {
-            this.nQ.updateVisual()
-        }
-        if (this.nQNot) {
-            this.nQNot.updateVisual()
-        }
+        // No-op
     }
 
     //
@@ -174,29 +158,24 @@ class FlipFlop {
     //
     calcOutput() {
         this.evaluate()
-        this.updateVisuals()
     }
 
     //
     // ----- INTERACTION -----
     //
     select = () => {
-        this.dom.classList.add('selected')
         this.selected = true
     }
     deselect = () => {
-        this.dom.classList.remove('selected')
         this.selected = false
     }
     delete = () => {
-        if (this.dom && this.dom.parentElement) {
-            this.dom.parentElement.removeChild(this.dom)
-        }
+        // No-op
     }
     enableSelect = () => {
-        this.dom.addEventListener('dblclick', this.select)
+        // No-op
     }
     disableSelect = () => {
-        this.dom.removeEventListener('dblclick', this.select)
+        // No-op
     }
 }

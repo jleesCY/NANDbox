@@ -48,17 +48,14 @@ class Seg7 {
         if (this.n3 && this.n3.value) v3 = '1'
         if (this.n4 && this.n4.value) v4 = '1'
 
-        this.dom.children[1].innerHTML = parseInt(v4 + v3 + v2 + v1, 2).toString(16).toUpperCase()
+        this.displayValue = parseInt(v4 + v3 + v2 + v1, 2).toString(16).toUpperCase()
     }
 
     /**
      * Update visuals
      */
     updateVisuals() {
-        if (this.n1) this.n1.updateVisual()
-        if (this.n2) this.n2.updateVisual()
-        if (this.n3) this.n3.updateVisual()
-        if (this.n4) this.n4.updateVisual()
+        // No-op
     }
 
     //
@@ -66,29 +63,24 @@ class Seg7 {
     //
     calcOutput() {
         this.evaluate()
-        this.updateVisuals()
     }
 
     //
     // ----- INTERACTION -----
     //
     select = () => {
-        this.dom.classList.add('selected')
         this.selected = true
     }
     deselect = () => {
-        this.dom.classList.remove('selected')
         this.selected = false
     }
     delete = () => {
-        if (this.dom && this.dom.parentElement) {
-            this.dom.parentElement.removeChild(this.dom)
-        }
+        // No-op
     }
     enableSelect = () => {
-        this.dom.addEventListener('dblclick', this.select)
+        // No-op
     }
     disableSelect = () => {
-        this.dom.removeEventListener('dblclick', this.select)
+        // No-op
     }
 }

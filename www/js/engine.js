@@ -28,7 +28,7 @@ class SimulationEngine {
         const cProps = ['n1', 'n2', 'n3', 'n4', 'nC', 'nOut', 'nQ', 'nQNot', 'n']
         for (let prop of cProps) {
             if (component[prop]) {
-                this.registerConnector(component[prop].dom.id, component[prop])
+                this.registerConnector(component[prop].id, component[prop])
             }
         }
     }
@@ -42,7 +42,7 @@ class SimulationEngine {
             const cProps = ['n1', 'n2', 'n3', 'n4', 'nC', 'nOut', 'nQ', 'nQNot', 'n']
             for (let prop of cProps) {
                 if (component[prop]) {
-                    this.unregisterConnector(component[prop].dom.id)
+                    this.unregisterConnector(component[prop].id)
                 }
             }
         }
@@ -101,7 +101,7 @@ class SimulationEngine {
         for (let wId in this.wires) {
             let wire = this.wires[wId];
             if (wire && wire.n1 && wire.n2) {
-                union(wire.n1.dom.id, wire.n2.dom.id);
+                union(wire.n1.id, wire.n2.id);
             }
         }
 
@@ -109,9 +109,9 @@ class SimulationEngine {
         for (let id of Object.keys(this.components)) {
             let comp = this.components[id];
             if (comp && (comp.type === 'junction' || comp.type === 'junc3' || comp.type === 'junc4')) {
-                if (comp.n1 && comp.n2) union(comp.n1.dom.id, comp.n2.dom.id);
-                if (comp.n1 && comp.n3) union(comp.n1.dom.id, comp.n3.dom.id);
-                if (comp.n1 && comp.n4) union(comp.n1.dom.id, comp.n4.dom.id);
+                if (comp.n1 && comp.n2) union(comp.n1.id, comp.n2.id);
+                if (comp.n1 && comp.n3) union(comp.n1.id, comp.n3.id);
+                if (comp.n1 && comp.n4) union(comp.n1.id, comp.n4.id);
             }
         }
 
@@ -134,7 +134,7 @@ class SimulationEngine {
         for (let wId in this.wires) {
             let wire = this.wires[wId];
             if (wire && wire.n1) {
-                let root = find(wire.n1.dom.id);
+                let root = find(wire.n1.id);
                 if (!this.cachedNets[root]) {
                     this.cachedNets[root] = { drivers: [], receivers: [], wires: [] };
                 }

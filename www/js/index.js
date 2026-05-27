@@ -1,186 +1,494 @@
-/*
-    Main JavaScript file for simulator
-    Refactored: tick-based engine, all bug fixes applied
-*/
+// Main JavaScript file for simulator using Canvas Renderer
 
-// Init simulation engine
 let engine = new SimulationEngine()
 engine.start()
 
-// Side panel logic removed as accordion is replaced with flat list.
-
-// Component inner HTML
-let HTML = {
-    'and': '<div class="in-2"><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div></div><div class="body gate-body and-shape" tabindex="1"></div><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div>',
-    'or': '<div class="in-2"><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div></div><div class="body gate-body or-shape" tabindex="1"></div><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div>',
-    'not': '<div class="in-1"><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div></div><div class="body gate-body not-shape" tabindex="1"><div class="gate-bubble"></div></div><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div>',
-    'nand': '<div class="in-2"><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div></div><div class="body gate-body and-shape" tabindex="1"><div class="gate-bubble"></div></div><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div>',
-    'nor': '<div class="in-2"><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div></div><div class="body gate-body or-shape" tabindex="1"><div class="gate-bubble"></div></div><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div>',
-    'xor': '<div class="in-2"><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div></div><div class="body gate-body xor-shape" tabindex="1"></div><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div>',
-    'xnor': '<div class="in-2"><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div></div><div class="body gate-body xor-shape" tabindex="1"><div class="gate-bubble"></div></div><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div>',
-    'button': '<div class="body button low" tabindex="1"></div><div class="connector off" tabindex="1"><div class="connector-bridge"></div></div>',
-    'switch': '<div class="body switch low" tabindex="1"><div class="top"></div><div class="bottom"></div></div><div class="connector off" tabindex="1"><div class="connector-bridge"></div></div>',
-    'gnd': '<div class="body const low" tabindex="1">0</div><div class="connector off" tabindex="1"><div class="connector-bridge"></div></div>',
-    'vcc': '<div class="body const high" tabindex="1">1</div><div class="connector on" tabindex="1"><div class="connector-bridge"></div></div>',
-    'clock': '<div class="body clock-body low" tabindex="1"><span class="clock-pulse">▼</span><span class="clock-label">CLK</span></div><div class="connector off" tabindex="1"><div class="connector-bridge"></div></div>',
-    'led': '<div class="body led float" tabindex="1"></div><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div>',
-    'seg7': '<div class="in-4"><div class="connector float"><div class="connector-bridge"></div></div><div class="connector float"><div class="connector-bridge"></div></div><div class="connector float"><div class="connector-bridge"></div></div><div class="connector float"><div class="connector-bridge"></div></div></div><div class="display">0</div>',
-    'label': 'NANDlabel',
-    'jkff': '<div class="in-3"><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div></div><div class="body ff-body" tabindex="1"><div class="ff-pin left">J</div><div class="ff-pin right">Q</div><div class="ff-pin left"><div class="ff-clk-triangle"></div></div><div class="ff-pin right"></div><div class="ff-pin left">K</div><div class="ff-pin right overline">Q</div></div><div class="out-2"><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div></div>',
-    'tff': '<div class="in-2"><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div></div><div class="body ff-body" tabindex="1"><div class="ff-pin left">T</div><div class="ff-pin right">Q</div><div class="ff-pin left"></div><div class="ff-pin right"></div><div class="ff-pin left"><div class="ff-clk-triangle"></div></div><div class="ff-pin right overline">Q</div></div><div class="out-2"><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div></div>',
-    'dff': '<div class="in-2"><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div></div><div class="body ff-body" tabindex="1"><div class="ff-pin left">D</div><div class="ff-pin right">Q</div><div class="ff-pin left"></div><div class="ff-pin right"></div><div class="ff-pin left"><div class="ff-clk-triangle"></div></div><div class="ff-pin right overline">Q</div></div><div class="out-2"><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div></div>',
-    'srff': '<div class="in-3"><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div></div><div class="body ff-body" tabindex="1"><div class="ff-pin left">S</div><div class="ff-pin right">Q</div><div class="ff-pin left"><div class="ff-clk-triangle"></div></div><div class="ff-pin right"></div><div class="ff-pin left">R</div><div class="ff-pin right overline">Q</div></div><div class="out-2"><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div><div class="connector float" tabindex="1"><div class="connector-bridge"></div></div></div>',
-    'junc3': '<svg class="body junc-body" width="40" height="40" viewBox="0 0 40 40" style="position:absolute;left:5px;top:5px;pointer-events:auto;z-index:0;"><rect width="40" height="40" fill="transparent" style="pointer-events:all;"/><path d="M0,20 L40,20 M20,20 L20,40" stroke="#000" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none" style="pointer-events:none;"/><circle cx="20" cy="20" r="6" fill="#000" stroke="#000" stroke-width="1" style="pointer-events:auto;"/></svg><div class="connector float" tabindex="1" style="position:absolute;left:0px;top:20px;z-index:10;"><div class="connector-bridge" style="left:auto; right:-10px;"></div></div><div class="connector float" tabindex="1" style="position:absolute;left:40px;top:20px;z-index:10;"><div class="connector-bridge" style="left:-10px;"></div></div><div class="connector float" tabindex="1" style="position:absolute;left:20px;top:40px;z-index:10;"><div class="connector-bridge" style="width:3px; height:10px; top:-10px; left:50%; transform:translateX(-50%);"></div></div>',
-    'junc4': '<svg class="body junc-body" width="40" height="40" viewBox="0 0 40 40" style="position:absolute;left:5px;top:5px;pointer-events:auto;z-index:0;"><rect width="40" height="40" fill="transparent" style="pointer-events:all;"/><path d="M0,20 L40,20 M20,0 L20,40" stroke="#000" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none" style="pointer-events:none;"/><circle cx="20" cy="20" r="6" fill="#000" stroke="#000" stroke-width="1" style="pointer-events:auto;"/></svg><div class="connector float" tabindex="1" style="position:absolute;left:0px;top:20px;z-index:10;"><div class="connector-bridge" style="left:auto; right:-10px;"></div></div><div class="connector float" tabindex="1" style="position:absolute;left:40px;top:20px;z-index:10;"><div class="connector-bridge" style="left:-10px;"></div></div><div class="connector float" tabindex="1" style="position:absolute;left:20px;top:0px;z-index:10;"><div class="connector-bridge" style="width:3px; height:10px; top:auto; bottom:-10px; left:50%; transform:translateX(-50%);"></div></div><div class="connector float" tabindex="1" style="position:absolute;left:20px;top:40px;z-index:10;"><div class="connector-bridge" style="width:3px; height:10px; top:-10px; left:50%; transform:translateX(-50%);"></div></div>'
-}
-
-// Possible types of components
-let connTypes = ['gate', 'input', 'light', 'flipflop']
-
-// Mapping of individual component names to their types
-let categories = {
-    'and': connTypes[0], 'or': connTypes[0], 'not': connTypes[0],
-    'nand': connTypes[0], 'nor': connTypes[0], 'xor': connTypes[0], 'xnor': connTypes[0],
-    'button': connTypes[1], 'switch': connTypes[1], 'vcc': connTypes[1], 'gnd': connTypes[1],
-    'clock': connTypes[1],
-    'led': connTypes[2],
-    'seg7': 'seg7',
-    'label': 'label',
-    'tff': connTypes[3], 'jkff': connTypes[3], 'dff': connTypes[3], 'srff': connTypes[3],
-    'junction': 'junction',
-    'junc3': 'junction',
-    'junc4': 'junction'
-}
-
-// Fix: use let for globals
-let zoom = 0.065
-let yoff = document.querySelector("#navbar").getBoundingClientRect().height
-let elementId = 0
-let connectorId = 0
-let wireId = 0
-let scale = 1
-let GRID = 10  // Universal grid size — all coordinates snap to this
+// Component tracking
 let components = {}
 let connectors = {}
 let wires = {}
-let navMode = 1
+let elementId = 0
+let connectorId = 0
+let wireId = 0
 
-let dropzone = document.querySelector("#dropwindow")
-let pressedKeys = {}
-let mousedown = false
-let drawWire = false
-let wireOrigin = null
-let justBoxSelected = false  // prevents click from deselecting after box-select
-let justDragged = false      // prevents click from deselecting after drag
+// Editor state
+let navMode = 1 // 1: Edit, 0: Pan/Interact
+let GRID = 10
+let zoom = 1.0
 
-let sim = document.querySelector("#simulation-window")
-let instance = panzoom(sim, { smoothScroll: false, zoomSpeed: zoom, minZoom: 0.2, maxZoom: 3.0 })
-instance.pause()
+// Interaction states
+let dragState = { active: false, component: null, startX: 0, startY: 0, compStartX: 0, compStartY: 0 }
+let wireDrawState = { active: false, startConnector: null, previewWire: null }
+let wireDragState = { active: false, wireId: null, segIndex: -1, isHorizontal: false, startX: 0, startY: 0, originalBends: null }
+let selectState = { active: false, startX: 0, startY: 0, currX: 0, currY: 0 }
 
-// Fix: explicit event parameter in all handlers
-let panelDragstart = (event) => {
-    let el = event.target
-    // Determine component type
-    let t = ''
-    if (el.classList.contains('seg7')) {
-        t = 'seg7'
-    } else if (el.classList.contains('label')) {
-        t = 'label'
+// Init Renderer
+let renderer = new CanvasRenderer('circuit-canvas')
+
+// Make them globally available for renderer
+window.components = Object.values(components)
+window.wires = Object.values(wires)
+window.selectState = selectState
+window.wireDrawState = wireDrawState
+
+// Sync global arrays when objects change
+function syncGlobals() {
+    window.components = Object.values(components)
+    window.wires = Object.values(wires)
+}
+
+// ----- UI CONTROLS -----
+document.querySelector('#pan-button').addEventListener('click', () => {
+    navMode = 0
+    document.querySelector('#pan-button').classList.add('active')
+    document.querySelector('#edit-button').classList.remove('active')
+    document.body.style.cursor = 'all-scroll'
+})
+
+document.querySelector('#edit-button').addEventListener('click', () => {
+    navMode = 1
+    document.querySelector('#pan-button').classList.remove('active')
+    document.querySelector('#edit-button').classList.add('active')
+    document.body.style.cursor = 'default'
+})
+
+// ----- DRAG AND DROP FROM SIDEBAR -----
+let dropzone = renderer.canvas;
+
+document.querySelectorAll('.draggable').forEach(el => {
+    el.addEventListener('dragstart', (e) => {
+        let t = el.id || el.parentElement.id
+        if (el.classList.contains('seg7')) t = 'seg7'
+        if (el.classList.contains('label')) t = 'label'
+        
+        let rect = el.getBoundingClientRect()
+        let mx = e.clientX - rect.left
+        let my = e.clientY - rect.top
+        
+        e.dataTransfer.setData('text/plain', JSON.stringify({ type: t, xoff: mx, yoff: my }))
+        
+        // Hide default drag image
+        let emptyImg = new Image()
+        emptyImg.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
+        e.dataTransfer.setDragImage(emptyImg, 0, 0)
+    })
+})
+
+dropzone.addEventListener('dragover', (e) => {
+    e.preventDefault()
+})
+
+dropzone.addEventListener('drop', (e) => {
+    e.preventDefault()
+    let data = JSON.parse(e.dataTransfer.getData('text/plain'))
+    
+    let worldPos = renderer.screenToWorld(e.clientX, e.clientY)
+    let x = Math.round((worldPos.x - data.xoff) / GRID) * GRID
+    let y = Math.round((worldPos.y - data.yoff) / GRID) * GRID
+    
+    let comp = createComponent(data.type, x, y)
+    syncGlobals()
+    pushHistory()
+})
+
+// ----- COMPONENT CREATION -----
+function createComponent(type, x, y, id = null) {
+    if (!id) {
+        elementId++
+        id = elementId
+    }
+    
+    let comp = null;
+    let category = getCategory(type)
+    
+    if (category === 'gate') comp = new Gate(type, x, y, null);
+    else if (category === 'input') {
+        if (type === 'clock') comp = new Clock(x, y, null);
+        else comp = new Input(type, x, y, null);
+    }
+    else if (category === 'light') comp = new Light(x, y, null);
+    else if (category === 'flipflop') comp = new FlipFlop(type, x, y, null);
+    else if (category === 'junction') comp = new Junction(type, x, y, null);
+    else if (type === 'seg7') comp = new Seg7(x, y, null);
+    else if (type === 'label') comp = new Label(x, y, null);
+
+    if (comp) {
+        comp.id = id
+        components[id] = comp
+        engine.registerComponent(id, comp)
+        createConnectorsFor(comp)
+    }
+    return comp
+}
+
+function getCategory(type) {
+    let catMap = {
+        'and': 'gate', 'or': 'gate', 'not': 'gate', 'nand': 'gate', 'nor': 'gate', 'xor': 'gate', 'xnor': 'gate',
+        'button': 'input', 'switch': 'input', 'vcc': 'input', 'gnd': 'input', 'clock': 'input',
+        'led': 'light', 'tff': 'flipflop', 'jkff': 'flipflop', 'dff': 'flipflop', 'srff': 'flipflop',
+        'junction': 'junction', 'junc3': 'junction', 'junc4': 'junction'
+    }
+    return catMap[type] || type
+}
+
+function getCompDims(type) {
+    if (['not','and','or','nand','nor','xor','xnor'].includes(type)) {
+        return { w: 120, h: type === 'not' ? 40 : 80 };
+    } else if (['dff','tff','jkff','srff'].includes(type)) {
+        return { w: 140, h: 80 };
+    } else if (type === 'seg7') {
+        return { w: 100, h: 135 };
+    } else if (type === 'label') {
+        return { w: 100, h: 30 };
+    }
+    return { w: 40, h: 40 };
+}
+
+function createConnectorsFor(comp) {
+    let c = getCategory(comp.type)
+    let makeConn = (type, loc, lx, ly) => {
+        connectorId++
+        let conn = new Connector(type, loc, comp)
+        conn.id = connectorId
+        conn.localX = lx
+        conn.localY = ly
+        comp[loc] = conn
+        connectors[connectorId] = conn
+        engine.registerConnector(connectorId, conn)
+    }
+
+    if (c === 'gate') {
+        if (comp.type !== 'not') {
+            makeConn('in', 'n1', 0, 20)
+            makeConn('in', 'n2', 0, 60)
+        } else {
+            makeConn('in', 'n1', 0, 40)
+        }
+        let outX = (comp.type === 'nand' || comp.type === 'nor' || comp.type === 'xnor' || comp.type === 'not') ? 120 : 120;
+        makeConn('out', 'nOut', outX, 40)
+    } else if (c === 'input') {
+        makeConn('out', 'nOut', 50, 20)
+    } else if (c === 'light') {
+        makeConn('in', 'n1', 20, 50)
+    } else if (c === 'flipflop') {
+        if (comp.type === 'dff' || comp.type === 'tff') {
+            makeConn('in', 'n1', 0, 20)
+            makeConn('in', 'nC', 0, 40)
+        } else {
+            makeConn('in', 'n1', 0, 20)
+            makeConn('in', 'nC', 0, 40)
+            makeConn('in', 'n2', 0, 60)
+        }
+        makeConn('out', 'nQ', 140, 20)
+        makeConn('out', 'nQNot', 140, 60)
+    } else if (c === 'junction') {
+        makeConn('in', 'n1', 0, 25)
+        makeConn('out', 'n2', 50, 25)
+        if (comp.type === 'junc3') {
+            makeConn('out', 'n3', 25, 50)
+        } else {
+            makeConn('out', 'n3', 25, 0)
+            makeConn('out', 'n4', 25, 50)
+        }
+    } else if (comp.type === 'seg7') {
+        makeConn('in', 'n1', 30, 80)
+        makeConn('in', 'n2', 45, 80)
+        makeConn('in', 'n3', 60, 80)
+        makeConn('in', 'n4', 75, 80)
+    }
+}
+
+// ----- POINTER EVENTS -----
+let isPanning = false
+let panStartX = 0
+let panStartY = 0
+
+renderer.canvas.addEventListener('pointerdown', (e) => {
+    e.preventDefault()
+    let worldPos = renderer.screenToWorld(e.clientX, e.clientY)
+    
+    // Pan mode logic
+    if (navMode === 0 || e.button === 1 || e.button === 2) { // Middle or Right click pans too
+        isPanning = true
+        panStartX = e.clientX
+        panStartY = e.clientY
+        
+        // Check if interacting with input in pan mode
+        let hit = renderer.hitTest(worldPos.x, worldPos.y)
+        if (hit && hit.type === 'component') {
+            let c = hit.component
+            if (c.type === 'button') c.on()
+            if (c.type === 'switch') c.toggle()
+        }
+        return
+    }
+
+    let hit = renderer.hitTest(worldPos.x, worldPos.y)
+
+    if (hit) {
+        if (hit.type === 'connector') {
+            wireDrawState = {
+                active: true,
+                startConnector: hit.connector,
+                previewWire: new Wire('preview', hit.connector, { parent: { x: 0, y: 0, rotation: 0 }, localX: worldPos.x, localY: worldPos.y }) // Temporary visual wire
+            }
+        } else if (hit.type === 'component') {
+            let comp = hit.component
+            if (comp.type === 'button') comp.on()
+            if (comp.type === 'switch') comp.toggle()
+            if (!comp.selected && !e.shiftKey) {
+                // Deselect others if not shift key
+                Object.values(components).forEach(c => c.deselect())
+                Object.values(wires).forEach(w => w.deselect())
+            }
+            comp.select()
+            
+            dragState = {
+                active: true,
+                component: comp,
+                startX: worldPos.x,
+                startY: worldPos.y,
+                compStartX: comp.x,
+                compStartY: comp.y
+            }
+            
+            // Store starting positions for all selected components in case of group drag
+            Object.values(components).forEach(c => {
+                if (c.selected) {
+                    c.dragStartX = c.x
+                    c.dragStartY = c.y
+                }
+            })
+        } else if (hit.type === 'wire') {
+            // Handle wire segment dragging
+            // Simplified wire bend for now - to be fully implemented later if needed
+            hit.wire.select()
+        }
     } else {
-        t = el.id || el.parentElement.id
+        // Box select
+        if (!e.shiftKey) {
+            Object.values(components).forEach(c => c.deselect())
+            Object.values(wires).forEach(w => w.deselect())
+        }
+        selectState = {
+            active: true,
+            startX: worldPos.x,
+            startY: worldPos.y,
+            currX: worldPos.x,
+            currY: worldPos.y
+        }
     }
-    let rect = el.getBoundingClientRect()
-    let mx = event.x - rect.left
-    let my = event.y - rect.top
-    event.dataTransfer.setData('text/plain', JSON.stringify({ from: 'panel', type: t, xoff: mx, yoff: my }))
+})
 
-    // Create a full-size ghost preview that matches the placed element
-    let cat = categories[t]
-    let ghost = document.createElement('div')
-    ghost.className = cat === 'seg7' ? 'seg7' : (cat || t)
-    ghost.innerHTML = HTML[t] || ''
-    ghost.style.position = 'absolute'
-    ghost.style.opacity = '0.5'
-    ghost.style.pointerEvents = 'none'
-    ghost.style.zIndex = '1000'
-    ghost.style.visibility = 'hidden'
-    sim.appendChild(ghost)
+window.addEventListener('pointermove', (e) => {
+    let worldPos = renderer.screenToWorld(e.clientX, e.clientY)
 
-    // Store drag preview info globally
-    window.dropPreviewData = {
-        type: t,
-        cat: cat,
-        xoff: mx,
-        yoff: my,
-        dom: ghost,
-        simRect: sim.getBoundingClientRect(),
-        navbarHeight: document.querySelector("#navbar").getBoundingClientRect().height
+    if (isPanning) {
+        let dx = e.clientX - panStartX
+        let dy = e.clientY - panStartY
+        renderer.pan(dx, dy)
+        panStartX = e.clientX
+        panStartY = e.clientY
     }
 
-    // Hide the native browser drag ghost by using an empty 1x1 image
-    let emptyImg = new Image()
-    emptyImg.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
-    event.dataTransfer.setDragImage(emptyImg, 0, 0)
+    if (dragState.active) {
+        let dx = Math.round((worldPos.x - dragState.startX) / GRID) * GRID
+        let dy = Math.round((worldPos.y - dragState.startY) / GRID) * GRID
+        
+        Object.values(components).forEach(c => {
+            if (c.selected) {
+                c.x = c.dragStartX + dx
+                c.y = c.dragStartY + dy
+            }
+        })
+    }
+
+    if (wireDrawState.active) {
+        let startPos = { 
+            x: wireDrawState.startConnector.parent.x + wireDrawState.startConnector.localX,
+            y: wireDrawState.startConnector.parent.y + wireDrawState.startConnector.localY
+        }
+        // Force bend for preview
+        wireDrawState.previewWire.bends = [
+            { x: startPos.x, y: Math.round(worldPos.y / GRID) * GRID }
+        ]
+        // Hack the preview end position
+        wireDrawState.previewWire.n2 = { parent: { x: 0, y: 0 }, localX: Math.round(worldPos.x / GRID) * GRID, localY: Math.round(worldPos.y / GRID) * GRID }
+    }
+
+    if (selectState.active) {
+        selectState.currX = worldPos.x
+        selectState.currY = worldPos.y
+    }
+})
+
+window.addEventListener('pointerup', (e) => {
+    let worldPos = renderer.screenToWorld(e.clientX, e.clientY)
+
+    if (isPanning) {
+        isPanning = false
+    }
+
+    // Handle button off
+    Object.values(components).forEach(c => {
+        if (c.type === 'button' && c.value) c.off()
+    })
+
+    if (dragState.active) {
+        dragState.active = false
+        pushHistory()
+    }
+
+    if (wireDrawState.active) {
+        let hit = renderer.hitTest(worldPos.x, worldPos.y)
+        if (hit && hit.type === 'connector' && hit.connector !== wireDrawState.startConnector) {
+            let n1 = wireDrawState.startConnector
+            let n2 = hit.connector
+            
+            // Swap if n1 is 'in' and n2 is 'out' so n1 is always 'out' (source)
+            if (n1.type === 'in' && n2.type === 'out') {
+                let temp = n1; n1 = n2; n2 = temp;
+            }
+            
+            if (n1.type === 'out' && n2.type === 'in') {
+                wireId++
+                let wire = new Wire(wireId, n1, n2)
+                wires[wireId] = wire
+                engine.registerWire(wireId, wire)
+                n1.parent.addOut = wire
+                n2.parent.setIn = wire
+                
+                // Route wire simply for now
+                let p1 = { x: n1.parent.x + n1.localX, y: n1.parent.y + n1.localY }
+                let p2 = { x: n2.parent.x + n2.localX, y: n2.parent.y + n2.localY }
+                wire.bends = [{ x: p2.x, y: p1.y }]
+                
+                syncGlobals()
+                pushHistory()
+            }
+        }
+        wireDrawState.active = false
+        wireDrawState.previewWire = null
+    }
+
+    if (selectState.active) {
+        let minX = Math.min(selectState.startX, selectState.currX)
+        let maxX = Math.max(selectState.startX, selectState.currX)
+        let minY = Math.min(selectState.startY, selectState.currY)
+        let maxY = Math.max(selectState.startY, selectState.currY)
+        
+        Object.values(components).forEach(c => {
+            if (c.x >= minX && c.x <= maxX && c.y >= minY && c.y <= maxY) {
+                c.select()
+            }
+        })
+        selectState.active = false
+    }
+})
+
+// ----- ZOOM & SCROLL -----
+renderer.canvas.addEventListener('wheel', (e) => {
+    e.preventDefault()
+    let zoomDelta = e.deltaY > 0 ? 0.9 : 1.1
+    let worldPos = renderer.screenToWorld(e.clientX, e.clientY)
+    renderer.setZoom(renderer.zoomScale * zoomDelta, e.clientX, e.clientY)
+})
+
+renderer.canvas.addEventListener('dblclick', (e) => {
+    let worldPos = renderer.screenToWorld(e.clientX, e.clientY)
+    let hit = renderer.hitTest(worldPos.x, worldPos.y)
+    if (hit && hit.type === 'component') {
+        Object.values(components).forEach(c => c.deselect())
+        hit.component.select()
+        updateSettingsPanel()
+    }
+})
+
+document.getElementById('zoom-slider').addEventListener('input', (e) => {
+    renderer.setZoom(parseFloat(e.target.value))
+})
+
+// ----- KEYBOARD CONTROLS -----
+window.addEventListener('keydown', (e) => {
+    if (e.key === 'Delete' || e.key === 'Backspace') {
+        let changed = false
+        Object.values(components).forEach(c => {
+            if (c.selected) {
+                deleteComponent(c.id)
+                changed = true
+            }
+        })
+        Object.values(wires).forEach(w => {
+            if (w.selected) {
+                deleteWire(w.id)
+                changed = true
+            }
+        })
+        if (changed) pushHistory()
+    }
+})
+
+function deleteComponent(id) {
+    let comp = components[id]
+    if (!comp) return
+    // Find connected wires and delete
+    let connectedWires = Object.keys(wires).filter(wid => wires[wid].n1?.parent === comp || wires[wid].n2?.parent === comp)
+    connectedWires.forEach(wid => deleteWire(wid))
+    
+    // Unregister connectors
+    let conns = [comp.n1, comp.n2, comp.nC, comp.nOut, comp.nQ, comp.nQNot].filter(c => c)
+    conns.forEach(c => {
+        engine.unregisterConnector(c.id)
+        delete connectors[c.id]
+    })
+    
+    engine.unregisterComponent(id)
+    delete components[id]
+    syncGlobals()
 }
 
-let panelDragend = (event) => {
-    if (window.dropPreviewData && window.dropPreviewData.dom) {
-        window.dropPreviewData.dom.remove()
-        window.dropPreviewData = null
-    }
-}
-
-let updateMode = () => {
-    let panBtn = document.querySelector('#pan-button')
-    let editBtn = document.querySelector('#edit-button')
-
-    if (navMode == 0) {
-        panBtn.classList.add('active')
-        editBtn.classList.remove('active')
-        instance.resume()
-        document.body.style.cursor = 'all-scroll'
-        for (let id of Object.keys(components)) {
-            components[id].disableSelect()
-            let cat = categories[components[id].getType || components[id].type]
-            if (cat == 'input') components[id].disablePress()
-            else if (cat == 'label') components[id].disableEdit()
-        }
-        for (let id of Object.keys(connectors)) connectors[id].disableSelect()
-        for (let elem of document.querySelectorAll(".draggable")) {
-            elem.removeEventListener('dragstart', panelDragstart)
-            elem.removeEventListener('dragend', panelDragend)
-            elem.setAttribute('draggable', 'false')
-        }
-    } else {
-        panBtn.classList.remove('active')
-        editBtn.classList.add('active')
-        instance.pause()
-        document.body.style.cursor = 'default'
-        for (let id of Object.keys(components)) {
-            components[id].enableSelect()
-            let cat = categories[components[id].getType || components[id].type]
-            if (cat == 'input') components[id].enablePress()
-            else if (cat == 'label') components[id].enableEdit()
-        }
-        for (let id of Object.keys(connectors)) connectors[id].enableSelect()
-        for (let elem of document.querySelectorAll(".draggable")) {
-            elem.addEventListener('dragstart', panelDragstart)
-            elem.addEventListener('dragend', panelDragend)
-            elem.setAttribute('draggable', 'true')
+function deleteWire(id) {
+    let wire = wires[id]
+    if (!wire) return
+    engine.unregisterWire(id)
+    
+    if (wire.n1 && wire.n1.parent && wire.n1.parent.out) {
+        let pOut = wire.n1.parent.out
+        if (Array.isArray(pOut)) {
+            let idx = pOut.indexOf(wire)
+            if (idx > -1) pOut.splice(idx, 1)
         }
     }
+    if (wire.n1 && wire.n1.parent && wire.n1.parent.qOut) {
+        let idx = wire.n1.parent.qOut.indexOf(wire)
+        if (idx > -1) wire.n1.parent.qOut.splice(idx, 1)
+        let idx2 = wire.n1.parent.qNotOut.indexOf(wire)
+        if (idx2 > -1) wire.n1.parent.qNotOut.splice(idx2, 1)
+    }
+    if (wire.n2 && wire.n2.parent) {
+        wire.n2.parent.setIn = null
+    }
+    
+    delete wires[id]
+    syncGlobals()
 }
+
+
+
+// Initial Sync
+syncGlobals()
+
+
 
 // ===== UNDO / REDO =====
 let historyStack = []
 let historyIndex = -1
 let historyMax = 50
-let historyIgnore = false  // flag to prevent snapshot when restoring
+let historyIgnore = false
 
 function pushHistory() {
     if (historyIgnore) return
     let snapshot = JSON.stringify(serializeCircuit())
-    // Trim future states if we're not at the end
     historyStack = historyStack.slice(0, historyIndex + 1)
     historyStack.push(snapshot)
     if (historyStack.length > historyMax) historyStack.shift()
@@ -189,13 +497,6 @@ function pushHistory() {
 
 function restoreHistory(snapshot) {
     historyIgnore = true
-    // Clear current circuit
-    for (let id of Object.keys(components)) engine.unregisterComponent(id)
-    for (let id of Object.keys(wires)) engine.unregisterWire(id)
-    for (let id of Object.keys(connectors)) engine.unregisterConnector(id)
-    components = {}; connectors = {}; wires = {}
-    elementId = 0; connectorId = 0; wireId = 0
-    sim.innerHTML = ''
     let data = JSON.parse(snapshot)
     loadCircuit(data, false)
     historyIgnore = false
@@ -212,6 +513,7 @@ let redo = () => {
     historyIndex++
     restoreHistory(historyStack[historyIndex])
 }
+
 
 // ===== COPY / PASTE / CUT =====
 let clipboard = null
@@ -237,19 +539,19 @@ function copySelection() {
         if (entry.type === '7seg') entry.type = 'seg7'
         if (comp instanceof Light && comp.lightColor) entry.lightColor = comp.lightColor
         if (comp instanceof Seg7 && comp.displayColor) entry.displayColor = comp.displayColor
-        if (comp instanceof Label) entry.text = comp.dom.innerText
+        if (comp instanceof Label) entry.text = comp.text
         entry.connectorIds = {}
-        if (comp.n1 && comp.n1.dom) entry.connectorIds.n1 = comp.n1.dom.id
-        if (comp.n2 && comp.n2 !== comp.n1 && comp.n2.dom) entry.connectorIds.n2 = comp.n2.dom.id
-        if (comp.nOut && comp.nOut.dom) entry.connectorIds.nOut = comp.nOut.dom.id
-        if (comp.nQ && comp.nQ.dom) entry.connectorIds.nQ = comp.nQ.dom.id
-        if (comp.nQNot && comp.nQNot.dom) entry.connectorIds.nQNot = comp.nQNot.dom.id
-        if (comp.nC && comp.nC.dom) entry.connectorIds.nC = comp.nC.dom.id
+        if (comp.n1) entry.connectorIds.n1 = comp.n1.id
+        if (comp.n2 && comp.n2 !== comp.n1) entry.connectorIds.n2 = comp.n2.id
+        if (comp.nOut) entry.connectorIds.nOut = comp.nOut.id
+        if (comp.nQ) entry.connectorIds.nQ = comp.nQ.id
+        if (comp.nQNot) entry.connectorIds.nQNot = comp.nQNot.id
+        if (comp.nC) entry.connectorIds.nC = comp.nC.id
         if (entry.type === 'seg7' || entry.type === 'junc3' || entry.type === 'junc4') {
-            entry.connectorIds.n1 = comp.n1 ? comp.n1.dom.id : null
-            entry.connectorIds.n2 = comp.n2 ? comp.n2.dom.id : null
-            entry.connectorIds.n3 = comp.n3 ? comp.n3.dom.id : null
-            entry.connectorIds.n4 = comp.n4 ? comp.n4.dom.id : null
+            entry.connectorIds.n1 = comp.n1 ? comp.n1.id : null
+            entry.connectorIds.n2 = comp.n2 ? comp.n2.id : null
+            entry.connectorIds.n3 = comp.n3 ? comp.n3.id : null
+            entry.connectorIds.n4 = comp.n4 ? comp.n4.id : null
         }
         compArr.push(entry)
     }
@@ -259,13 +561,13 @@ function copySelection() {
     for (let wid of Object.keys(wires)) {
         let w = wires[wid]
         if (!w || !w.n1 || !w.n2) continue
-        let srcCompId = String(w.n1.parent.dom.id)
-        let dstCompId = String(w.n2.parent.dom.id)
+        let srcCompId = String(w.n1.parent.id)
+        let dstCompId = String(w.n2.parent.id)
         if (selectedSet.has(srcCompId) && selectedSet.has(dstCompId)) {
             wireArr.push({
                 id: wid,
-                src: w.n1.dom.id,
-                dst: w.n2.dom.id,
+                src: w.n1.id,
+                dst: w.n2.id,
                 bends: w.bends ? JSON.parse(JSON.stringify(w.bends)) : null
             })
         }
@@ -304,6 +606,7 @@ function pasteSelection() {
 
 let mode = (m) => { if (navMode != m) { navMode = m; updateMode() } }
 
+
 // ===== EXPORT (save) =====
 let save = () => {
     let data = serializeCircuit()
@@ -319,7 +622,7 @@ function serializeCircuit() {
     let compArr = []
     for (let id of Object.keys(components)) {
         let comp = components[id]
-        let cat = categories[comp.getType || comp.type]
+        let cat = getCategory(comp.getType || comp.type)
         let entry = {
             id: id,
             type: comp.getType || comp.type,
@@ -340,22 +643,22 @@ function serializeCircuit() {
         }
         // Label-specific: text
         if (comp instanceof Label) {
-            entry.text = comp.dom.innerText
+            entry.text = comp.text
         }
         // Store connector IDs
         entry.connectorIds = {}
-        if (comp.n1 && comp.n1.dom) entry.connectorIds.n1 = comp.n1.dom.id
-        if (comp.n2 && comp.n2 !== comp.n1 && comp.n2.dom) entry.connectorIds.n2 = comp.n2.dom.id
-        if (comp.nOut && comp.nOut.dom) entry.connectorIds.nOut = comp.nOut.dom.id
-        if (comp.nQ && comp.nQ.dom) entry.connectorIds.nQ = comp.nQ.dom.id
-        if (comp.nQNot && comp.nQNot.dom) entry.connectorIds.nQNot = comp.nQNot.dom.id
-        if (comp.nC && comp.nC.dom) entry.connectorIds.nC = comp.nC.dom.id
+        if (comp.n1) entry.connectorIds.n1 = comp.n1.id
+        if (comp.n2 && comp.n2 !== comp.n1) entry.connectorIds.n2 = comp.n2.id
+        if (comp.nOut) entry.connectorIds.nOut = comp.nOut.id
+        if (comp.nQ) entry.connectorIds.nQ = comp.nQ.id
+        if (comp.nQNot) entry.connectorIds.nQNot = comp.nQNot.id
+        if (comp.nC) entry.connectorIds.nC = comp.nC.id
         // 7seg pins
         if (entry.type === 'seg7' || entry.type === 'junc3' || entry.type === 'junc4') {
-            entry.connectorIds.n1 = comp.n1 ? comp.n1.dom.id : null
-            entry.connectorIds.n2 = comp.n2 ? comp.n2.dom.id : null
-            entry.connectorIds.n3 = comp.n3 ? comp.n3.dom.id : null
-            entry.connectorIds.n4 = comp.n4 ? comp.n4.dom.id : null
+            entry.connectorIds.n1 = comp.n1 ? comp.n1.id : null
+            entry.connectorIds.n2 = comp.n2 ? comp.n2.id : null
+            entry.connectorIds.n3 = comp.n3 ? comp.n3.id : null
+            entry.connectorIds.n4 = comp.n4 ? comp.n4.id : null
         }
         compArr.push(entry)
     }
@@ -364,13 +667,15 @@ function serializeCircuit() {
         let w = wires[id]
         wireArr.push({
             id: id,
-            src: w.n1 ? w.n1.dom.id : null,
-            dst: w.n2 ? w.n2.dom.id : null,
+            src: w.n1 ? w.n1.id : null,
+            dst: w.n2 ? w.n2.id : null,
             bends: w.bends || null
         })
     }
     return { version: '0.4.0', components: compArr, wires: wireArr }
 }
+
+
 
 // ===== IMPORT (load) =====
 let load = () => {
@@ -395,1544 +700,87 @@ let load = () => {
 }
 
 function loadCircuit(data, append) {
-    let newCompIds = []  // Track new component IDs for auto-selection on import
     if (!append) {
-        // Clear current circuit
-        for (let id of Object.keys(components)) engine.unregisterComponent(id)
-        for (let id of Object.keys(wires)) engine.unregisterWire(id)
-        for (let id of Object.keys(connectors)) engine.unregisterConnector(id)
-        components = {}; connectors = {}; wires = {}
-        elementId = 0; connectorId = 0; wireId = 0
-        sim.innerHTML = ''
-    }
-
-    // Map old IDs to new IDs
-    let compIdMap = {}
-    let connIdMap = {}
-    let offsetX = append ? 50 : 0
-    let offsetY = append ? 50 : 0
-
-    for (let entry of data.components) {
-        let newElemId = elementId
-        compIdMap[entry.id] = newElemId
-        let t = entry.type
-        let cat = categories[t] || (t === 'seg7' ? 'seg7' : t === 'label' ? 'label' : null)
-        let lx = (entry.x || 0) + offsetX
-        let ly = (entry.y || 0) + offsetY
-        let component = document.createElement('div')
-        component.classList.add(cat === 'seg7' ? 'seg7' : (cat || t))
-        component.setAttribute('style', 'top:' + ly + 'px;left:' + lx + 'px;')
-        component.id = newElemId
-        component.innerHTML = HTML[t]
-
-        if (cat === 'gate') {
-            components[newElemId] = new Gate(t, lx, ly, component)
-            components[newElemId].enableSelect()
-            components[newElemId].setN1 = new Connector('in', 'n1', component.children[0].children[0], components[newElemId])
-            components[newElemId].getN1.getDom.id = 'c' + connectorId
-            connIdMap[entry.connectorIds.n1] = 'c' + connectorId
-            connectors['c' + connectorId] = components[newElemId].getN1
-            connectors['c' + connectorId].enableSelect()
-            connectorId++
-            if (t !== 'not') {
-                components[newElemId].setN2 = new Connector('in', 'n2', component.children[0].children[1], components[newElemId])
-                components[newElemId].getN2.getDom.id = 'c' + connectorId
-                connIdMap[entry.connectorIds.n2] = 'c' + connectorId
-                connectors['c' + connectorId] = components[newElemId].getN2
-                connectors['c' + connectorId].enableSelect()
-                connectorId++
-            } else {
-                components[newElemId].setN2 = components[newElemId].getN1
-            }
-            components[newElemId].setNOut = new Connector('out', 'nOut', component.children[2], components[newElemId])
-            components[newElemId].getNOut.getDom.id = 'c' + connectorId
-            connIdMap[entry.connectorIds.nOut] = 'c' + connectorId
-            connectors['c' + connectorId] = components[newElemId].getNOut
-            connectors['c' + connectorId].enableSelect()
-            connectorId++
-            engine.registerComponent(newElemId, components[newElemId])
-        } else if (cat === 'input') {
-            if (t === 'clock') {
-                components[newElemId] = new Clock(lx, ly, component)
-            } else {
-                components[newElemId] = new Input(t, lx, ly, component)
-            }
-            components[newElemId].enableSelect()
-            components[newElemId].enablePress()
-            components[newElemId].setN = new Connector('out', 'nOut', component.children[1], components[newElemId])
-            components[newElemId].getN.getDom.id = 'c' + connectorId
-            connIdMap[entry.connectorIds.nOut || entry.connectorIds.n1] = 'c' + connectorId
-            connectors['c' + connectorId] = components[newElemId].getN
-            connectors['c' + connectorId].enableSelect()
-            connectorId++
-            engine.registerComponent(newElemId, components[newElemId])
-        } else if (cat === 'light') {
-            components[newElemId] = new Light(lx, ly, component)
-            if (entry.lightColor) components[newElemId].lightColor = entry.lightColor
-            components[newElemId].enableSelect()
-            components[newElemId].setN = new Connector('in', 'n1', component.children[1], components[newElemId])
-            components[newElemId].getN.getDom.id = 'c' + connectorId
-            connIdMap[entry.connectorIds.n1 || entry.connectorIds.nOut] = 'c' + connectorId
-            connectors['c' + connectorId] = components[newElemId].getN
-            connectors['c' + connectorId].enableSelect()
-            connectorId++
-            engine.registerComponent(newElemId, components[newElemId])
-        } else if (t === 'label') {
-            if (entry.text) component.innerText = entry.text
-            components[newElemId] = new Label(lx, ly, component)
-            components[newElemId].enableSelect()
-            components[newElemId].enableEdit()
-        } else if (t === 'seg7') {
-            components[newElemId] = new Seg7(lx, ly, component)
-            if (entry.displayColor) {
-                components[newElemId].displayColor = entry.displayColor
-                let display = component.querySelector('.display')
-                if (display) display.style.color = entry.displayColor
-            }
-            components[newElemId].enableSelect()
-            let pins = ['n1', 'n2', 'n3', 'n4']
-            for (let i = 0; i < 4; i++) {
-                components[newElemId][pins[i]] = new Connector('in', pins[i], component.children[0].children[i], components[newElemId])
-                components[newElemId][pins[i]].dom.id = 'c' + connectorId
-                connIdMap[entry.connectorIds[pins[i]]] = 'c' + connectorId
-                connectors['c' + connectorId] = components[newElemId][pins[i]]
-                connectors['c' + connectorId].enableSelect()
-                connectorId++
-            }
-            engine.registerComponent(newElemId, components[newElemId])
-        } else if (cat === 'flipflop') {
-            components[newElemId] = new FlipFlop(t, lx, ly, component)
-            components[newElemId].enableSelect()
-            if (t === 'jkff') {
-                components[newElemId].n1 = new Connector('in', 'n1', component.children[0].children[0], components[newElemId]) // J
-                components[newElemId].n1.dom.id = 'c' + connectorId
-                connIdMap[entry.connectorIds.n1] = 'c' + connectorId
-                connectors['c' + connectorId] = components[newElemId].n1
-                connectors['c' + connectorId].enableSelect()
-                connectorId++
-                components[newElemId].nC = new Connector('in', 'n3', component.children[0].children[1], components[newElemId]) // CLK
-                components[newElemId].nC.dom.id = 'c' + connectorId
-                connIdMap[entry.connectorIds.nC] = 'c' + connectorId
-                connectors['c' + connectorId] = components[newElemId].nC
-                connectors['c' + connectorId].enableSelect()
-                connectorId++
-                components[newElemId].n2 = new Connector('in', 'n2', component.children[0].children[2], components[newElemId]) // K
-                components[newElemId].n2.dom.id = 'c' + connectorId
-                connIdMap[entry.connectorIds.n2] = 'c' + connectorId
-                connectors['c' + connectorId] = components[newElemId].n2
-                connectors['c' + connectorId].enableSelect()
-                connectorId++
-            } else if (t === 'srff') {
-                components[newElemId].n1 = new Connector('in', 'n1', component.children[0].children[0], components[newElemId]) // S
-                components[newElemId].n1.dom.id = 'c' + connectorId
-                connIdMap[entry.connectorIds.n1] = 'c' + connectorId
-                connectors['c' + connectorId] = components[newElemId].n1
-                connectors['c' + connectorId].enableSelect()
-                connectorId++
-                components[newElemId].nC = new Connector('in', 'n3', component.children[0].children[1], components[newElemId]) // CLK
-                components[newElemId].nC.dom.id = 'c' + connectorId
-                connIdMap[entry.connectorIds.nC] = 'c' + connectorId
-                connectors['c' + connectorId] = components[newElemId].nC
-                connectors['c' + connectorId].enableSelect()
-                connectorId++
-                components[newElemId].n2 = new Connector('in', 'n2', component.children[0].children[2], components[newElemId]) // R
-                components[newElemId].n2.dom.id = 'c' + connectorId
-                connIdMap[entry.connectorIds.n2] = 'c' + connectorId
-                connectors['c' + connectorId] = components[newElemId].n2
-                connectors['c' + connectorId].enableSelect()
-                connectorId++
-            } else if (t === 'tff') {
-                components[newElemId].n1 = new Connector('in', 'n1', component.children[0].children[0], components[newElemId]) // T
-                components[newElemId].n1.dom.id = 'c' + connectorId
-                connIdMap[entry.connectorIds.n1] = 'c' + connectorId
-                connectors['c' + connectorId] = components[newElemId].n1
-                connectors['c' + connectorId].enableSelect()
-                connectorId++
-                components[newElemId].n2 = components[newElemId].n1 // T and K are tied
-                components[newElemId].nC = new Connector('in', 'n3', component.children[0].children[1], components[newElemId]) // CLK
-                components[newElemId].nC.dom.id = 'c' + connectorId
-                connIdMap[entry.connectorIds.nC] = 'c' + connectorId
-                connectors['c' + connectorId] = components[newElemId].nC
-                connectors['c' + connectorId].enableSelect()
-                connectorId++
-            } else if (t === 'dff') {
-                components[newElemId].n1 = new Connector('in', 'n1', component.children[0].children[0], components[newElemId]) // D
-                components[newElemId].n1.dom.id = 'c' + connectorId
-                connIdMap[entry.connectorIds.n1] = 'c' + connectorId
-                connectors['c' + connectorId] = components[newElemId].n1
-                connectors['c' + connectorId].enableSelect()
-                connectorId++
-                components[newElemId].n2 = components[newElemId].n1 // No n2 for DFF, or tie it, wait flipflop.js doesn't use in2 for DFF
-                components[newElemId].nC = new Connector('in', 'n3', component.children[0].children[1], components[newElemId]) // CLK
-                components[newElemId].nC.dom.id = 'c' + connectorId
-                connIdMap[entry.connectorIds.nC] = 'c' + connectorId
-                connectors['c' + connectorId] = components[newElemId].nC
-                connectors['c' + connectorId].enableSelect()
-                connectorId++
-            }
-            components[newElemId].nQ = new Connector('out', 'nQ', component.children[2].children[0], components[newElemId])
-            components[newElemId].nQ.dom.id = 'c' + connectorId
-            connIdMap[entry.connectorIds.nQ] = 'c' + connectorId
-            connectors['c' + connectorId] = components[newElemId].nQ
-            connectors['c' + connectorId].enableSelect()
-            connectorId++
-            components[newElemId].nQNot = new Connector('out', 'nQNot', component.children[2].children[1], components[newElemId])
-            components[newElemId].nQNot.dom.id = 'c' + connectorId
-            connIdMap[entry.connectorIds.nQNot] = 'c' + connectorId
-            connectors['c' + connectorId] = components[newElemId].nQNot
-            connectors['c' + connectorId].enableSelect()
-            connectorId++
-            engine.registerComponent(newElemId, components[newElemId])
-        } else if (cat === 'junction') {
-            components[newElemId] = new Junction(t, lx, ly, component)
-            components[newElemId].enableSelect()
-            
-            // Input connector (Left)
-            components[newElemId].n1 = new Connector('in', 'n1', component.children[1], components[newElemId])
-            components[newElemId].n1.dom.id = 'c' + connectorId
-            connIdMap[entry.connectorIds.n1] = 'c' + connectorId
-            connectors['c' + connectorId] = components[newElemId].n1
-            connectors['c' + connectorId].enableSelect()
-            connectorId++
-            
-            // Output connector 1 (Right)
-            components[newElemId].n2 = new Connector('in', 'n2', component.children[2], components[newElemId])
-            components[newElemId].n2.dom.id = 'c' + connectorId
-            connIdMap[entry.connectorIds.n2] = 'c' + connectorId
-            connectors['c' + connectorId] = components[newElemId].n2
-            connectors['c' + connectorId].enableSelect()
-            connectorId++
-
-            if (t === 'junc3') {
-                // Output connector 2 (Bottom)
-                components[newElemId].n3 = new Connector('in', 'n3', component.children[3], components[newElemId])
-                components[newElemId].n3.dom.id = 'c' + connectorId
-                connIdMap[entry.connectorIds.n3] = 'c' + connectorId
-                connectors['c' + connectorId] = components[newElemId].n3
-                connectors['c' + connectorId].enableSelect()
-                connectorId++
-            } else if (t === 'junc4') {
-                // Output connector 2 (Top)
-                components[newElemId].n3 = new Connector('in', 'n3', component.children[3], components[newElemId])
-                components[newElemId].n3.dom.id = 'c' + connectorId
-                connIdMap[entry.connectorIds.n3] = 'c' + connectorId
-                connectors['c' + connectorId] = components[newElemId].n3
-                connectors['c' + connectorId].enableSelect()
-                connectorId++
-                // Output connector 3 (Bottom)
-                components[newElemId].n4 = new Connector('in', 'n4', component.children[4], components[newElemId])
-                components[newElemId].n4.dom.id = 'c' + connectorId
-                connIdMap[entry.connectorIds.n4] = 'c' + connectorId
-                connectors['c' + connectorId] = components[newElemId].n4
-                connectors['c' + connectorId].enableSelect()
-                connectorId++
-            }
-            engine.registerComponent(newElemId, components[newElemId])
-        }
-
-        // Apply rotation if stored
-        if (entry.rotation) {
-            components[newElemId].rotation = entry.rotation
-            component.style.transform = 'rotate(' + entry.rotation + 'deg)'
-            component.style.transformOrigin = 'center center'
-        }
-        enableComponentDrag(component, newElemId)
-        sim.appendChild(component)
-        newCompIds.push(newElemId)
-        elementId++
-    }
-
-    // Rebuild wires
-    for (let wEntry of data.wires) {
-        let srcId = connIdMap[wEntry.src]
-        let dstId = connIdMap[wEntry.dst]
-        if (!srcId || !dstId || !connectors[srcId] || !connectors[dstId]) continue
-        let s = connectors[srcId]
-        let e = connectors[dstId]
-        let wId = 'w' + wireId
-        wires[wId] = new Wire(wId, s, e, e.parent)
-        if (wEntry.bends) {
-            wires[wId].bends = wEntry.bends.map(b => ({
-                x: b.x + offsetX,
-                y: b.y + offsetY
-            }))
-        }
-        wires[wId].render(scale)
-        sim.appendChild(wires[wId].dom)
-        engine.registerWire(wId, wires[wId])
-        wireId++
-    }
-    // Select all newly imported components for easy repositioning
-    if (append) {
-        for (let id of newCompIds) {
-            if (components[id]) components[id].select()
-        }
-    }
-    updateMode()
-    pushHistory()
-}
-
-// ===== LIBRARY =====
-let openLibrary = () => {
-    document.getElementById('library-overlay').style.display = 'flex'
-}
-let closeLibrary = () => {
-    document.getElementById('library-overlay').style.display = 'none'
-}
-function loadLibraryCircuit(filename) {
-    fetch('../library/' + filename)
-        .then(r => r.json())
-        .then(circuitData => {
-            let merge = Object.keys(components).length > 0
-            if (merge && !confirm('Append this circuit to the current canvas?')) {
-                if (!confirm('Replace current circuit?')) return
-                merge = false
-            }
-            loadCircuit(circuitData, merge)
-            closeLibrary()
-        })
-        .catch(e => console.error('Failed to load circuit:', e))
-}
-
-let trash = () => {
-    if (confirm("Are you sure you want to delete this circuit?")) {
-        // Unregister from engine
-        for (let id of Object.keys(components)) engine.unregisterComponent(id)
-        for (let id of Object.keys(wires)) engine.unregisterWire(id)
-        for (let id of Object.keys(connectors)) engine.unregisterConnector(id)
-        components = {}; connectors = {}; wires = {}
-        elementId = 0; connectorId = 0; wireId = 0
-        refresh()
-        pushHistory()
-    }
-}
-
-let image = () => { }
-let help = () => { window.open('../help', '_blank') }
-
-// Helper: remove a wire and clean up references
-function removeWire(wire) {
-    if (!wire) return
-    wire.delete()
-    engine.unregisterWire(wire.id)
-    delete wires[wire.id]
-}
-
-// Helper: delete a component and all its wires
-function deleteComponent(id) {
-    let comp = components[id]
-    if (!comp) return
-    let cat = categories[comp.getType || comp.type]
-
-    // Collect all wires connected to this component's connectors
-    let wiresToRemove = []
-    let compConns = new Set()
-    let props = ['n1', 'n2', 'n3', 'n4', 'nOut', 'nC', 'nQ', 'nQNot', 'n']
-    for (let key of props) {
-        if (comp[key] && comp[key].dom && comp[key].dom.id) {
-            compConns.add(comp[key].dom.id)
-        }
-    }
-    // Also include .getN for legacy references if any
-    if (comp.getN && comp.getN.dom && comp.getN.dom.id) {
-        compConns.add(comp.getN.dom.id)
-    }
-
-    for (let wId in wires) {
-        let w = wires[wId]
-        if ((w.n1 && compConns.has(w.n1.dom.id)) || (w.n2 && compConns.has(w.n2.dom.id))) {
-            wiresToRemove.push(w)
-        }
-    }
-
-    // Remove all collected wires
-    for (let wire of wiresToRemove) {
-        removeWire(wire)
-    }
-
-    // Clean up connector entries
-    let connectorProps = ['n1', 'n2', 'nOut', 'nC', 'nQ', 'nQNot']
-    for (let prop of connectorProps) {
-        if (comp[prop] && comp[prop].dom && comp[prop].dom.id) {
-            delete connectors[comp[prop].dom.id]
-        }
-    }
-
-    // Remove component
-    comp.delete()
-    engine.unregisterComponent(id)
-    delete components[id]
-}
-
-$(function () {
-    window.onbeforeunload = function () { return "" }
-
-    // Fix: explicit event parameter
-    document.body.addEventListener('keyup', (event) => {
-        // Ignore if user is typing in an input field
-        if (event.target.tagName.toLowerCase() === 'input' || event.target.tagName.toLowerCase() === 'textarea') return;
-
-        if (event.key === "Delete" || event.key === "Backspace") {
-            let toDelete = []
-            for (let id of Object.keys(components)) {
-                if (components[id].selected) toDelete.push(id)
-            }
-            for (let id of toDelete) deleteComponent(id)
-
-            if (toDelete.length > 0) pushHistory()
-            updateSettingsPanel()
-        }
-    })
-
-    window.onkeyup = function (e) { pressedKeys[e.keyCode] = false }
-    window.onkeydown = function (e) {
-        pressedKeys[e.keyCode] = true
-        // Ignore shortcuts if typing in input
-        if (e.target.tagName.toLowerCase() === 'input' || e.target.tagName.toLowerCase() === 'textarea') return
-        // Ctrl+S → export
-        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-            e.preventDefault()
-            save()
-        }
-        // Ctrl+Z → undo, Ctrl+Shift+Z / Ctrl+Y → redo
-        if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
-            e.preventDefault()
-            undo()
-        }
-        if ((e.ctrlKey || e.metaKey) && (e.key === 'Z' || e.key === 'y')) {
-            e.preventDefault()
-            redo()
-        }
-        // Ctrl+C → copy, Ctrl+V → paste
-        if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
-            e.preventDefault()
-            copySelection()
-        }
-        if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
-            e.preventDefault()
-            pasteSelection()
-        }
-        // Ctrl+X → cut
-        if ((e.ctrlKey || e.metaKey) && e.key === 'x') {
-            e.preventDefault()
-            cutSelection()
-        }
-        // Ctrl+A → select all
-        if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
-            e.preventDefault()
-            for (let id of Object.keys(components)) components[id].select()
-        }
-    }
-    updateMode()
-    // Push initial empty state for undo
-    pushHistory()
-})
-
-let refresh = () => {
-    sim.innerHTML = ""
-    for (let id of Object.keys(components)) sim.appendChild(components[id].getDom || components[id].dom)
-    for (let id of Object.keys(wires)) {
-        if (wires[id].dom) sim.appendChild(wires[id].dom)
-    }
-}
-
-let compSettingsPanel = document.getElementById('comp-settings-panel');
-if (compSettingsPanel) {
-    compSettingsPanel.addEventListener('pointerdown', (e) => e.stopPropagation());
-    compSettingsPanel.addEventListener('pointerup', (e) => e.stopPropagation());
-    compSettingsPanel.addEventListener('touchstart', (e) => e.stopPropagation());
-    compSettingsPanel.addEventListener('touchend', (e) => e.stopPropagation());
-    compSettingsPanel.addEventListener('mousedown', (e) => e.stopPropagation());
-    compSettingsPanel.addEventListener('mouseup', (e) => e.stopPropagation());
-    compSettingsPanel.addEventListener('click', (e) => e.stopPropagation());
-    compSettingsPanel.addEventListener('dblclick', (e) => e.stopPropagation());
-}
-
-document.querySelector("#side-panel").addEventListener('pointerdown', () => { instance.pause() })
-
-// Fix: explicit event parameter
-document.addEventListener('click', (event) => {
-    if (navMode == 0) instance.resume()
-
-    // Skip deselection if we just finished a box-select or a drag
-    if (justBoxSelected) { justBoxSelected = false; return }
-    if (justDragged) { justDragged = false; return }
-
-    if (!pressedKeys[17] && event.y > document.querySelector("#navbar").getBoundingClientRect().height) {
-        // Check if click is on any selected component — if so, keep selection
-        let clickedOnSelected = false
-        for (let id of Object.keys(components)) {
-            let comp = components[id]
-            let compDom = comp.getDom || comp.dom
-            if (comp.selected && compDom.contains(event.target)) {
-                clickedOnSelected = true
-                break
-            }
-        }
-        if (!clickedOnSelected) {
-            for (let id of Object.keys(components)) {
-                let comp = components[id]
-                let compDom = comp.getDom || comp.dom
-                if (event.target != compDom) {
-                    comp.deselect()
-                    let cat = categories[comp.getType || comp.type]
-                    if (!event.target.classList.value.includes('connector')) {
-                        if (cat === 'gate') {
-                            if (comp.n1) comp.n1.deselect()
-                            if (comp.n2) comp.n2.deselect()
-                            if (comp.nOut) comp.nOut.deselect()
-                        } else if (cat === 'input' || cat === 'light') {
-                            let n = comp.getN || comp.nOut || comp.n1
-                            if (n) n.deselect()
-                        } else if (cat === 'flipflop') {
-                            if (comp.n1) comp.n1.deselect()
-                            if (comp.n2 && comp.n2 !== comp.n1) comp.n2.deselect()
-                            if (comp.nC) comp.nC.deselect()
-                            if (comp.nQ) comp.nQ.deselect()
-                            if (comp.nQNot) comp.nQNot.deselect()
-                        } else if (comp.type === '7seg') {
-                            if (comp.n1) comp.n1.deselect()
-                            if (comp.n2) comp.n2.deselect()
-                            if (comp.n3) comp.n3.deselect()
-                            if (comp.n4) comp.n4.deselect()
-                        } else if (cat === 'junction') {
-                            if (comp.n1) comp.n1.deselect()
-                            if (comp.n2) comp.n2.deselect()
-                            if (comp.n3) comp.n3.deselect()
-                            if (comp.n4) comp.n4.deselect()
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    if (!event.target.classList.value.includes('connector') && navMode == 1) {
-        drawWire = false; wireOrigin = null
-    }
-    else if (event.target.classList.value.includes('connector') && navMode == 1) {
-        // Skip if wire was just completed via drag-to-connect
-        if (justDragged) return
-        if (drawWire) {
-            let s = connectors[wireOrigin.id];
-            let e = connectors[event.target.id];
-            
-            if (s && e && s != e) {
-                if (createWireConnection(s, e)) {
-                    wireOrigin = null; drawWire = false
-                    s.deselect(); e.deselect()
-                    pushHistory()
-                }
-            } else {
-                s.deselect(); e.select(); wireOrigin = event.target
-            }
-        } else {
-            drawWire = true; wireOrigin = event.target
-        }
-        for (let id of Object.keys(components)) components[id].deselect()
-    }
-    updateSettingsPanel()
-})
-
-dropzone.addEventListener('dragover', (event) => { 
-    event.preventDefault() 
-    event.dataTransfer.dropEffect = 'move'
-    if (window.dropPreviewData && window.dropPreviewData.dom) {
-        let dropData = window.dropPreviewData
-        let ex = event.clientX || event.x || 0
-        let ey = event.clientY || event.y || 0
-        let yoff = dropData.navbarHeight
-        let simRect = dropData.simRect
-        
-        let cat = dropData.cat
-        let loc_x = ((ex - simRect.x) / scale) - dropData.xoff - (cat === 'gate' || cat === 'flipflop' || dropData.type === 'seg7' ? 20 : 0)
-        let loc_y = (((ey - yoff) - (simRect.y - yoff)) / scale) - dropData.yoff
-        
-        loc_x = Math.round(loc_x / GRID) * GRID
-        loc_y = Math.round(loc_y / GRID) * GRID
-        
-        dropData.dom.style.left = loc_x + 'px'
-        dropData.dom.style.top = loc_y + 'px'
-        dropData.dom.style.visibility = 'visible'
-    }
-})
-
-dropzone.addEventListener('drop', (event) => {
-    event.preventDefault()
-    // Recalculate navbar offset dynamically
-    yoff = document.querySelector("#navbar").getBoundingClientRect().height
-    let rawData = ''
-    try { rawData = event.dataTransfer.getData("text/plain") } catch (e) { }
-    if (!rawData) try { rawData = event.dataTransfer.getData("text") } catch (e) { }
-    if (!rawData) return
-    let dropData = JSON.parse(rawData)
-    // Normalize: use clientX/clientY (works for both real and synthetic events)
-    let ex = event.clientX || event.x || 0
-    let ey = event.clientY || event.y || 0
-
-    if (dropData['from'] == 'panel') {
-        let cat = categories[dropData['type']]
-
-        if (cat == 'gate') {
-            let loc_x = ((ex - sim.getBoundingClientRect().x) / scale) - dropData['xoff'] - 20
-            let loc_y = (((ey - yoff) - (sim.getBoundingClientRect().y - yoff)) / scale) - dropData['yoff']
-            loc_x = Math.round(loc_x / GRID) * GRID; loc_y = Math.round(loc_y / GRID) * GRID;
-            let component = document.createElement('div')
-            component.classList.add(cat)
-            component.setAttribute('style', 'top:' + loc_y + 'px;left:' + loc_x + 'px;')
-            component.id = elementId
-            component.innerHTML = HTML[dropData['type']]
-            components[elementId] = new Gate(dropData['type'], loc_x, loc_y, component)
-            components[elementId].enableSelect()
-            components[elementId].setN1 = new Connector('in', 'n1', component.children[0].children[0], components[elementId])
-            components[elementId].getN1.getDom.id = 'c' + connectorId
-            connectors['c' + connectorId] = components[elementId].getN1
-            connectorId++
-            components[elementId].getN1.enableSelect()
-            if (dropData["type"] != 'not') {
-                components[elementId].setN2 = new Connector('in', 'n2', component.children[0].children[1], components[elementId])
-                components[elementId].getN2.getDom.id = 'c' + connectorId
-                connectors['c' + connectorId] = components[elementId].getN2
-                connectorId++
-                components[elementId].getN2.enableSelect()
-            } else {
-                components[elementId].setN2 = components[elementId].getN1
-            }
-            components[elementId].setNOut = new Connector('out', 'nOut', component.children[2], components[elementId])
-            components[elementId].getNOut.getDom.id = 'c' + connectorId
-            connectors['c' + connectorId] = components[elementId].getNOut
-            connectorId++
-            components[elementId].getNOut.enableSelect()
-            engine.registerComponent(elementId, components[elementId])
-            enableComponentDrag(component, elementId)
-            sim.appendChild(component)
-            elementId++
-        }
-        else if (cat == 'input') {
-            let loc_x = ((ex - sim.getBoundingClientRect().x) / scale) - dropData['xoff']
-            let loc_y = (((ey - yoff) - (sim.getBoundingClientRect().y - yoff)) / scale) - dropData['yoff']
-            loc_x = Math.round(loc_x / GRID) * GRID; loc_y = Math.round(loc_y / GRID) * GRID;
-            let component = document.createElement('div')
-            component.classList.add(cat)
-            component.setAttribute('style', 'top:' + loc_y + 'px;left:' + loc_x + 'px;')
-            component.id = elementId
-            component.innerHTML = HTML[dropData['type']]
-
-            if (dropData['type'] === 'clock') {
-                components[elementId] = new Clock(loc_x, loc_y, component)
-            } else {
-                components[elementId] = new Input(dropData['type'], loc_x, loc_y, component)
-            }
-            components[elementId].enableSelect()
-            components[elementId].enablePress()
-            components[elementId].setN = new Connector('out', 'nOut', component.children[1], components[elementId])
-            components[elementId].getN.getDom.id = 'c' + connectorId
-            connectors['c' + connectorId] = components[elementId].getN
-            connectorId++
-            components[elementId].getN.enableSelect()
-            engine.registerComponent(elementId, components[elementId])
-            enableComponentDrag(component, elementId)
-            sim.appendChild(component)
-            elementId++
-        }
-        else if (cat == 'light') {
-            let loc_x = ((ex - sim.getBoundingClientRect().x) / scale) - dropData['xoff']
-            let loc_y = (((ey - yoff) - (sim.getBoundingClientRect().y - yoff)) / scale) - dropData['yoff']
-            loc_x = Math.round(loc_x / GRID) * GRID; loc_y = Math.round(loc_y / GRID) * GRID;
-            let component = document.createElement('div')
-            component.classList.add(cat)
-            component.setAttribute('style', 'top:' + loc_y + 'px;left:' + loc_x + 'px;')
-            component.id = elementId
-            component.innerHTML = HTML[dropData['type']]
-            components[elementId] = new Light(loc_x, loc_y, component)
-            components[elementId].enableSelect()
-            components[elementId].setN = new Connector('in', 'n1', component.children[1], components[elementId])
-            components[elementId].getN.getDom.id = 'c' + connectorId
-            connectors['c' + connectorId] = components[elementId].getN
-            connectorId++
-            components[elementId].getN.enableSelect()
-            engine.registerComponent(elementId, components[elementId])
-            enableComponentDrag(component, elementId)
-            sim.appendChild(component)
-            elementId++
-        }
-        else if (dropData['type'] == 'label') {
-            let loc_x = ((ex - sim.getBoundingClientRect().x) / scale) - dropData['xoff']
-            let loc_y = (((ey - yoff) - (sim.getBoundingClientRect().y - yoff)) / scale) - dropData['yoff']
-            loc_x = Math.round(loc_x / GRID) * GRID; loc_y = Math.round(loc_y / GRID) * GRID;
-            let component = document.createElement('div')
-            component.classList.add(categories[dropData['type']])
-            component.setAttribute('style', 'top:' + loc_y + 'px;left:' + loc_x + 'px;')
-            component.id = elementId
-            component.innerHTML = HTML[dropData['type']]
-            components[elementId] = new Label(loc_x, loc_y, component)
-            components[elementId].enableSelect()
-            components[elementId].enableEdit()
-            enableComponentDrag(component, elementId)
-            sim.appendChild(component)
-            elementId++
-        }
-        else if (dropData['type'] == 'seg7') {
-            let loc_x = ((ex - sim.getBoundingClientRect().x) / scale) - dropData['xoff'] - 20
-            let loc_y = (((ey - yoff) - (sim.getBoundingClientRect().y - yoff)) / scale) - dropData['yoff']
-            loc_x = Math.round(loc_x / GRID) * GRID; loc_y = Math.round(loc_y / GRID) * GRID;
-            let component = document.createElement('div')
-            component.classList.add(dropData['type'])
-            component.setAttribute('style', 'top:' + loc_y + 'px;left:' + loc_x + 'px;')
-            component.id = elementId
-            component.innerHTML = HTML[dropData['type']]
-            components[elementId] = new Seg7(loc_x, loc_y, component)
-            components[elementId].enableSelect()
-            let pins = ['n1', 'n2', 'n3', 'n4']
-            for (let i = 0; i < 4; i++) {
-                components[elementId][pins[i]] = new Connector('in', pins[i], component.children[0].children[i], components[elementId])
-                components[elementId][pins[i]].dom.id = 'c' + connectorId
-                connectors['c' + connectorId] = components[elementId][pins[i]]
-                connectors['c' + connectorId].enableSelect()
-                connectorId++
-            }
-            engine.registerComponent(elementId, components[elementId])
-            enableComponentDrag(component, elementId)
-            sim.appendChild(component)
-            elementId++
-        }
-        else if (cat == 'flipflop') {
-            let loc_x = ((ex - sim.getBoundingClientRect().x) / scale) - dropData['xoff'] - 20
-            let loc_y = (((ey - yoff) - (sim.getBoundingClientRect().y - yoff)) / scale) - dropData['yoff']
-            loc_x = Math.round(loc_x / GRID) * GRID; loc_y = Math.round(loc_y / GRID) * GRID;
-            let component = document.createElement('div')
-            component.classList.add(cat)
-            component.setAttribute('style', 'top:' + loc_y + 'px;left:' + loc_x + 'px;')
-            component.id = elementId
-            component.innerHTML = HTML[dropData['type']]
-            components[elementId] = new FlipFlop(dropData['type'], loc_x, loc_y, component)
-            components[elementId].enableSelect()
-
-            if (dropData['type'] === 'jkff') {
-                // J input
-                components[elementId].n1 = new Connector('in', 'n1', component.children[0].children[0], components[elementId])
-                components[elementId].n1.dom.id = 'c' + connectorId
-                connectors['c' + connectorId] = components[elementId].n1
-                connectors['c' + connectorId].enableSelect()
-                connectorId++
-                // Clock input
-                components[elementId].nC = new Connector('in', 'n3', component.children[0].children[1], components[elementId])
-                components[elementId].nC.dom.id = 'c' + connectorId
-                connectors['c' + connectorId] = components[elementId].nC
-                connectors['c' + connectorId].enableSelect()
-                connectorId++
-                // K input
-                components[elementId].n2 = new Connector('in', 'n2', component.children[0].children[2], components[elementId])
-                components[elementId].n2.dom.id = 'c' + connectorId
-                connectors['c' + connectorId] = components[elementId].n2
-                connectors['c' + connectorId].enableSelect()
-                connectorId++
-            } else if (dropData['type'] === 'srff') {
-                // S input
-                components[elementId].n1 = new Connector('in', 'n1', component.children[0].children[0], components[elementId])
-                components[elementId].n1.dom.id = 'c' + connectorId
-                connectors['c' + connectorId] = components[elementId].n1
-                connectors['c' + connectorId].enableSelect()
-                connectorId++
-                // Clock input
-                components[elementId].nC = new Connector('in', 'n3', component.children[0].children[1], components[elementId])
-                components[elementId].nC.dom.id = 'c' + connectorId
-                connectors['c' + connectorId] = components[elementId].nC
-                connectors['c' + connectorId].enableSelect()
-                connectorId++
-                // R input
-                components[elementId].n2 = new Connector('in', 'n2', component.children[0].children[2], components[elementId])
-                components[elementId].n2.dom.id = 'c' + connectorId
-                connectors['c' + connectorId] = components[elementId].n2
-                connectors['c' + connectorId].enableSelect()
-                connectorId++
-            } else if (dropData['type'] === 'tff') {
-                // T input
-                components[elementId].n1 = new Connector('in', 'n1', component.children[0].children[0], components[elementId])
-                components[elementId].n1.dom.id = 'c' + connectorId
-                connectors['c' + connectorId] = components[elementId].n1
-                connectors['c' + connectorId].enableSelect()
-                connectorId++
-                components[elementId].n2 = components[elementId].n1
-                // Clock input
-                components[elementId].nC = new Connector('in', 'n3', component.children[0].children[1], components[elementId])
-                components[elementId].nC.dom.id = 'c' + connectorId
-                connectors['c' + connectorId] = components[elementId].nC
-                connectors['c' + connectorId].enableSelect()
-                connectorId++
-            } else if (dropData['type'] === 'dff') {
-                // D input
-                components[elementId].n1 = new Connector('in', 'n1', component.children[0].children[0], components[elementId])
-                components[elementId].n1.dom.id = 'c' + connectorId
-                connectors['c' + connectorId] = components[elementId].n1
-                connectors['c' + connectorId].enableSelect()
-                connectorId++
-                components[elementId].n2 = components[elementId].n1
-                // Clock input
-                components[elementId].nC = new Connector('in', 'n3', component.children[0].children[1], components[elementId])
-                components[elementId].nC.dom.id = 'c' + connectorId
-                connectors['c' + connectorId] = components[elementId].nC
-                connectors['c' + connectorId].enableSelect()
-                connectorId++
-            }
-            // Q output
-            components[elementId].nQ = new Connector('out', 'nQ', component.children[2].children[0], components[elementId])
-            components[elementId].nQ.dom.id = 'c' + connectorId
-            connectors['c' + connectorId] = components[elementId].nQ
-            connectors['c' + connectorId].enableSelect()
-            connectorId++
-            // Q̄ output
-            components[elementId].nQNot = new Connector('out', 'nQNot', component.children[2].children[1], components[elementId])
-            components[elementId].nQNot.dom.id = 'c' + connectorId
-            connectors['c' + connectorId] = components[elementId].nQNot
-            connectors['c' + connectorId].enableSelect()
-            connectorId++
-
-            engine.registerComponent(elementId, components[elementId])
-            enableComponentDrag(component, elementId)
-            sim.appendChild(component)
-            elementId++
-        }
-        else if (dropData['type'] === 'junc3' || dropData['type'] === 'junc4') {
-            let loc_x = ((ex - sim.getBoundingClientRect().x) / scale) - dropData['xoff']
-            let loc_y = (((ey - yoff) - (sim.getBoundingClientRect().y - yoff)) / scale) - dropData['yoff']
-            loc_x = Math.round(loc_x / GRID) * GRID; loc_y = Math.round(loc_y / GRID) * GRID;
-            let component = document.createElement('div')
-            component.classList.add(categories[dropData['type']])
-            component.setAttribute('style', 'top:' + loc_y + 'px;left:' + loc_x + 'px;')
-            component.id = elementId
-            component.innerHTML = HTML[dropData['type']]
-            components[elementId] = new Junction(dropData['type'], loc_x, loc_y, component)
-            components[elementId].enableSelect()
-            
-            // Input connector (Left)
-            components[elementId].n1 = new Connector('in', 'n1', component.children[1], components[elementId])
-            components[elementId].n1.dom.id = 'c' + connectorId
-            connectors['c' + connectorId] = components[elementId].n1
-            connectors['c' + connectorId].enableSelect()
-            connectorId++
-            
-            // Output connector 1 (Right)
-            components[elementId].n2 = new Connector('in', 'n2', component.children[2], components[elementId])
-            components[elementId].n2.dom.id = 'c' + connectorId
-            connectors['c' + connectorId] = components[elementId].n2
-            connectors['c' + connectorId].enableSelect()
-            connectorId++
-
-            if (dropData['type'] === 'junc3') {
-                // Output connector 2 (Bottom)
-                components[elementId].n3 = new Connector('in', 'n3', component.children[3], components[elementId])
-                components[elementId].n3.dom.id = 'c' + connectorId
-                connectors['c' + connectorId] = components[elementId].n3
-                connectors['c' + connectorId].enableSelect()
-                connectorId++
-            } else if (dropData['type'] === 'junc4') {
-                // Output connector 2 (Top)
-                components[elementId].n3 = new Connector('in', 'n3', component.children[3], components[elementId])
-                components[elementId].n3.dom.id = 'c' + connectorId
-                connectors['c' + connectorId] = components[elementId].n3
-                connectors['c' + connectorId].enableSelect()
-                connectorId++
-                // Output connector 3 (Bottom)
-                components[elementId].n4 = new Connector('in', 'n4', component.children[4], components[elementId])
-                components[elementId].n4.dom.id = 'c' + connectorId
-                connectors['c' + connectorId] = components[elementId].n4
-                connectors['c' + connectorId].enableSelect()
-                connectorId++
-            }
-
-            engine.registerComponent(elementId, components[elementId])
-            enableComponentDrag(component, elementId)
-            sim.appendChild(component)
-            elementId++
-        }
-    }
-    pushHistory()
-})
-
-instance.on('transform', () => {
-    let transform = instance.getTransform()
-    scale = transform.scale
-    let pct = Math.round(scale * 100)
-    let zoomEl = document.getElementById('status-zoom')
-    if (zoomEl) zoomEl.textContent = 'Zoom: ' + pct + '%'
-    let sliderEl = document.getElementById('zoom-slider')
-    if (sliderEl && document.activeElement !== sliderEl) {
-        sliderEl.value = scale
+        components = {}
+        connectors = {}
+        wires = {}
+        elementId = 0
+        connectorId = 0
+        wireId = 0
     }
     
-    // Update grid on dropwindow
-    if (gridEnabled) {
-        let dw = document.getElementById('dropwindow')
-        let size = 20 * scale
-        dw.style.backgroundSize = `${size}px ${size}px`
-        dw.style.backgroundPosition = `${transform.x}px ${transform.y}px`
-    }
-})
-
-let sliderEl = document.getElementById('zoom-slider')
-if (sliderEl) {
-    sliderEl.addEventListener('pointerdown', (e) => e.stopPropagation())
-    sliderEl.addEventListener('touchstart', (e) => e.stopPropagation())
-    sliderEl.addEventListener('mousedown', (e) => e.stopPropagation())
-    sliderEl.addEventListener('input', (e) => {
-        let newScale = parseFloat(e.target.value)
-        let rect = dropzone.getBoundingClientRect()
-        instance.zoomAbs(rect.width / 2, rect.height / 2, newScale)
-    })
-}
-
-let statusBarEl = document.getElementById('status-bar')
-if (statusBarEl) {
-    statusBarEl.addEventListener('pointerdown', (e) => e.stopPropagation())
-    statusBarEl.addEventListener('touchstart', (e) => e.stopPropagation())
-    statusBarEl.addEventListener('mousedown', (e) => e.stopPropagation())
-}
-
-let recenterView = () => {
-    instance.moveTo(0, 0)
-}
-
-// ===== SETTINGS =====
-
-function closeCompSettings() {
-    compSettingsTarget = null
-    let overlay = document.getElementById('comp-settings-panel')
-    if (overlay) overlay.style.display = 'none'
-}
-
-let toggleSettings = () => {
-    let overlay = document.getElementById('settings-overlay')
-    overlay.style.display = overlay.style.display === 'none' ? 'flex' : 'none'
-}
-
-// ===== GRID TOGGLE =====
-let gridEnabled = true
-let snapToGrid = true
-
-let toggleSnap = (on) => {
-    snapToGrid = on
-}
-
-let toggleGrid = (on) => {
-    gridEnabled = on
-    let dw = document.getElementById('dropwindow')
-    if (on) {
-        applyGridForTheme()
-    } else {
-        dw.style.backgroundImage = 'none'
-    }
-}
-
-// Store current theme for grid reapplication
-let currentTheme = 'light'
-
-toggleGrid(true)
-
-let applyTheme = (theme) => {
-    currentTheme = theme
-    let dw = document.getElementById('dropwindow')
-    if (theme === 'dark') {
-        dw.style.backgroundColor = '#1a1d27'
-    } else if (theme === 'blueprint') {
-        dw.style.backgroundColor = '#1a3a5c'
-    } else {
-        dw.style.backgroundColor = '#ddd'
-    }
-    if (gridEnabled) applyGridForTheme()
-    else dw.style.backgroundImage = 'none'
-}
-
-function applyGridForTheme() {
-    let dw = document.getElementById('dropwindow')
-    if (currentTheme === 'dark') {
-        dw.style.backgroundImage = 'linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)'
-    } else if (currentTheme === 'blueprint') {
-        dw.style.backgroundImage = 'linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px)'
-    } else {
-        dw.style.backgroundImage = 'linear-gradient(rgba(0,0,0,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.06) 1px, transparent 1px)'
+    let idMap = {}
+    let newCompIds = []
+    
+    for (let cData of data.components) {
+        let newId = append ? ++elementId : parseInt(cData.id)
+        if (!append && newId > elementId) elementId = newId
+        idMap[cData.id] = newId
+        
+        let comp = createComponent(cData.type, cData.x, cData.y, newId)
+        comp.rotation = cData.rotation || 0
+        
+        if (cData.lightColor && comp instanceof Light) {
+            setLedColor(newId, cData.lightColor)
+        }
+        if (cData.displayColor && comp instanceof Seg7) {
+            setSeg7Color(newId, cData.displayColor)
+        }
+        if (cData.text && comp instanceof Label) {
+            comp.text = cData.text
+        }
+        
+        newCompIds.push(newId)
+        
+        if (cData.connectorIds) {
+            let mapConn = (loc, oldId) => {
+                if (oldId && comp[loc]) {
+                    if (!append) {
+                        let oldIdInt = parseInt(oldId)
+                        delete connectors[comp[loc].id]
+                        comp[loc].id = oldIdInt
+                        connectors[oldIdInt] = comp[loc]
+                        if (oldIdInt > connectorId) connectorId = oldIdInt
+                    }
+                }
+            }
+            mapConn('n1', cData.connectorIds.n1)
+            mapConn('n2', cData.connectorIds.n2)
+            mapConn('n3', cData.connectorIds.n3)
+            mapConn('n4', cData.connectorIds.n4)
+            mapConn('nC', cData.connectorIds.nC)
+            mapConn('nQ', cData.connectorIds.nQ)
+            mapConn('nQNot', cData.connectorIds.nQNot)
+            mapConn('nOut', cData.connectorIds.nOut)
+        }
     }
     
-    // Make sure we apply initial transform sync
-    if (typeof instance !== 'undefined') {
-        let transform = instance.getTransform()
-        let size = GRID * transform.scale
-        dw.style.backgroundSize = `${size}px ${size}px`
-        dw.style.backgroundPosition = `${transform.x}px ${transform.y}px`
-    } else {
-        dw.style.backgroundSize = GRID + 'px ' + GRID + 'px'
-    }
-}
-
-// ===== ELEMENT DRAGGING (reposition placed components) =====
-let dragState = { active: false, compId: null, offsetX: 0, offsetY: 0, lastX: 0, lastY: 0 }
-let wireDragState = { active: false, wireId: null, segIndex: -1, isHorizontal: false, startX: 0, startY: 0, originalBends: null }
-let wireDrawState = { active: false, sourceConnId: null, previewSvg: null }
-
-function createWirePreview() {
-    let svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-    svg.setAttribute('style', 'position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:999;')
-    svg.setAttribute('viewBox', '0 0 10000 10000')
-    let line = document.createElementNS('http://www.w3.org/2000/svg', 'line')
-    line.setAttribute('stroke', '#2ecc71')
-    line.setAttribute('stroke-width', '2')
-    line.setAttribute('stroke-dasharray', '6 4')
-    line.setAttribute('opacity', '0.8')
-    svg.appendChild(line)
-    sim.appendChild(svg)
-    return svg
-}
-
-function updateWirePreview(svg, x1, y1, x2, y2) {
-    let line = svg.querySelector('line')
-    if (line) {
-        line.setAttribute('x1', x1)
-        line.setAttribute('y1', y1)
-        line.setAttribute('x2', x2)
-        line.setAttribute('y2', y2)
-    }
-}
-
-function removeWirePreview() {
-    if (wireDrawState.previewSvg && wireDrawState.previewSvg.parentElement) {
-        wireDrawState.previewSvg.remove()
-    }
-    wireDrawState.previewSvg = null
-    wireDrawState.active = false
-    wireDrawState.sourceConnId = null
-}
-
-// Create a wire connection between source and end connectors (shared logic)
-function createWireConnection(s, e) {
-    if (s === e) return false
-    wires['w' + wireId] = new Wire('w' + wireId, s, e, e.parent)
-    wires['w' + wireId].render(scale)
-    sim.appendChild(wires['w' + wireId].dom)
-    engine.registerWire('w' + wireId, wires['w' + wireId])
-    wireId += 1
-    return true
-}
-
-function enableComponentDrag(dom, compId) {
-    let body = dom.querySelector('.body') || dom
-    body.addEventListener('pointerdown', (e) => {
-        if (navMode !== 1) return
-        if (e.target.classList.contains('connector')) return
-        e.stopPropagation()
-        dragState.active = true
-        dragState.compId = compId
-        let rect = dom.getBoundingClientRect()
-        dragState.offsetX = e.clientX - rect.left
-        dragState.offsetY = e.clientY - rect.top
-        dragState.lastX = e.clientX
-        dragState.lastY = e.clientY
-        dom.style.zIndex = '500'
-    })
-}
-
-document.addEventListener('pointerdown', (e) => {
-    if (navMode !== 1) return
-    // Start wire drawing from connector via drag
-    if (e.target.classList && e.target.classList.contains('connector')) {
-        let connId = e.target.id
-        if (connId && connectors[connId]) {
-            e.stopPropagation()
-            wireDrawState.active = true
-            wireDrawState.sourceConnId = connId
-            wireDrawState.previewSvg = createWirePreview()
-            let simRect = sim.getBoundingClientRect()
-            wireDrawState.simRect = simRect
-            let cRect = e.target.getBoundingClientRect()
-            let cx = (cRect.left + cRect.width/2 - simRect.left) / scale
-            let cy = (cRect.top + cRect.height/2 - simRect.top) / scale
-            wireDrawState.startX = cx
-            wireDrawState.startY = cy
-            wireDrawState.pointerStartX = e.clientX
-            wireDrawState.pointerStartY = e.clientY
-            return
-        }
-    }
-    if (e.target.classList && e.target.classList.contains('wire-hit')) {
-        e.stopPropagation()
-        let wireId = e.target.dataset.wireId
-        let wire = wires[wireId]
-        if (!wire) return
-
-        let rect = sim.getBoundingClientRect()
-        let mx = (e.clientX - rect.left) / scale
-        let my = (e.clientY - rect.top) / scale
+    for (let wData of data.wires) {
+        if (!wData.src || !wData.dst) continue
         
-        let pts = wire.getPoints(scale)
-        if (!wire.bends || wire.bends.length === 0) {
-            // Reconstruct bends from default route
-            wire.bends = pts.slice(1, pts.length - 1)
+        let n1, n2;
+        if (!append) {
+            n1 = connectors[wData.src]
+            n2 = connectors[wData.dst]
         }
         
-        // Find closest segment
-        let minDist = Infinity
-        let segIndex = -1
-        let isHoriz = false
-        
-        for (let i = 0; i < pts.length - 1; i++) {
-            let A = pts[i], B = pts[i+1]
-            let dist = Infinity
-            let horiz = Math.abs(A.y - B.y) < Math.abs(A.x - B.x)
-            if (horiz) {
-                if (mx >= Math.min(A.x, B.x) - 15 && mx <= Math.max(A.x, B.x) + 15) {
-                    dist = Math.abs(my - A.y)
-                }
-            } else {
-                if (my >= Math.min(A.y, B.y) - 15 && my <= Math.max(A.y, B.y) + 15) {
-                    dist = Math.abs(mx - A.x)
-                }
-            }
-            if (dist < minDist) {
-                minDist = dist
-                segIndex = i
-                isHoriz = horiz
-            }
-        }
-        
-        if (segIndex !== -1) {
-            wireDragState = {
-                active: true,
-                wireId: wireId,
-                segIndex: segIndex,
-                isHorizontal: isHoriz,
-                startX: mx,
-                startY: my,
-                simRect: rect,
-                originalBends: JSON.parse(JSON.stringify(wire.bends)),
-                isHold: true,
-                holdTimeout: setTimeout(() => {
-                    if (wireDragState.active && wireDragState.isHold && wireDragState.wireId === wireId) {
-                        wire.bends = null;
-                        if (wire.dom && wire.dom.parentElement) {
-                            wire.updatePath(scale);
-                        } else {
-                            wire.render(scale);
-                            sim.appendChild(wire.dom);
-                        }
-                        wireDragState.active = false;
-                        wireDragState.wireId = null;
-                    }
-                }, 500)
-            }
-        }
-    }
-})
-
-document.addEventListener('pointermove', (e) => {
-    // Wire drawing preview
-    if (wireDrawState.active && navMode === 1 && wireDrawState.previewSvg) {
-        let simRect = wireDrawState.simRect || sim.getBoundingClientRect()
-        let mx = (e.clientX - simRect.left) / scale
-        let my = (e.clientY - simRect.top) / scale
-        updateWirePreview(wireDrawState.previewSvg, wireDrawState.startX, wireDrawState.startY, mx, my)
-    }
-
-    // Wire dragging
-    if (wireDragState.active && navMode === 1) {
-        let wire = wires[wireDragState.wireId]
-        if (!wire) return
-        
-        let rect = wireDragState.simRect || sim.getBoundingClientRect()
-        let mx = (e.clientX - rect.left) / scale
-        let my = (e.clientY - rect.top) / scale
-        
-        mx = Math.round(mx / GRID) * GRID
-        my = Math.round(my / GRID) * GRID
-        
-        let origBends = wireDragState.originalBends
-        let newBends = JSON.parse(JSON.stringify(origBends))
-        let i = wireDragState.segIndex
-
-        if (wireDragState.isHold) {
-            if (Math.abs(mx - wireDragState.startX) > 5 || Math.abs(my - wireDragState.startY) > 5) {
-                wireDragState.isHold = false;
-                clearTimeout(wireDragState.holdTimeout);
-            } else {
-                return; // Wait until moved enough
-            }
-        }
-        
-        let p1 = wire._getConnectorPos(wire.n1, scale)
-        let p2 = wire._getConnectorPos(wire.n2, scale)
-        let ptsCount = origBends.length + 2
-        
-        if (wireDragState.isHorizontal) {
-            let newY = my
-
-            if (i === 0) {
-                newBends.unshift({x: p1.x, y: newY})
-                if (newBends.length > 1) newBends[1].y = newY
-                if (i + 1 === ptsCount - 1) newBends.push({x: p2.x, y: newY})
-            } else if (i + 1 === ptsCount - 1) {
-                newBends[i - 1].y = newY
-                newBends.push({x: p2.x, y: newY})
-            } else {
-                newBends[i - 1].y = newY
-                newBends[i].y = newY
-            }
-        } else {
-            let newX = mx
-
-            if (i === 0) {
-                newBends.unshift({x: newX, y: p1.y})
-                if (newBends.length > 1) newBends[1].x = newX
-                if (i + 1 === ptsCount - 1) newBends.push({x: newX, y: p2.y})
-            } else if (i + 1 === ptsCount - 1) {
-                newBends[i - 1].x = newX
-                newBends.push({x: newX, y: p2.y})
-            } else {
-                newBends[i - 1].x = newX
-                newBends[i].x = newX
-            }
-        }
-        
-        wire.bends = newBends
-        wire.updatePath(scale)
-
-        // Move connected junctions when the segment touching them is dragged
-        let srcComp = components[wire.n1.parent.dom.id]
-        let dstComp = components[wire.n2.parent.dom.id]
-        let updatedPts = wire.getPoints(scale)
-
-    }
-
-    // Element dragging (with group support)
-    if (dragState.active && navMode === 1) {
-        let dx = (e.clientX - dragState.lastX) / scale
-        let dy = (e.clientY - dragState.lastY) / scale
-        dragState.lastX = e.clientX
-        dragState.lastY = e.clientY
-
-        let draggedComp = components[dragState.compId]
-        if (!draggedComp) return
-
-        // Determine which components to move
-        let toMove = []
-        if (draggedComp.selected) {
-            // Move all selected components
-            for (let id of Object.keys(components)) {
-                if (components[id].selected) toMove.push(id)
-            }
-        } else {
-            toMove.push(dragState.compId)
-        }
-
-        for (let id of toMove) {
-            let comp = components[id]
-            let dom = comp.getDom || comp.dom
-            comp.x = (comp.x || 0) + dx
-            comp.y = (comp.y || 0) + dy
-            let drawX = Math.round(comp.x / GRID) * GRID
-            let drawY = Math.round(comp.y / GRID) * GRID
-            dom.style.left = drawX + 'px'
-            dom.style.top = drawY + 'px'
-        }
-
-        let toMoveSet = new Set(toMove.map(id => String(id)))
-        let wiresToUpdate = new Set()
-        
-        for (let wid of Object.keys(wires)) {
-            let wire = wires[wid]
-            if (!wire || !wire.n1 || !wire.n2) continue
-            let srcId = String(wire.n1.parent.dom.id)
-            let dstId = String(wire.n2.parent.dom.id)
+        if (n1 && n2) {
+            let newWId = append ? ++wireId : parseInt(wData.id)
+            if (!append && newWId > wireId) wireId = newWId
             
-            let moveSrc = toMoveSet.has(srcId)
-            let moveDst = toMoveSet.has(dstId)
+            let wire = new Wire(newWId, n1, n2)
+            wire.bends = wData.bends || null
             
-            if (moveSrc || moveDst) {
-                wiresToUpdate.add(wid)
-                // Translate bends only if BOTH endpoints are moving
-                if (moveSrc && moveDst && wire.bends && wire.bends.length > 0) {
-                    for (let bend of wire.bends) {
-                        bend.x += dx
-                        bend.y += dy
-                    }
-                }
-            }
-        }
-
-        for (let wid of wiresToUpdate) {
-            let wire = wires[wid]
-            if (wireDragState.active && wid === wireDragState.wireId) continue
-            if (wire.dom && wire.dom.parentElement) {
-                wire.updatePath(scale)
-            } else {
-                wire.render(scale)
-                sim.appendChild(wire.dom)
-            }
+            wires[newWId] = wire
+            engine.registerWire(newWId, wire)
+            n1.parent.addOut = wire
+            n2.parent.setIn = wire
         }
     }
-
-    // Multi-select box
-    if (selectState.active && navMode === 1) {
-        let box = document.getElementById('selection-box')
-        let x = Math.min(selectState.startX, e.clientX)
-        let y = Math.min(selectState.startY, e.clientY)
-        let w = Math.abs(e.clientX - selectState.startX)
-        let h = Math.abs(e.clientY - selectState.startY)
-        box.style.display = 'block'
-        box.style.left = x + 'px'
-        box.style.top = y + 'px'
-        box.style.width = w + 'px'
-        box.style.height = h + 'px'
-    }
-})
-
-document.addEventListener('pointerup', (e) => {
-    // End wire drawing (drag-to-connect)
-    if (wireDrawState.active) {
-        let sourceConn = connectors[wireDrawState.sourceConnId]
-        removeWirePreview()
-        
-        let dx = e.clientX - wireDrawState.pointerStartX
-        let dy = e.clientY - wireDrawState.pointerStartY
-        let dist = Math.hypot(dx, dy)
-        let wasDrag = dist > 5 // if mouse moved more than 5px, it's a drag
-        let didConnect = false
-        
-        if (sourceConn) {
-            if (e.target.classList && e.target.classList.contains('connector')) {
-                let targetConn = connectors[e.target.id]
-                if (targetConn) {
-                    let s = sourceConn, en = targetConn;
-                    if (s && en && s !== en && createWireConnection(s, en)) {
-                        s.deselect(); en.deselect()
-                        pushHistory()
-                        didConnect = true
-                    }
-                }
-            }
-        }
-        
-        justDragged = wasDrag || didConnect // prevent click handler if dragged or connected
-        wireDrawState.active = false
-    }
-
-    // End wire dragging
-    if (wireDragState.active) {
-        if (wireDragState.isHold) {
-            clearTimeout(wireDragState.holdTimeout)
-        }
-        let wire = wires[wireDragState.wireId]
-        if (wire && wire.bends && wire.bends.length > 0) {
-            let p1 = wire._getConnectorPos(wire.n1, scale)
-            let p2 = wire._getConnectorPos(wire.n2, scale)
-            let fullPts = [p1, ...wire.bends, p2]
-            let cleanedPts = [fullPts[0]]
-            for (let j = 1; j < fullPts.length - 1; j++) {
-                let prev = cleanedPts[cleanedPts.length - 1]
-                let curr = fullPts[j]
-                let next = fullPts[j + 1]
-                let isCollinear = (Math.abs(prev.x - curr.x) < 1 && Math.abs(curr.x - next.x) < 1) || 
-                                  (Math.abs(prev.y - curr.y) < 1 && Math.abs(curr.y - next.y) < 1)
-                let isDuplicate = (Math.abs(prev.x - curr.x) < 1 && Math.abs(prev.y - curr.y) < 1)
-                if (!isCollinear && !isDuplicate) {
-                    cleanedPts.push(curr)
-                }
-            }
-            let lastPrev = cleanedPts[cleanedPts.length - 1]
-            let lastCurr = fullPts[fullPts.length - 1]
-            if (!(Math.abs(lastPrev.x - lastCurr.x) < 1 && Math.abs(lastPrev.y - lastCurr.y) < 1)) {
-                cleanedPts.push(lastCurr)
-            }
-            wire.bends = cleanedPts.length > 2 ? cleanedPts.slice(1, cleanedPts.length - 1) : null
-            if (wire.dom && wire.dom.parentElement) {
-                wire.updatePath(scale)
-            }
-        }
-        wireDragState.active = false
-        wireDragState.wireId = null
-        pushHistory()
-    }
-
-    // End element dragging
-    if (dragState.active) {
-        let comp = components[dragState.compId]
-        if (comp) {
-            let dom = comp.getDom || comp.dom
-            dom.style.zIndex = ''
-        }
-        let draggedComp = components[dragState.compId]
-        if (draggedComp) {
-            let toMove = draggedComp.selected ? Object.keys(components).filter(id => components[id].selected) : [dragState.compId]
-            for (let id of toMove) {
-                let c = components[id]
-                if (c.x !== undefined && c.y !== undefined) {
-                    c.x = Math.round(c.x / GRID) * GRID
-                    c.y = Math.round(c.y / GRID) * GRID
-                }
-            }
-            
-            // Snap the translated bends for wires where both endpoints were moved
-            let toMoveSet = new Set(toMove.map(id => String(id)))
-            for (let wid of Object.keys(wires)) {
-                let wire = wires[wid]
-                if (!wire || !wire.bends || wire.bends.length === 0) continue
-                if (!wire.n1 || !wire.n2) continue
-                let srcId = String(wire.n1.parent.dom.id)
-                let dstId = String(wire.n2.parent.dom.id)
-                if (toMoveSet.has(srcId) && toMoveSet.has(dstId)) {
-                    for (let bend of wire.bends) {
-                        bend.x = Math.round(bend.x / GRID) * GRID
-                        bend.y = Math.round(bend.y / GRID) * GRID
-                    }
-                    if (wire.dom && wire.dom.parentElement) {
-                        wire.updatePath(scale)
-                    }
-                }
-            }
-        }
-        justDragged = true
-        dragState.active = false
-        dragState.compId = null
-        pushHistory()
-    }
-
-    // End multi-select
-    if (selectState.active) {
-        let box = document.getElementById('selection-box')
-        let boxRect = box.getBoundingClientRect()
-        // Only apply selection if drag was meaningful (>5px in any direction)
-        let dragW = Math.abs(e.clientX - selectState.startX)
-        let dragH = Math.abs(e.clientY - selectState.startY)
-        let didSelect = false
-        if (dragW > 5 || dragH > 5) {
-            for (let id of Object.keys(components)) {
-                let comp = components[id]
-                let dom = comp.getDom || comp.dom
-                let rect = dom.getBoundingClientRect()
-                if (rectsOverlap(boxRect, rect)) {
-                    comp.select()
-                    didSelect = true
-                }
-            }
-        }
-        box.style.display = 'none'
-        selectState.active = false
-        if (didSelect) justBoxSelected = true
-    }
-    updateSettingsPanel()
-})
-
-document.addEventListener('dblclick', (e) => {
-    if (navMode === 1 && e.target.classList && e.target.classList.contains('wire-hit')) {
-        // Cancel any pending drag or hold state
-        if (wireDragState.active) {
-            if (wireDragState.isHold) clearTimeout(wireDragState.holdTimeout)
-            wireDragState.active = false
-            wireDragState.wireId = null
-        }
-
-        let wireId = e.target.dataset.wireId
-        let wire = wires[wireId]
-        if (wire) {
-            let rect = sim.getBoundingClientRect()
-            let mx = (e.clientX - rect.left) / scale
-            let my = (e.clientY - rect.top) / scale
-            
-            let pts = wire.getPoints(scale)
-            if (!wire.bends || wire.bends.length === 0) {
-                wire.bends = pts.slice(1, pts.length - 1)
-            }
-            
-            // Find closest segment
-            let minDist = Infinity
-            let segIndex = -1
-            let isHoriz = false
-            
-            for (let i = 0; i < pts.length - 1; i++) {
-                let A = pts[i], B = pts[i+1]
-                let dist = Infinity
-                let horiz = Math.abs(A.y - B.y) < Math.abs(A.x - B.x)
-                if (horiz) {
-                    if (mx >= Math.min(A.x, B.x) - 15 && mx <= Math.max(A.x, B.x) + 15) {
-                        dist = Math.abs(my - A.y)
-                    }
-                } else {
-                    if (my >= Math.min(A.y, B.y) - 15 && my <= Math.max(A.y, B.y) + 15) {
-                        dist = Math.abs(mx - A.x)
-                    }
-                }
-                if (dist < minDist) {
-                    minDist = dist
-                    segIndex = i
-                    isHoriz = horiz
-                }
-            }
-            
-            if (segIndex !== -1) {
-                let newBends = []
-                let p1 = wire._getConnectorPos(wire.n1, scale)
-                let p2 = wire._getConnectorPos(wire.n2, scale)
-                if (isHoriz) {
-                    let segmentY = pts[segIndex].y
-                    newBends = [
-                        {x: p1.x, y: segmentY},
-                        {x: p2.x, y: segmentY}
-                    ]
-                } else {
-                    let segmentX = pts[segIndex].x
-                    newBends = [
-                        {x: segmentX, y: p1.y},
-                        {x: segmentX, y: p2.y}
-                    ]
-                }
-                wire.bends = newBends
-                if (wire.dom && wire.dom.parentElement) {
-                    wire.updatePath(scale)
-                } else {
-                    wire.render(scale)
-                    sim.appendChild(wire.dom)
-                }
-            }
-        }
-        return
-    }
-    updateSettingsPanel()
-})
-
-function rerenderWiresForComponent(compId) {
-    let comp = components[compId]
-    if (!comp) return
-    for (let wid of Object.keys(wires)) {
-        let wire = wires[wid]
-        if (!wire || !wire.n1 || !wire.n2) continue
-        let srcId = wire.n1.parent.dom.id
-        let dstId = wire.n2.parent.dom.id
-        if (srcId == compId || dstId == compId) {
-            // Skip the wire currently being dragged to avoid fighting with the drag handler
-            if (wireDragState.active && wid === wireDragState.wireId) continue
-            if (wire.dom && wire.dom.parentElement) {
-                wire.updatePath(scale)
-            } else {
-                wire.render(scale)
-                sim.appendChild(wire.dom)
-            }
-        }
-    }
+    
+    syncGlobals()
 }
 
-// ===== MULTI-SELECT =====
-let selectState = { active: false, startX: 0, startY: 0 }
-
-dropzone.addEventListener('pointerdown', (e) => {
-    if (navMode !== 1) return
-    // Only start selection if clicking on empty canvas (not on a component or connector)
-    if (e.target === dropzone || e.target === sim || e.target.id === 'simulation-window' || e.target.id === 'dropwindow') {
-        selectState.active = true
-        selectState.startX = e.clientX
-        selectState.startY = e.clientY
-    }
-})
-
-function rectsOverlap(a, b) {
-    return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom)
-}
 
 // ===== SIGNAL COLOR SETTINGS =====
 const PRESET_COLORS = ['#ff4b4b', '#2ecc71', '#3498db', '#f1c40f', '#e67e22', '#9b59b6', '#ffffff', '#636e7a', '#000000'];
@@ -1999,6 +847,7 @@ function restoreDefaultColors() {
     applySignalColor('short', '#00ffff')
 }
 
+
 // ===== COMPONENT SETTINGS MODAL =====
 let compSettingsTarget = null  // id of the component being configured
 
@@ -2025,7 +874,7 @@ function openCompSettings(compId) {
     if (t === 'label') {
         html += '<div class="modal-field">'
         html += '<label class="modal-label">Text Content</label>'
-        html += '<input type="text" class="modal-input" style="width:100%" value="' + (comp.dom.innerText || '') + '" oninput="updateLabelText(\'' + compId + '\', this.value)">'
+        html += '<input type="text" class="modal-input" style="width:100%" value="' + (comp.text || "" || '') + '" oninput="updateLabelText(\'' + compId + '\', this.value)">'
         html += '</div>'
     }
 
@@ -2087,8 +936,8 @@ function openCompSettings(compId) {
 
 function updateLabelText(compId, text) {
     let comp = components[compId]
-    if (comp && comp.dom) {
-        comp.dom.innerText = text
+    if (comp) {
+        comp.text = text
     }
 }
 
@@ -2113,10 +962,6 @@ function moveCompTo(compId, axis, value) {
     let comp = components[compId]
     if (!comp) return
     comp[axis] = value
-    let dom = comp.getDom || comp.dom
-    if (axis === 'x') dom.style.left = value + 'px'
-    else dom.style.top = value + 'px'
-    rerenderWiresForComponent(compId)
 }
 
 function setLedColor(compId, color) {
@@ -2134,8 +979,8 @@ function setSeg7Color(compId, color) {
     if (!comp) return
     comp.displayColor = color
     // Apply custom color to the 7seg display text
-    let display = comp.dom.querySelector('.display')
-    if (display) display.style.color = color
+    ('.display')
+    
     let container = document.getElementById('swatches-seg7')
     if (container) container.innerHTML = generateColorSwatches(color, "setSeg7Color('" + compId + "', '%COLOR%')")
 }
@@ -2149,21 +994,30 @@ function rotateComponent(compId, angle, reset) {
         comp.rotation = ((comp.rotation || 0) + angle) % 360
         if (comp.rotation < 0) comp.rotation += 360
     }
-    let dom = comp.getDom || comp.dom
-    dom.style.transform = comp.rotation ? 'rotate(' + comp.rotation + 'deg)' : ''
-    dom.style.transformOrigin = 'center center'
+    let dom = {}
+    // comp.rotation ? 'rotate(' + comp.rotation + 'deg)' : ''
+    // 'center center'
     // Update the display in the settings modal if open
     let rotDisplay = document.getElementById('comp-rot-display')
     if (rotDisplay) rotDisplay.textContent = comp.rotation + '°'
     // Re-render wires connected to this component
-    rerenderWiresForComponent(compId)
+    // removed rerenderWiresForComponent
     pushHistory()
 }
 
+
 // ===== RIGHT-CLICK / DOUBLE-TAP → COMPONENT SETTINGS =====
-sim.addEventListener('contextmenu', (e) => {
+renderer.canvas.addEventListener('contextmenu', (e) => {
     e.preventDefault()
+    let worldPos = renderer.screenToWorld(e.clientX, e.clientY)
+    let hit = renderer.hitTest(worldPos.x, worldPos.y)
+    if (hit && hit.type === 'component') {
+        Object.values(components).forEach(c => c.deselect())
+        hit.component.select()
+        updateSettingsPanel()
+    }
 })
+
 
 // ===== MOBILE DRAWER TOGGLE =====
 let drawerOpen = false
@@ -2183,101 +1037,67 @@ let toggleDrawer = () => {
     }
 }
 
-    // ===== TOUCH DRAG-DROP ADAPTER =====
-    // On mobile, HTML5 drag-and-drop doesn't work, so we use touch events.
-    // When a user touches a draggable in the panel, we create a ghost element
-    // that follows their finger. On release, we simulate a drop event.
-    ; (function () {
-        let ghost = null
-        let touchType = ''
-        let touchOffX = 0, touchOffY = 0
 
-        function startTouch(e) {
-            if (navMode !== 1) return
-            let el = e.target
-            // Only handle draggables inside the panel
-            if (!el.closest('#side-panel')) return
-            if (!el.classList.contains('draggable') && !el.closest('.draggable')) return
+renderSignalColorPickers();
 
-            e.preventDefault()
-            let draggable = el.classList.contains('draggable') ? el : el.closest('.draggable')
+window.mode = (m) => {
+    navMode = m;
+    let panBtn = document.querySelector('#pan-button');
+    let editBtn = document.querySelector('#edit-button');
+    if (m === 0) {
+        if (panBtn) panBtn.classList.add('active');
+        if (editBtn) editBtn.classList.remove('active');
+        document.body.style.cursor = 'all-scroll';
+    } else {
+        if (panBtn) panBtn.classList.remove('active');
+        if (editBtn) editBtn.classList.add('active');
+        document.body.style.cursor = 'default';
+    }
+};
 
-            // Determine type
-            if (draggable.classList.contains('seg7')) {
-                touchType = 'seg7'
-            } else if (draggable.classList.contains('label')) {
-                touchType = 'label'
-            } else {
-                touchType = draggable.id || draggable.parentElement.id
-            }
+window.trash = () => {
+    let changed = false;
+    Object.values(components).forEach(c => {
+        if (c.selected) { deleteComponent(c.id); changed = true; }
+    });
+    Object.values(wires).forEach(w => {
+        if (w.selected) { deleteWire(w.id); changed = true; }
+    });
+    if (changed) pushHistory();
+};
 
-            let touch = e.touches[0]
-            let rect = draggable.getBoundingClientRect()
-            touchOffX = touch.clientX - rect.left
-            touchOffY = touch.clientY - rect.top
+window.toggleSettings = () => {
+    let panel = document.getElementById('settings-panel');
+    if (panel) {
+        panel.style.display = panel.style.display === 'none' || panel.style.display === '' ? 'block' : 'none';
+    }
+};
 
-            // Create ghost
-            ghost = draggable.cloneNode(true)
-            ghost.style.position = 'fixed'
-            ghost.style.zIndex = '99999'
-            ghost.style.pointerEvents = 'none'
-            ghost.style.opacity = '0.7'
-            ghost.style.left = (touch.clientX - touchOffX) + 'px'
-            ghost.style.top = (touch.clientY - touchOffY) + 'px'
-            document.body.appendChild(ghost)
+window.help = () => {
+    alert("NANDbox Simulator\n\n- Drag components from the left panel.\n- Use Edit mode to wire and move components.\n- Use Pan mode to interact with buttons and switches.\n- Double click a component to open its settings.");
+};
 
-            // Close drawer
-            if (drawerOpen) toggleDrawer()
-        }
+window.openLibrary = () => {
+    let panel = document.getElementById('side-panel');
+    if (panel) panel.classList.add('open');
+};
 
-        function moveTouch(e) {
-            if (!ghost) return
-            e.preventDefault()
-            let touch = e.touches[0]
-            ghost.style.left = (touch.clientX - touchOffX) + 'px'
-            ghost.style.top = (touch.clientY - touchOffY) + 'px'
-        }
+window.closeLibrary = () => {
+    let panel = document.getElementById('side-panel');
+    if (panel) panel.classList.remove('open');
+};
 
-        function endTouch(e) {
-            if (!ghost) return
-            ghost.remove()
-            ghost = null
+window.recenterView = () => {
+    renderer.setZoom(1.0, window.innerWidth / 2, window.innerHeight / 2);
+    renderer.panX = 0;
+    renderer.panY = 0;
+};
 
-            let touch = e.changedTouches[0]
-            // Simulate a drop at this position
-            let fakeEvent = {
-                preventDefault: () => { },
-                x: touch.clientX,
-                y: touch.clientY,
-                clientX: touch.clientX,
-                clientY: touch.clientY,
-                dataTransfer: {
-                    getData: () => JSON.stringify({
-                        from: 'panel',
-                        type: touchType,
-                        xoff: touchOffX,
-                        yoff: touchOffY
-                    })
-                }
-            }
-            // Reuse the existing drop handler
-            let dropEvent = new Event('drop')
-            // Manually call the drop logic
-            dropzone.dispatchEvent(Object.assign(dropEvent, {
-                preventDefault: () => { },
-                dataTransfer: fakeEvent.dataTransfer,
-                x: touch.clientX,
-                y: touch.clientY,
-                clientX: touch.clientX,
-                clientY: touch.clientY
-            }))
-        }
-
-        // Only attach on touch devices
-        document.addEventListener('touchstart', startTouch, { passive: false })
-        document.addEventListener('touchmove', moveTouch, { passive: false })
-        document.addEventListener('touchend', endTouch)
-    })()
-
-// Initialize UI pickers
-renderSignalColorPickers()
+// Export let-defined functions to window
+window.undo = undo;
+window.redo = redo;
+window.copySelection = copySelection;
+window.cutSelection = cutSelection;
+window.pasteSelection = pasteSelection;
+window.save = save;
+window.load = load;

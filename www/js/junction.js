@@ -62,33 +62,24 @@ class Junction {
     }
 
     updateVisuals() {
-        if (this.n1) {
-            this.n1.updateVisual()
-        }
-        if (this.n2) this.n2.updateVisual()
-        if (this.n3) this.n3.updateVisual()
-        if (this.n4) this.n4.updateVisual()
+        // No-op
     }
 
     // ----- INTERACTION -----
     select = () => {
-        this.dom.classList.add('selected')
         this.selected = true
     }
     deselect = () => {
-        this.dom.classList.remove('selected')
         this.selected = false
     }
     delete = () => {
-        if (this.dom && this.dom.parentElement) {
-            this.dom.parentElement.removeChild(this.dom)
-        }
+        // No-op
     }
     enableSelect = () => {
-        this.dom.addEventListener('dblclick', this.select)
+        // No-op
     }
     disableSelect = () => {
-        this.dom.removeEventListener('dblclick', this.select)
+        // No-op
     }
     enablePress = () => { }
     disablePress = () => { }

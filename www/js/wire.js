@@ -5,9 +5,7 @@ class Wire {
         this.n2 = n2          // Destination connector
         this.drives = drives  // Component driven by this wire
         this.value = null
-        this.dom = null       // SVG element
         this.bends = null     // Array of {x, y} points
-        this.lastRenderedValue = undefined // Cache to prevent redundant DOM updates
     }
 
     //
@@ -37,61 +35,43 @@ class Wire {
      * Get the signal color based on current value
      */
     _getColor() {
-        if (this.value === 'short') return 'var(--signal-short)'
-        if (this.value === null) return 'var(--signal-float)'
-        if (this.value) return 'var(--signal-high)'
-        return 'var(--signal-low)'
+        if (this.value === 'short') return '#e38520' // var(--signal-short)
+        if (this.value === null) return '#7a859c'    // var(--signal-float)
+        if (this.value) return '#e35050'             // var(--signal-high)
+        return '#494f5c'                             // var(--signal-low)
     }
 
     /**
      * Update wire visual color based on signal value
      */
     updateVisual = () => {
-        if (!this.dom) return
-        if (this.value === this.lastRenderedValue) return
-        this.lastRenderedValue = this.value
-
-        // The visual path is the one with class 'wire-path'
-        let path = this.dom.querySelector('.wire-path')
-        // Fallback for older saved wires before class was added
-        if (!path) {
-            let paths = this.dom.querySelectorAll('path')
-            path = paths.length > 1 ? paths[1] : paths[0]
-        }
-        if (path) {
-            path.setAttribute('stroke', this._getColor())
-        }
+        // No-op for canvas refactor, rendering loop reads _getColor directly
     }
 
     /**
-     * Get center position of a connector relative to the simulation window.
-     * Uses cached local offsets to prevent synchronous layout thrashing.
+     * Get center position of a connector
      */
-    _getConnectorPos = (connector, scale) => {
-        // Fallback to DOM querying if offset not cached (should be rare)
-        if (connector.localX === undefined || connector.localY === undefined) {
-            if (typeof connector.updateLocalOffset === 'function') {
-                connector.updateLocalOffset()
-            } else {
-                let simRect = sim.getBoundingClientRect()
-                let rect = connector.dom.getBoundingClientRect()
-                let x = (rect.left + rect.width / 2 - simRect.left) / scale
-                let y = (rect.top + rect.height / 2 - simRect.top) / scale
-                return {
-                    x: Math.round(x / GRID) * GRID,
-                    y: Math.round(y / GRID) * GRID
-                }
-            }
-        }
-
-        // Use cached offset relative to parent component's unscaled position
+    _getConnectorPos = (connector) => {
         let comp = connector.parent
-        let x = (comp.x || 0) + connector.localX
-        let y = (comp.y || 0) + connector.localY
+        let cx = (comp.x || 0) + (connector.localX || 0)
+        let cy = (comp.y || 0) + (connector.localY || 0)
         
+        if (comp.rotation && typeof getCompDims === 'function') {
+            let dims = getCompDims(comp.type);
+            let originX = (comp.x || 0) + dims.w / 2;
+            let originY = (comp.y || 0) + dims.h / 2;
+            let angle = comp.rotation * Math.PI / 180;
+            let dx = cx - originX;
+            let dy = cy - originY;
+            cx = originX + dx * Math.cos(angle) - dy * Math.sin(angle);
+            cy = originY + dx * Math.sin(angle) + dy * Math.cos(angle);
+        }
+        
+        // GRID is globally available (usually 10)
+        let grid = typeof GRID !== 'undefined' ? GRID : 10;
         return {
-            x: Math.round(x / GRID) * GRID,
-            y: Math.round(y / GRID) * GRID
+            x: Math.round(cx / grid) * grid,
+            y: Math.round(cy / grid) * grid
         }
     }
 
@@ -99,9 +79,9 @@ class Wire {
      * Get the list of points defining the wire's path.
      * Incorporates custom bends if set, otherwise computes standard Manhattan routing.
      */
-    getPoints = (scale) => {
-        let p1 = this._getConnectorPos(this.n1, scale)
-        let p2 = this._getConnectorPos(this.n2, scale)
+    getPoints = () => {
+        let p1 = this._getConnectorPos(this.n1)
+        let p2 = this._getConnectorPos(this.n2)
 
         if (this.bends && this.bends.length > 0) {
             // Work on copies to avoid mutating stored bends
@@ -151,124 +131,23 @@ class Wire {
         return [p1, { x: p2.x, y: p1.y }, p2]
     }
 
-    /**
-     * Update the visual path and bounding box without recreating the DOM elements.
-     * Prevents flickering during drag operations.
-     */
-    updatePath = (scale) => {
-        if (!this.dom) return
-        
-        let pts = this.getPoints(scale)
-        let pathD = `M ${pts[0].x} ${pts[0].y}`
-        let minX = pts[0].x, minY = pts[0].y, maxX = pts[0].x, maxY = pts[0].y
-
-        for (let i = 1; i < pts.length; i++) {
-            pathD += ` L ${pts[i].x} ${pts[i].y}`
-            minX = Math.min(minX, pts[i].x)
-            minY = Math.min(minY, pts[i].y)
-            maxX = Math.max(maxX, pts[i].x)
-            maxY = Math.max(maxY, pts[i].y)
-        }
-
-        minX -= 15; minY -= 15; maxX += 15; maxY += 15
-        let w = maxX - minX
-        let h = maxY - minY
-
-        this.dom.setAttribute('style',
-            'position:absolute;' +
-            'left:' + minX + 'px;' +
-            'top:' + minY + 'px;' +
-            'width:' + w + 'px;' +
-            'height:' + h + 'px;' +
-            'overflow:visible;' +
-            'pointer-events:none;' +
-            'z-index:-1;')
-        this.dom.setAttribute('viewBox', minX + ' ' + minY + ' ' + w + ' ' + h)
-
-        let paths = this.dom.querySelectorAll('path')
-        if (paths.length >= 2) {
-            paths[0].setAttribute('d', pathD)
-            paths[1].setAttribute('d', pathD)
-        } else if (paths.length === 1) {
-            paths[0].setAttribute('d', pathD)
-        }
+    updatePath = () => {
+        // No-op. Rendering reads getPoints directly.
     }
 
-    /**
-     * Render the wire as an SVG element with a right-angle path
-     */
-    render = (scale) => {
-        let pts = this.getPoints(scale)
-        let color = this._getColor()
+    render = () => {
+        // No-op. Handled by CanvasRenderer.
+    }
 
-        let pathD = `M ${pts[0].x} ${pts[0].y}`
-        let minX = pts[0].x, minY = pts[0].y, maxX = pts[0].x, maxY = pts[0].y
+    select = () => {
+        this.selected = true
+    }
 
-        for (let i = 1; i < pts.length; i++) {
-            pathD += ` L ${pts[i].x} ${pts[i].y}`
-            minX = Math.min(minX, pts[i].x)
-            minY = Math.min(minY, pts[i].y)
-            maxX = Math.max(maxX, pts[i].x)
-            maxY = Math.max(maxY, pts[i].y)
-        }
-
-        // Calculate SVG viewBox bounds with extra padding for hit area
-        minX -= 15; minY -= 15; maxX += 15; maxY += 15
-        let w = maxX - minX
-        let h = maxY - minY
-
-        let svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-        svg.setAttribute('class', 'wire')
-        svg.setAttribute('style',
-            'position:absolute;' +
-            'left:' + minX + 'px;' +
-            'top:' + minY + 'px;' +
-            'width:' + w + 'px;' +
-            'height:' + h + 'px;' +
-            'overflow:visible;' +
-            'pointer-events:none;' +
-            'z-index:-1;')
-        svg.setAttribute('viewBox', minX + ' ' + minY + ' ' + w + ' ' + h)
-
-        let hitPath = document.createElementNS('http://www.w3.org/2000/svg', 'path')
-        hitPath.setAttribute('d', pathD)
-        hitPath.setAttribute('stroke', 'rgba(255, 255, 255, 0)') // Use rgba with 0 alpha to prevent color bleed
-        hitPath.setAttribute('stroke-width', '15')
-        hitPath.setAttribute('fill', 'none')
-        hitPath.style.pointerEvents = 'stroke'
-        hitPath.style.cursor = 'pointer'
-        hitPath.classList.add('wire-hit')
-        hitPath.dataset.wireId = this.id
-        hitPath.addEventListener('contextmenu', (e) => {
-            e.preventDefault()
-            e.stopPropagation()
-            // Delete wire on right click
-            if (typeof removeWire === 'function') {
-                removeWire(this)
-                if (typeof pushHistory === 'function') pushHistory()
-            }
-        })
-
-        let path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
-        path.setAttribute('d', pathD)
-        path.setAttribute('stroke', color)
-        path.setAttribute('stroke-width', '3')
-        path.setAttribute('fill', 'none')
-        path.setAttribute('stroke-linejoin', 'round')
-        path.setAttribute('stroke-linecap', 'round')
-        path.style.transition = 'stroke 0.15s ease'
-        path.style.pointerEvents = 'none'
-        path.classList.add('wire-path')
-
-        svg.appendChild(hitPath)
-        svg.appendChild(path)
-        this.dom = svg
-        this.dom.id = this.id
+    deselect = () => {
+        this.selected = false
     }
 
     delete = () => {
-        if (this.dom && this.dom.parentElement) {
-            this.dom.parentElement.removeChild(this.dom)
-        }
+        // No DOM manipulation needed
     }
 }
